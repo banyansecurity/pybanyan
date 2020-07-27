@@ -1,0 +1,65 @@
+{
+  "DeviceID": "1d7d1919-e031-4030-86aa-1c799cde95da",
+  "SerialNumber": "C02WG12DHTD7",
+  "DeviceFriendlyName": "Bryce’s MacBook Pro",
+  "Emails": [
+    "bryce.ashdown@earnest.com"
+  ],
+  "LastLogin": 1593552085777944800,
+  "LoginCount": 2147483647,
+  "Ownership": "Corporate Dedicated",
+  "Platform": "Darwin",
+  "Model": "MacBook Pro",
+  "Architecture": "amd64",
+  "RegisteredStatus": "TRUE",
+  "MdmData": {
+    "Timestamp": 1593661140919559400,
+    "Source": "BNN",
+    "CompromisedStatus": "FALSE",
+    "CompliantStatus": ""
+  },
+  "TrustData": {
+    "EntityTrustscore": 99,
+    "OverrideTrustscore": 100,
+    "AccessTrustscore": 99,
+    "OverrideActive": "FALSE",
+    "Level": "High",
+    "UpdatedAt": 1593661140952352500,
+    "Factors": [
+      {
+        "Name": "AutoUpdateEnabled",
+        "Value": "true",
+        "Type": "internal",
+        "Source": "banyan",
+        "Description": ""
+      },
+      {
+        "Name": "DiskEncryptionEnabled",
+        "Value": "true",
+        "Type": "internal",
+        "Source": "banyan",
+        "Description": ""
+      },
+      {
+        "Name": "OrgPreferredAppsRunning",
+        "Value": "true",
+        "Type": "internal",
+        "Source": "banyan",
+        "Description": ""
+      },
+      {
+        "Name": "UpToDateOS",
+        "Value": "true",
+        "Type": "internal",
+        "Source": "banyan",
+        "Description": ""
+      }
+    ]
+  },
+  "Roles": [
+    "SecurityTeam"
+  ],
+  "Banned": "FALSE",
+  "OS": "macOS 10.15.4 (19E287)",
+  "AppVersion": ""
+}

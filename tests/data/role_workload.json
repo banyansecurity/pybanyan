@@ -1,0 +1,19 @@
+{
+  "apiVersion": "rbac.banyanops.com/v1",
+  "kind": "BanyanRole",
+  "type": "attribute",
+  "metadata": {
+    "name": "vault-client",
+    "description": "Vault clients",
+    "tags": {
+      "template": "WORKLOAD"
+    }
+  },
+  "spec": {
+    "label_selector": [
+      {
+        "com.banyanops.hosttag.role": "vault-client"
+      }
+    ]
+  }
+}

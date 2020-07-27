@@ -1,0 +1,23 @@
+{
+  "Hostname": "ip-172-31-62-215.ec2.internal",
+  "IPs": [
+    "127.0.0.1",
+    "172.31.62.215",
+    "3.237.10.157"
+  ],
+  "Version": "1.25.1-3_gc48f74c",
+  "Visibility": false,
+  "CIDRs": "[172.31.84.57/20 --dport 3306 172.31.84.57 --dport 3306 127.0.0.1 --dport 443 172.31.62.215 --dport 443 3.237.10.157 --dport 443]",
+  "HostTags": {
+    "com.banyanops.hosttag.hname": "ip-172-31-62-215.ec2.internal",
+    "com.banyanops.hosttag.site_address": "ec2-3-237-10-157.compute-1.amazonaws.com",
+    "com.banyanops.hosttag.site_autoscale": "false",
+    "com.banyanops.hosttag.site_domain_names": "*.transtar.bnndemos.com",
+    "com.banyanops.hosttag.site_name": "transtar-test"
+  },
+  "Uname": "Sysname Linux, Nodename ip-172-31-62-215.ec2.internal, Release 4.14.181-140.257.amzn2.x86_64, Version #1 SMP Wed May 27 02:17:36 UTC 2020, Machine x86_64, Domainname (none)\n",
+  "SiteName": "transtar-test",
+  "ClusterID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81",
+  "LastActivityAt": "2020-07-17T15:18:55Z",
+  "Status": "Reporting"
+}

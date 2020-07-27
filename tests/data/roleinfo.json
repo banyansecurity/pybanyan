@@ -1,0 +1,15 @@
+  {
+    "RoleID": "d31abc8a-5fd7-4955-8a2d-4d94a9d09c60",
+    "RoleName": "SecurityTeam",
+    "RoleSpec": "{\"apiVersion\":\"rbac.banyanops.com/v1\",\"kind\":\"BanyanRole\",\"type\":\"origin\",\"metadata\":{\"name\":\"SecurityTeam\",\"description\":\"Security team\",\"tags\":{\"template\":\"USER\"}},\"spec\":{\"group\":[],\"email\":[\"tobias.wennergren@earnest.com\",\"bryce.ashdown@earnest.com\",\"zoe.foss@earnest.com\"],\"device_ownership\":[],\"known_device_only\":false}}",
+    "CreatedBy": "tobias.wennergren@earnest.com",
+    "CreatedAt": 1590603113065754000,
+    "LastUpdatedBy": "tobias.wennergren@earnest.com",
+    "LastUpdatedAt": 1590603113065754000,
+    "Description": "Security team",
+    "RoleType": "origin",
+    "RoleVersion": 1,
+    "DeletedBy": "",
+    "DeletedAt": 0,
+    "Enabled": "TRUE"
+  }

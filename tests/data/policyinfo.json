@@ -1,0 +1,13 @@
+  {
+    "PolicyID": "0e599ef2-a9a3-45a2-855b-7c30e80f083f",
+    "PolicyName": "nginx-stage-mesh",
+    "PolicySpec": "{\"kind\":\"BanyanPolicy\",\"apiVersion\":\"rbac.banyanops.com/v1\",\"metadata\":{\"name\":\"nginx-stage-mesh\",\"description\":\"AccessTier to Netagent\",\"tags\":{\"template\":\"CUSTOM\"}},\"type\":\"CUSTOM\",\"spec\":{\"access\":[{\"roles\":[\"accesstier\"],\"rules\":{\"l7_access\":[{\"resources\":[\"*\"],\"actions\":[\"*\"]}],\"conditions\":{\"start_time\":\"\",\"end_time\":\"\",\"trust_level\":\"\"}}}],\"exception\":{\"src_addr\":[]},\"options\":{\"disable_tls_client_authentication\":false,\"l7_protocol\":\"\"}}}",
+    "CreatedBy": "kunal@banyansecurity.io",
+    "CreatedAt": 1570135710851395300,
+    "LastUpdatedBy": "kunal@banyansecurity.io",
+    "LastUpdatedAt": 1570135826968345000,
+    "Description": "AccessTier to Netagent",
+    "PolicyVersion": 2,
+    "DeletedBy": "",
+    "DeletedAt": 0
+  }

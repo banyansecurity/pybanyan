@@ -1,0 +1,8 @@
+{
+  "template": "USER_WEB",
+  "user_facing": "true",
+  "protocol": "https",
+  "domain": "*.staging.earnest.com",
+  "port": "443",
+  "service_app_type": "WEB"
+}

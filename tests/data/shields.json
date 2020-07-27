@@ -1,0 +1,125 @@
+{
+  "Configs": [
+    {
+      "OrgID": "b1dfcb51-016e-4346-9dbb-c7ebd8674dd5",
+      "UUID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81",
+      "ShieldName": "us-east-1",
+      "GroupType": "PROD",
+      "ClusterMgrType": "NONE",
+      "ClusterMgrIP": "0.0.0.0",
+      "ShieldVersion": "1.23.1",
+      "AutoUpgrade": "FALSE",
+      "OneTimeKey": "ecfdd694-85ba-40e4-abd5-5580cd89b6cc",
+      "OTKExpiryTime": "2020-07-19T06:30:00Z",
+      "SCEPEnabled": "TRUE",
+      "PublicAddr": "shield.bnndemos.com:1200",
+      "CACert": "-----BEGIN CERTIFICATE-----\nMIIFHTCCAwWgAwIBAgIUeK8KfriGxQt630/j2OqCQ1bSpJYwDQYJKoZIhvcNAQEN\nBQAwFjEUMBIGA1UEAxMLQk5OIFJvb3QgQ0EwHhcNMTcwNjEzMjI1MjAwWhcNMjIw\nNjEyMjI1MjAwWjAWMRQwEgYDVQQDEwtCTk4gUm9vdCBDQTCCAiIwDQYJKoZIhvcN\nAQEBBQADggIPADCCAgoCggIBALlTOIvnyfZxvC4HsT2Gbl0BRd586Vh65VuT0nQ5\nEMNCQkyIJ/a0GSqY9R6dcBgQsiiQ08ckhX3UNNcL5DyOZ6KT3W4VlB9Z3rssZBTM\nSl0J0kygWas+OA/hON9pueWKMxFK7MeFguYplMeUGYmson2bVyWlIJ0GeFk4BnSE\n177G/wnj6I4OXDuOLaiVtjZ+5ZyQlnsHKLlVcCAPOB4qNAmifoYA0imaifWF+G+e\nbVXqFuA5LPior2LxsmjsNnvhtDKtklGSAuzPEwyY9bWbLQFHz8nU12Aouz8W8Au5\n/DUPfmPtBpzKnrAzN0vGtdZVnJap8l56ZrUt5hQZgPEDbAvHGJM9p/pK+FjUOaBE\nxPKR/hHokyCwEr+Qu2pp6+7S83fZPWr5fFwqBOsXGhgliGKN0IfmmyLRBmO4uOFA\nUOIgN3ZL8FJDyHYkouv8bAtOaBGnWyVRSm7DEk7I5EPuH6JnLlNoBTi9SvTe8Ak0\nvhOqHNIOosVlmvwiATmp8RGK+UnAjKVONO13XM2UM30YhSOTtNwpxpdRWoCSNzC1\ngF7fse00/HKoIv2HSFYUC6Va2HnW5birmCzGpBbpWdIvwLIKnF51NMa8R7J+PXkC\nA0MCJK1IQpbDSR15yQ0uYFW7xUVLShAnxR+EFsxhuWwBSnLZJD+4mx7/z/VDLAaZ\nR5b5AgMBAAGjYzBhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0G\nA1UdDgQWBBRuFWH3gRVdzk2CowOunzT7FRDPijAfBgNVHSMEGDAWgBRuFWH3gRVd\nzk2CowOunzT7FRDPijANBgkqhkiG9w0BAQ0FAAOCAgEAUEkvKCGNZnyDJ6XOsY52\nII5I1nNV4xEr2baD7sSIEEcs9xMKUZ/osRCRBDCJ0l2I7hd97W/jSyusa85BAl8S\nuyh0uIQRSuf/9VODxrvqW3zdvmUxlnXSf1TEtKVN/fqow6KEs7UF4KvKTQfUscYP\nXS6FmF7QAXhvVKvA/bdNDRMhYdkbMM6PxNpBz3YWy2xIHA+51e04bPl73s6CjeW/\n2EbIm7u4pfD9N/hQbWWqTqK7JZKfprCn7LuEZZ9WjNA71cw+yQzENf/8zMrCSH74\ntaMeIx0WC5OKNVvudIrKkzM55MFiawk/bEfmECgAUfBa4l4t9cIdzty3ZjYYII06\nBTuxoI04zEmahiI+n6uSfGhQRqaLtZP4r9uUBBBnXxA6SFtJEnyHmD1wQhdTzEjG\nh0HWkQe4nuiQVsvm59n1rekoe3wYpR9YRjiPbqFYjrd8rWOZB9yXVCHpozAPv2MG\nW6KAGZjnc7JhnGcvcDT7aFKjblENDwhQTotFPYqsN/f7eZn371th83TRPVNnl3qz\nPxyxR7BPdkUhMnndmLotHv/JurnnBv/euzoUw3ZvQqB/AupNJL+5m+bU50u/DXnT\nqpVAikXwpYtwbfkx9w2Sj/Tn7TBauwy1p7xaDv7L0GsMPGuXi2gFEcLv+3WFCMML\nemvv4j2C2hnqwChZ1wRL5x0=\n-----END CERTIFICATE-----",
+      "OTKEnabled": "TRUE",
+      "SSHCAPublicKey": ""
+    },
+    {
+      "OrgID": "b1dfcb51-016e-4346-9dbb-c7ebd8674dd5",
+      "UUID": "e40ef36e-3ff0-480f-8d56-4c814a20aa9b",
+      "ShieldName": "shield.bnndemos.com",
+      "GroupType": "PROD",
+      "ClusterMgrType": "DOCKER",
+      "ClusterMgrIP": "0.0.0.0",
+      "ShieldVersion": "1.12.0",
+      "AutoUpgrade": "FALSE",
+      "OneTimeKey": "72752b58-13a1-4cdb-9d59-fec5b9b8030a",
+      "OTKExpiryTime": "2020-07-19T06:30:00Z",
+      "SCEPEnabled": "TRUE",
+      "PublicAddr": "shield.bnndemos.com:1200",
+      "CACert": "-----BEGIN CERTIFICATE-----\nMIIFHTCCAwWgAwIBAgIUeK8KfriGxQt630/j2OqCQ1bSpJYwDQYJKoZIhvcNAQEN\nBQAwFjEUMBIGA1UEAxMLQk5OIFJvb3QgQ0EwHhcNMTcwNjEzMjI1MjAwWhcNMjIw\nNjEyMjI1MjAwWjAWMRQwEgYDVQQDEwtCTk4gUm9vdCBDQTCCAiIwDQYJKoZIhvcN\nAQEBBQADggIPADCCAgoCggIBALlTOIvnyfZxvC4HsT2Gbl0BRd586Vh65VuT0nQ5\nEMNCQkyIJ/a0GSqY9R6dcBgQsiiQ08ckhX3UNNcL5DyOZ6KT3W4VlB9Z3rssZBTM\nSl0J0kygWas+OA/hON9pueWKMxFK7MeFguYplMeUGYmson2bVyWlIJ0GeFk4BnSE\n177G/wnj6I4OXDuOLaiVtjZ+5ZyQlnsHKLlVcCAPOB4qNAmifoYA0imaifWF+G+e\nbVXqFuA5LPior2LxsmjsNnvhtDKtklGSAuzPEwyY9bWbLQFHz8nU12Aouz8W8Au5\n/DUPfmPtBpzKnrAzN0vGtdZVnJap8l56ZrUt5hQZgPEDbAvHGJM9p/pK+FjUOaBE\nxPKR/hHokyCwEr+Qu2pp6+7S83fZPWr5fFwqBOsXGhgliGKN0IfmmyLRBmO4uOFA\nUOIgN3ZL8FJDyHYkouv8bAtOaBGnWyVRSm7DEk7I5EPuH6JnLlNoBTi9SvTe8Ak0\nvhOqHNIOosVlmvwiATmp8RGK+UnAjKVONO13XM2UM30YhSOTtNwpxpdRWoCSNzC1\ngF7fse00/HKoIv2HSFYUC6Va2HnW5birmCzGpBbpWdIvwLIKnF51NMa8R7J+PXkC\nA0MCJK1IQpbDSR15yQ0uYFW7xUVLShAnxR+EFsxhuWwBSnLZJD+4mx7/z/VDLAaZ\nR5b5AgMBAAGjYzBhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0G\nA1UdDgQWBBRuFWH3gRVdzk2CowOunzT7FRDPijAfBgNVHSMEGDAWgBRuFWH3gRVd\nzk2CowOunzT7FRDPijANBgkqhkiG9w0BAQ0FAAOCAgEAUEkvKCGNZnyDJ6XOsY52\nII5I1nNV4xEr2baD7sSIEEcs9xMKUZ/osRCRBDCJ0l2I7hd97W/jSyusa85BAl8S\nuyh0uIQRSuf/9VODxrvqW3zdvmUxlnXSf1TEtKVN/fqow6KEs7UF4KvKTQfUscYP\nXS6FmF7QAXhvVKvA/bdNDRMhYdkbMM6PxNpBz3YWy2xIHA+51e04bPl73s6CjeW/\n2EbIm7u4pfD9N/hQbWWqTqK7JZKfprCn7LuEZZ9WjNA71cw+yQzENf/8zMrCSH74\ntaMeIx0WC5OKNVvudIrKkzM55MFiawk/bEfmECgAUfBa4l4t9cIdzty3ZjYYII06\nBTuxoI04zEmahiI+n6uSfGhQRqaLtZP4r9uUBBBnXxA6SFtJEnyHmD1wQhdTzEjG\nh0HWkQe4nuiQVsvm59n1rekoe3wYpR9YRjiPbqFYjrd8rWOZB9yXVCHpozAPv2MG\nW6KAGZjnc7JhnGcvcDT7aFKjblENDwhQTotFPYqsN/f7eZn371th83TRPVNnl3qz\nPxyxR7BPdkUhMnndmLotHv/JurnnBv/euzoUw3ZvQqB/AupNJL+5m+bU50u/DXnT\nqpVAikXwpYtwbfkx9w2Sj/Tn7TBauwy1p7xaDv7L0GsMPGuXi2gFEcLv+3WFCMML\nemvv4j2C2hnqwChZ1wRL5x0=\n-----END CERTIFICATE-----",
+      "OTKEnabled": "TRUE",
+      "SSHCAPublicKey": ""
+    }
+  ],
+  "ShieldLastActivitiesMap": {
+    "d8b99ed8-7d0c-425f-a64f-ec5d66611c81": {
+      "InsertTime": "2020-07-18T22:43:36.846482252Z",
+      "Status": "1 Stats from Host: ip-172-31-62-215.ec2.internal",
+      "UUID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81"
+    },
+    "e40ef36e-3ff0-480f-8d56-4c814a20aa9b": {
+      "InsertTime": "2020-02-25T16:57:37Z",
+      "Status": "2 Stats from Host: ip-10-0-1-65.ec2.internal",
+      "UUID": "e40ef36e-3ff0-480f-8d56-4c814a20aa9b"
+    }
+  },
+  "NetagentHostInfoMap": {
+    "d8b99ed8-7d0c-425f-a64f-ec5d66611c81": [
+      {
+        "Hostname": "ip-10-0-3-42.ec2.internal",
+        "IPs": [
+          "127.0.0.1",
+          "10.0.3.42",
+          "54.173.24.152"
+        ],
+        "Version": "1.25.1",
+        "Visibility": false,
+        "CIDRs": "[127.0.0.1 --dport 8443 10.0.3.42 --dport 8443 54.173.24.152 --dport 8443 172.31.84.57/20 --dport 3306 172.31.84.57 --dport 3306 127.0.0.1 -...",
+        "HostTags": {
+          "com.banyanops.hosttag.hname": "ip-10-0-3-42.ec2.internal",
+          "com.banyanops.hosttag.site_address": "banyan-nlb-602e74a4622302a6.elb.us-east-1.amazonaws.com",
+          "com.banyanops.hosttag.site_autoscale": "true",
+          "com.banyanops.hosttag.site_domain_names": "*.us-east-1.bnndemos.com,*.bnndemos.com",
+          "com.banyanops.hosttag.site_name": "us-east-1",
+          "com.banyanops.hosttag.type": "access_tier"
+        },
+        "Uname": "Sysname Linux, Nodename ip-10-0-3-42.ec2.internal, Release 4.14.181-140.257.amzn2.x86_64, Version #1 SMP Wed May 27 02:17:36 UTC 2020, Machine x86_64, Domainname (none)\n",
+        "SiteName": "us-east-1",
+        "ClusterID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81",
+        "LastActivityAt": "",
+        "Status": "Reporting"
+      },
+      {
+        "Hostname": "ip-10-0-2-79.ec2.internal",
+        "IPs": [
+          "127.0.0.1",
+          "10.0.2.79",
+          "54.173.24.152"
+        ],
+        "Version": "1.25.1",
+        "Visibility": false,
+        "CIDRs": "[54.173.24.152 --dport 443 127.0.0.1 --dport 8443 10.0.2.79 --dport 8443 54.173.24.152 --dport 8443 172.31.84.57/20 --dport 3306 172.31.84.5...",
+        "HostTags": {
+          "com.banyanops.hosttag.hname": "ip-10-0-2-79.ec2.internal",
+          "com.banyanops.hosttag.site_address": "banyan-nlb-602e74a4622302a6.elb.us-east-1.amazonaws.com",
+          "com.banyanops.hosttag.site_autoscale": "true",
+          "com.banyanops.hosttag.site_domain_names": "*.us-east-1.bnndemos.com,*.bnndemos.com",
+          "com.banyanops.hosttag.site_name": "us-east-1",
+          "com.banyanops.hosttag.type": "access_tier"
+        },
+        "Uname": "Sysname Linux, Nodename ip-10-0-2-79.ec2.internal, Release 4.14.181-140.257.amzn2.x86_64, Version #1 SMP Wed May 27 02:17:36 UTC 2020, Machine x86_64, Domainname (none)\n",
+        "SiteName": "us-east-1",
+        "ClusterID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81",
+        "LastActivityAt": "",
+        "Status": "Reporting"
+      },
+      {
+        "Hostname": "ip-172-31-62-215.ec2.internal",
+        "IPs": [
+          "127.0.0.1",
+          "172.31.62.215",
+          "3.237.10.157"
+        ],
+        "Version": "1.25.1-3_gc48f74c",
+        "Visibility": false,
+        "CIDRs": "[172.31.84.57/20 --dport 3306 172.31.84.57 --dport 3306 127.0.0.1 --dport 443 172.31.62.215 --dport 443 3.237.10.157 --dport 443]",
+        "HostTags": {
+          "com.banyanops.hosttag.hname": "ip-172-31-62-215.ec2.internal",
+          "com.banyanops.hosttag.site_address": "ec2-3-237-10-157.compute-1.amazonaws.com",
+          "com.banyanops.hosttag.site_autoscale": "false",
+          "com.banyanops.hosttag.site_domain_names": "*.transtar.bnndemos.com",
+          "com.banyanops.hosttag.site_name": "transtar-test"
+        },
+        "Uname": "Sysname Linux, Nodename ip-172-31-62-215.ec2.internal, Release 4.14.181-140.257.amzn2.x86_64, Version #1 SMP Wed May 27 02:17:36 UTC 2020, Machine x86_64, Domainname (none)\n",
+        "SiteName": "transtar-test",
+        "ClusterID": "d8b99ed8-7d0c-425f-a64f-ec5d66611c81",
+        "LastActivityAt": "",
+        "Status": "Reporting"
+      }
+    ]
+  }
+}

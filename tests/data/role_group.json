@@ -1,0 +1,20 @@
+{
+  "apiVersion": "rbac.banyanops.com/v1",
+  "kind": "BanyanRole",
+  "type": "origin",
+  "metadata": {
+    "name": "Gitlab",
+    "description": "Gitlab",
+    "tags": {
+      "template": "USER"
+    }
+  },
+  "spec": {
+    "group": [
+      "Security"
+    ],
+    "email": [],
+    "device_ownership": [],
+    "known_device_only": true
+  }
+}

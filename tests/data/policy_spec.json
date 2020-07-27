@@ -1,0 +1,45 @@
+{
+  "kind": "BanyanPolicy",
+  "apiVersion": "rbac.banyanops.com/v1",
+  "metadata": {
+    "name": "nginx-stage-mesh",
+    "description": "AccessTier to Netagent",
+    "tags": {
+      "template": "CUSTOM"
+    }
+  },
+  "type": "CUSTOM",
+  "spec": {
+    "access": [
+      {
+        "roles": [
+          "accesstier"
+        ],
+        "rules": {
+          "l7_access": [
+            {
+              "resources": [
+                "*"
+              ],
+              "actions": [
+                "*"
+              ]
+            }
+          ],
+          "conditions": {
+            "start_time": "",
+            "end_time": "",
+            "trust_level": ""
+          }
+        }
+      }
+    ],
+    "exception": {
+      "src_addr": []
+    },
+    "options": {
+      "disable_tls_client_authentication": false,
+      "l7_protocol": ""
+    }
+  }
+}
