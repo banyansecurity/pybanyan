@@ -1,13 +1,15 @@
 from dataclasses import field
-from marshmallow_dataclass import dataclass
-from marshmallow import Schema, validate, fields
+from datetime import datetime
 from typing import List, ClassVar, Type, Optional
 # from banyan.model.custom_types import NanoTimestamp, BoolString
 # from dataclasses_serialization.json import JSONStrSerializerMixin, JSONSerializerMixin
 from uuid import UUID
-from banyan.model import NanoTimestamp
+
+from marshmallow import Schema, validate, fields
+from marshmallow_dataclass import dataclass
 from semver import VersionInfo
-from datetime import datetime
+
+from banyan.model import NanoTimestampField
 
 
 @dataclass
@@ -32,13 +34,13 @@ class TrustData:
     access_trustscore: int = field(metadata={'data_key': 'AccessTrustscore'})
     override_active: bool = field(metadata={'data_key': 'OverrideActive'})
     level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(_TRUST_VALUES)})
-    updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestamp(data_key='UpdatedAt')})
+    updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='UpdatedAt')})
     factors: List[TrustFactor] = field(default_factory=list, metadata={'data_key': 'Factors'})
 
 
 @dataclass
 class MdmData:
-    timestamp: datetime = field(metadata={"marshmallow_field": NanoTimestamp(data_key='Timestamp')})
+    timestamp: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='Timestamp')})
     source: str = field(metadata={'data_key': 'Source'})
     compromised_status: bool = field(metadata={'data_key': 'CompromisedStatus'})
     compliant_status: str = field(metadata={'data_key': 'CompliantStatus'})
@@ -49,7 +51,7 @@ class User:
     name: str = field(metadata={'data_key': 'Name'})
     email: str = field(metadata={'data_key': 'Email'})
     groups: str = field(metadata={'data_key': 'Groups'})
-    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestamp(data_key='LastLogin')})
+    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
     trust_data: TrustData = field(metadata={'data_key': 'TrustData'})
     serial_numbers: List[str] = field(default_factory=list, metadata={'data_key': 'SerialNumbers'})
@@ -62,7 +64,7 @@ class Device:
     device_id: UUID = field(metadata={'data_key': 'DeviceID'})
     serial_number: str = field(metadata={'data_key': 'SerialNumber'})
     device_friendly_name: str = field(metadata={'data_key': 'DeviceFriendlyName'})
-    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestamp(data_key='LastLogin')})
+    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
     ownership: str = field(metadata={'data_key': 'Ownership'})
     platform: str = field(metadata={'data_key': 'Platform'})

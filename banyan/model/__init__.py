@@ -1,12 +1,14 @@
 from dataclasses import field
-from marshmallow_dataclass import dataclass
-from marshmallow import fields
 from datetime import datetime
+from ipaddress import IPv4Interface
+
+from marshmallow import fields
+from marshmallow_dataclass import dataclass
 
 API_VERSION = "rbac.banyanops.com/v1"
 
 
-class NanoTimestamp(fields.DateTime):
+class NanoTimestampField(fields.DateTime):
     def _deserialize(self, value, attr, data, **kwargs):
         if not value:
             return None
@@ -24,6 +26,26 @@ class NanoTimestamp(fields.DateTime):
             return super()._serialize(value, attr, obj, **kwargs)
 
 
+class IPv4InterfaceField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not value:
+            return None
+        elif isinstance(value, str):
+            return IPv4Interface(value)
+        else:
+            return super()._deserialize(value, attr, data, **kwargs)
+
+    def _serialize(self, value, attr, data, **kwargs):
+        if not value:
+            return ""
+        elif isinstance(value, IPv4Interface):
+            return str(value)
+        else:
+            return super()._serialize(value, attr, data, **kwargs)
+
+
+
+
 @dataclass
 class BanyanApiObject:
     TYPE = "origin"
@@ -37,10 +59,10 @@ class BanyanApiObject:
 
 
 @dataclass
-class ObjectCrud:
+class InfoBase:
     created_by: str = field(metadata={'data_key': 'CreatedBy'})
-    created_at: datetime = field(metadata={'marshmallow_field': NanoTimestamp(data_key='CreatedAt')})
+    created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='CreatedAt')})
     last_updated_by: str = field(metadata={'data_key': 'LastUpdatedBy'})
-    last_updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestamp(data_key='LastUpdatedAt')})
+    last_updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='LastUpdatedAt')})
     deleted_by: str = field(metadata={'data_key': 'DeletedBy'})
-    deleted_at: datetime = field(metadata={'marshmallow_field': NanoTimestamp(data_key='DeletedAt')})
+    deleted_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DeletedAt')})

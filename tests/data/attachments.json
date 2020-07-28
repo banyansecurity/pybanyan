@@ -1,0 +1,132 @@
+[
+  {
+    "PolicyID": "005b23d0-3f5a-471a-8c7a-05f4599c5453",
+    "PolicyName": "vault-api",
+    "AttachedToID": "vault-api.us-east-1.bnn",
+    "AttachedToName": "vault-api",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1594914288475241524,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "18486c33-fc4f-4cc4-886a-353fbad87f0a",
+    "PolicyName": "kube-allow",
+    "AttachedToID": "kube.us-east-1.bnn",
+    "AttachedToName": "kube",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1582749077742380579,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "1a9f23b6-ce0d-4813-994b-f268b7d03122",
+    "PolicyName": "jupyter-allow",
+    "AttachedToID": "*.staging.earnest.com.uswest.bnn",
+    "AttachedToName": "*.staging.earnest.com",
+    "AttachedToType": "service",
+    "Enabled": "FALSE",
+    "AttachedAt": 1595972254806594852,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "1a9f23b6-ce0d-4813-994b-f268b7d03122",
+    "PolicyName": "jupyter-allow",
+    "AttachedToID": "jupyter.shield.bnndemos.com.bnn",
+    "AttachedToName": "jupyter",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1579820066384688736,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "1a9f23b6-ce0d-4813-994b-f268b7d03122",
+    "PolicyName": "jupyter-allow",
+    "AttachedToID": "pst.us-east-1.bnn",
+    "AttachedToName": "pst",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1594938831608925387,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "5023baf0-f8b3-4534-8cfd-f28921bbb88e",
+    "PolicyName": "broadleaf-mysql-workload",
+    "AttachedToID": "mysql-service.us-east-1.bnn",
+    "AttachedToName": "mysql-service",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1578585102571082501,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "7eb1cb84-5883-4831-a87a-552c564e16a2",
+    "PolicyName": "rds-allow",
+    "AttachedToID": "rds-mysql.us-east-1.bnn",
+    "AttachedToName": "rds-mysql",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1583160413486979387,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "7eb1cb84-5883-4831-a87a-552c564e16a2",
+    "PolicyName": "rds-allow",
+    "AttachedToID": "rds-pgsql.us-east-1.bnn",
+    "AttachedToName": "rds-pgsql",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1582927961523179713,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "8428adcd-2b4a-4a80-947e-ed3e76f16e9f",
+    "PolicyName": "VNC servers",
+    "AttachedToID": "vnc-5937.us-east-1.bnn",
+    "AttachedToName": "vnc-5937",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1593015830718774513,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "8e349a2f-5bd9-4648-ae44-89155f39a80f",
+    "PolicyName": "vault-users",
+    "AttachedToID": "vault-web.us-east-1.bnn",
+    "AttachedToName": "vault-web",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1594915132951210707,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "b5d6d64a-2a29-4aeb-9a04-ac939b7f4c51",
+    "PolicyName": "jira-allow",
+    "AttachedToID": "53832da1-2b8a-4626-8ce9-8ddd6d08b00d",
+    "AttachedToName": "foo",
+    "AttachedToType": "saasapp",
+    "Enabled": "TRUE",
+    "AttachedAt": 1593531178285018892,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "b5d6d64a-2a29-4aeb-9a04-ac939b7f4c51",
+    "PolicyName": "jira-allow",
+    "AttachedToID": "jira.us-east-1.bnn",
+    "AttachedToName": "jira",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1579024727339484272,
+    "AttachedBy": "todd@banyansecurity.io"
+  },
+  {
+    "PolicyID": "b5d6d64a-2a29-4aeb-9a04-ac939b7f4c51",
+    "PolicyName": "jira-allow",
+    "AttachedToID": "nginx.us-east-1.bnn",
+    "AttachedToName": "nginx",
+    "AttachedToType": "service",
+    "Enabled": "TRUE",
+    "AttachedAt": 1592928961948960943,
+    "AttachedBy": "todd@banyansecurity.io"
+  }
+]

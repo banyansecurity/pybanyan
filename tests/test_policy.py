@@ -1,6 +1,7 @@
 import unittest
-from banyan.model.policy import Policy, Conditions, Tags, PolicyInfo
+
 from banyan.model import API_VERSION
+from banyan.model.policy import Policy, Conditions, Tags, PolicyInfo
 
 
 class PolicyParserTest(unittest.TestCase):
@@ -15,7 +16,7 @@ class PolicyParserTest(unittest.TestCase):
         self.assertEqual("http", p.spec.options.l7_protocol)
         self.assertEqual(1, len(p.spec.access))
         a0 = p.spec.access[0]
-        self.assertEqual(Conditions.TRUST_LEVEL_LOW, a0.rules.conditions.trust_level                         )
+        self.assertEqual(Conditions.TRUST_LEVEL_LOW, a0.rules.conditions.trust_level)
         self.assertEqual(["ANY"], a0.roles)
         self.assertEqual(1, len(a0.rules.l7_access))
         r0 = a0.rules.l7_access[0]

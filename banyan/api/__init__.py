@@ -1,11 +1,13 @@
 import logging
 import os
 from typing import Dict, Any
-from banyan.api.services import ServiceAPI
 
 import requests
 from requests.auth import AuthBase
 
+from banyan.api.attachments import AttachmentAPI
+from banyan.api.policies import PolicyAPI
+from banyan.api.services import ServiceAPI
 from banyan.core.exc import BanyanError
 
 
@@ -31,8 +33,14 @@ class BanyanApiClient:
         self._refresh_token = refresh_token
         if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
+        if self._debug:
+            requests_log = logging.getLogger('requests.packages.urllib3')
+            requests_log.setLevel(logging.DEBUG)
+            requests_log.propagate = True
         self._http = self._create_session()
         self._services = ServiceAPI(self)
+        self._policies = PolicyAPI(self)
+        self._attach = AttachmentAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -111,6 +119,14 @@ class BanyanApiClient:
     @property
     def services(self) -> ServiceAPI:
         return self._services
+
+    @property
+    def policies(self) -> PolicyAPI:
+        return self._policies
+
+    @property
+    def attachments(self) -> AttachmentAPI:
+        return self._attach
 
 
 if __name__ == '__main__':

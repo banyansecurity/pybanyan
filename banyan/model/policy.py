@@ -1,11 +1,12 @@
-from datetime import datetime
 from dataclasses import field
-from typing import List, ClassVar, Type, Optional
+from datetime import datetime
+from typing import List, ClassVar, Type, Optional, Union
+from uuid import UUID
 
 from marshmallow import validate, Schema, pre_load
 from marshmallow_dataclass import dataclass
 
-from banyan.model import BanyanApiObject, ObjectCrud
+from banyan.model import BanyanApiObject, InfoBase, NanoTimestampField
 
 
 @dataclass
@@ -77,6 +78,7 @@ class Conditions:
             del data["end_time"]
         return data
 
+
 @dataclass
 class Rules:
     comment: Optional[str]
@@ -108,13 +110,14 @@ class Policy(BanyanApiObject):
     def __post_init__(self):
         self.kind = self.KIND
 
+    @property
     def name(self):
         return self.metadata.name
 
 
 @dataclass
-class PolicyInfo(ObjectCrud):
-    id: str = field(metadata={"data_key": "PolicyID"})
+class PolicyInfo(InfoBase):
+    id: UUID = field(metadata={"data_key": "PolicyID"})
     name: str = field(metadata={"data_key": "PolicyName"})
     spec: str = field(metadata={"data_key": "PolicySpec"})
     description: str = field(metadata={"data_key": "Description"})
@@ -122,5 +125,20 @@ class PolicyInfo(ObjectCrud):
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property
-    def policy(self):
+    def policy(self) -> Policy:
         return Policy.Schema().loads(self.spec)
+
+
+@dataclass
+class PolicyAttachInfo:
+    policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
+    service_id: str = field(metadata={'data_key': 'ServiceID'})
+    attached_by: str = field(metadata={'data_key': 'AttachedBy'})
+    attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
+    enabled: bool = field(metadata={'data_key': 'Enabled'})
+    detached_by: str = field(metadata={'data_key': 'DetachedBy'})
+    detached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DetachedAt')})
+    Schema: ClassVar[Type[Schema]] = Schema
+
+
+PolicyInfoOrName = Union[PolicyInfo, str]

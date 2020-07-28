@@ -1,30 +1,11 @@
 from dataclasses import field
+from ipaddress import IPv4Interface
 from typing import List, Dict, Union, Optional, ClassVar, Type
-from banyan.model import BanyanApiObject, ObjectCrud
-# from banyan.model.custom_types import IPv4Interface
+
 from marshmallow import validate, Schema, pre_load, fields
 from marshmallow_dataclass import dataclass
-from ipaddress import IPv4Interface
 
-
-class SerializableIPv4Interface(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
-        if not value:
-            return None
-        elif isinstance(value, str):
-            return IPv4Interface(value)
-        else:
-            return super()._deserialize(value, attr, data, **kwargs)
-
-    def _serialize(self, value, attr, data, **kwargs):
-        if not value:
-            return ""
-        elif isinstance(value, IPv4Interface):
-            return str(value)
-        else:
-            return super()._serialize(value, attr, data, **kwargs)
-
-
+from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
 
 
 @dataclass
@@ -39,11 +20,11 @@ class Tags:
     APP_TYPE_GENERIC = "GENERIC"
     protocol: str
     domain: str
-    port: Optional[int] = field(metadata={"missing": 443})
-    user_facing: bool
+    user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
     template: str
     service_app_type: str
     icon: str = field(default="")
+    port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
     Schema: ClassVar[Type[Schema]] = Schema
 
     @pre_load
@@ -63,8 +44,8 @@ class Metadata:
 
 @dataclass
 class FrontendAddress:
-    port: int
-    cidr: IPv4Interface = field(metadata={'marshmallow_field': SerializableIPv4Interface()})
+    port: int = field(metadata={'marshmallow_field': fields.String()})
+    cidr: IPv4Interface = field(metadata={'marshmallow_field': IPv4InterfaceField()})
 
 
 @dataclass
@@ -157,7 +138,7 @@ class HttpSettings:
 
 @dataclass
 class CIDRAddress:
-    cidr: IPv4Interface = field(metadata={'marshmallow_field': SerializableIPv4Interface()})
+    cidr: IPv4Interface = field(metadata={'marshmallow_field': IPv4InterfaceField()})
     ports: int
 
 
@@ -172,7 +153,7 @@ class ClientCIDRs:
 class BackendTarget:
     name: str
     name_delimiter: Optional[str]
-    port: Optional[int] = 443
+    port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
     tls: Optional[bool] = True
     tls_insecure: Optional[bool] = False
     client_certificate: Optional[bool] = False
@@ -221,18 +202,18 @@ class OIDCClient:
 
 
 @dataclass
-class ServiceInfo(ObjectCrud):
-    service_id: str = field(metadata={"data_key": "ServiceID"})
-    service_name: str = field(metadata={"data_key": "ServiceName"})
+class ServiceInfo(InfoBase):
+    id: str = field(metadata={"data_key": "ServiceID"})
+    name: str = field(metadata={"data_key": "ServiceName"})
     cluster_name: str = field(metadata={"data_key": "ClusterName"})
-    service_type: str = field(metadata={"data_key": "ServiceType"})
+    type: str = field(metadata={"data_key": "ServiceType"})
     discovery: str = field(metadata={"data_key": "ServiceDiscovery"})
     version: int = field(metadata={"data_key": "ServiceVersion"})
     description: str = field(metadata={"data_key": "Description"})
     external: str = field(metadata={"data_key": "External"})
     oidc_enabled: bool = field(metadata={"data_key": "OIDCEnabled"})
     oidc_client_spec: str = field(metadata={"data_key": "OIDCClientSpec"})
-    service_spec: str = field(metadata={"data_key": "ServiceSpec"})
+    spec: str = field(metadata={"data_key": "ServiceSpec"})
     user_facing: bool = field(metadata={"data_key": "UserFacing"})
     protocol: str = field(metadata={"data_key": "Protocol"})
     domain: str = field(metadata={"data_key": "Domain"})
@@ -242,14 +223,11 @@ class ServiceInfo(ObjectCrud):
 
     @property
     def service(self) -> Service:
-        return Service.Schema().loads(self.service_spec)
-        # return Service.from_json_str(self.ServiceSpec)
+        return Service.Schema().loads(self.spec)
 
     @property
     def oidc_client(self) -> OIDCClient:
         return OIDCClient.Schema().loads(self.oidc_client_spec)
-        # return OIDCClient.from_json_str(self.OIDCClientSpec)
 
-    @property
-    def name(self):
-        return self.service_name
+
+ServiceInfoOrName = Union[ServiceInfo, str]

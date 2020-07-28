@@ -1,8 +1,10 @@
 from dataclasses import field
-from marshmallow_dataclass import dataclass
-from marshmallow import validate, Schema
 from typing import List, Dict, ClassVar, Type, Optional
-from banyan.model import BanyanApiObject, ObjectCrud
+
+from marshmallow import validate, Schema
+from marshmallow_dataclass import dataclass
+
+from banyan.model import BanyanApiObject, InfoBase
 
 
 @dataclass
@@ -55,7 +57,7 @@ class Role(BanyanApiObject):
 
 
 @dataclass
-class RoleInfo(ObjectCrud):
+class RoleInfo(InfoBase):
     id: str = field(metadata={"data_key": "RoleID"})
     name: str = field(metadata={"data_key": "RoleName"})
     spec: str = field(metadata={"data_key": "RoleSpec"})

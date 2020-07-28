@@ -1,12 +1,10 @@
-from cement import Controller, App, ex
-from cement.core.config import ConfigInterface
-from banyan.api import BanyanApiClient
-from typing import List, Dict
-from banyan.model.service import ServiceInfo, Service
-import sys
-# from banyan.model.custom_types import JSONType
-import json
+from typing import List
+
+from cement import Controller, ex
+
 from banyan.api.services import ServiceAPI
+from banyan.controllers.base import Base
+from banyan.model.service import ServiceInfo, Service
 
 
 class ServiceController(Controller):
@@ -16,22 +14,9 @@ class ServiceController(Controller):
         stacked_on = 'base'
         help = 'manage web and TCP services and workloads'
 
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-
     @property
     def _client(self) -> ServiceAPI:
         return self.app.client.services
-
-    # noinspection PyMethodMayBeStatic
-    def _get_json_input(self, arg: str):
-        if arg[0] == '@':
-            arg = open(arg[1:]).read()
-        elif arg == '-':
-            arg = sys.stdin.read()
-        else:
-            arg = arg.encode('utf-8')
-        return json.loads(arg)
 
     @ex(help='create a new service from a JSON specification',
         arguments=[
@@ -42,10 +27,10 @@ class ServiceController(Controller):
              }),
         ])
     def create(self):
-        service_spec = self._get_json_input(self.app.pargs.service_spec)
-        service = Service.from_json(service_spec)
-        service_info = self._client.insert(service)
-        self.app.render(service_info.as_json(), handler='json')
+        service_spec = Base.get_json_input(self.app.pargs.service_spec)
+        service = Service.Schema().load(service_spec)
+        service_info = self._client.create(service)
+        self.app.render(service_info.Schema().dump(service_info), handler='json')
 
     @ex(help='update an existing service from a JSON specification',
         arguments=[
@@ -56,87 +41,120 @@ class ServiceController(Controller):
              }),
         ])
     def update(self):
-        service_spec = self._get_json_input(self.app.pargs.service_spec)
-        service = Service.from_json(service_spec)
+        service_spec = Base.get_json_input(self.app.pargs.service_spec)
+        service = Service.Schema().load(service_spec)
         service_info = self._client.update(service)
-        self.app.render(service_info.as_json(), handler='json')
+        self.app.render(service_info.Schema().dump(service_info), handler='json')
 
     @ex(help='delete a service',
         arguments=[
             (['service_name'],
-             {}),
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to delete.'
+             }),
         ])
     def delete(self):
-        service_name = self.app.pargs.service_name
-        service = self._client[service_name]
+        service = self._client[self.app.pargs.service_name]
         self.app.print(self._client.delete(service))
+
+    @ex(help='show the definition of a registered service',
+        arguments=[
+            (['service_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to display.'
+             }),
+        ])
+    def get(self):
+        service = self._client[self.app.pargs.service_name]
+        service_json = service.service.Schema().dumps(service.service, sort_keys=True, indent=2)
+        # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
+        self.app.render(service_json, handler='json')
 
     @ex(help='list registered services')
     def list(self):
         services: List[ServiceInfo] = self._client.list()
         results = list()
-        json_results = list()
-        headers = ['Name', 'ID', 'Type', 'Created', 'Last Updated']
+        headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
-            new_row = [service.name, service.service_id, service.service.metadata.tags.service_app_type,
+            new_row = [service.name, service.id, service.service.metadata.tags.service_app_type,
+                       service.enabled,
                        service.created_at, service.last_updated_at]
             results.append(new_row)
-            json_results.append(service.Schema().dump(service))
-
         results.sort(key=lambda x: x[0])
-
-        self.app.render(results, headers=headers, handler='tabulate', tablefmt='simple')
-        # self.app.render(json_results, handler='json')
-
-        # app: App = self.app
-        # conf: ConfigInterface = app.config
-        # if app.Meta.output_handler == 'json':
-        #     self.app.render({'api_url': conf.get('banyan', 'api_url'),
-        #                      'refresh_token': conf.get('banyan', 'refresh_token')}, handler='json')
-        # elif app.Meta.output_handler == 'tabulate':
-        #     self.app.render([[conf.get('banyan', 'api_url'), conf.get('banyan', 'refresh_token')]],
-        #                     headers=['API Url', 'Refresh Token'], handler='tabulate', tablefmt='simple')
+        self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
     @ex(help='enable a service',
         arguments=[
             (['service_name'],
-             {}),
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to enable.'
+             }),
         ])
     def enable(self):
-        service_name = self.app.pargs.service_name
-        service = self._client[service_name]
+        service = self._client[self.app.pargs.service_name]
         self.app.print(self._client.enable(service))
 
     @ex(help='disable a service',
         arguments=[
             (['service_name'],
-             {}),
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to disable.'
+             }),
         ])
     def disable(self):
-        service_name = self.app.pargs.service_name
-        service = self._client[service_name]
+        service = self._client[self.app.pargs.service_name]
         self.app.print(self._client.disable(service))
 
     @ex(help='attach a policy to a service',
         arguments=[
             (['service_name'],
-             {}),
-            (['--policy-name'],
-             {}),
-            (['--policy-id'],
-             {})
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to attach a policy to.',
+             }),
+            (['policy_name'],
+             {
+                 'metavar': 'policy_name_or_id',
+                 'help': 'Name or ID of the policy to attach to the service.',
+             }),
+            (['--permissive'],
+             {
+                 'action': 'store_false',
+                 'dest': 'enforcing',
+                 'help': 'Set the policy to permissive mode (allow all traffic and log any unauthorized access).',
+             }),
+            (['--enforcing'], {
+                'action': 'store_true',
+                'dest': 'enforcing',
+                'default': True,
+                'help': 'Set the policy to enforcing mode (deny unauthorized access).',
+            }),
         ])
     def attach(self):
-        print(self.app.pargs.policy_name)
-        pass
+        info = self._client.attach(self.app.pargs.service_name, self.app.pargs.policy_name, self.app.pargs.enforcing)
+        mode = 'ENFORCING' if info.enabled else 'PERMISSIVE'
+        self.app.print(f'Policy {info.policy_id} attached to service {info.service_id} in {mode} mode.')
 
-    @ex(help='detach the policy from a service',
+    @ex(help='detach the active policy from a service',
         arguments=[
-            (['service_name'], {})
+            (['service_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to attach a policy to.',
+             }),
+            (['policy_name'],
+             {
+                 'metavar': 'policy_name_or_id',
+                 'help': 'Name or ID of the policy to attach to the service.',
+             }),
         ])
     def detach(self):
-        service_name = self.app.pargs.service_name
-        pass
+        info = self._client.attach(self.app.pargs.service_name, self.app.pargs.policy_name, self.app.pargs.enforcing)
+        self.app.print(f'Policy {info.policy_id} detached from service {info.service_id}.')
 
     @ex(help='run sanity checks on a service')
     def test(self):

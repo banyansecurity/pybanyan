@@ -1,8 +1,10 @@
-from cement import Controller, ex
-from cement.utils.version import get_version_banner
-from ..core.version import get_version
-from banyan.api import BanyanApiClient
+import json
+import sys
 
+from cement import Controller
+from cement.utils.version import get_version_banner
+
+from ..core.version import get_version
 
 VERSION_BANNER = """
 API library and command-line interface for Banyan Security %s
@@ -49,3 +51,13 @@ class Base(Controller):
     def _default(self):
         """Default action if no sub-command is passed."""
         self.app.args.print_help()
+
+    @staticmethod
+    def get_json_input(self, arg: str):
+        if arg[0] == '@':
+            arg = open(arg[1:]).read()
+        elif arg == '-':
+            arg = sys.stdin.read()
+        else:
+            arg = arg.encode('utf-8')
+        return json.loads(arg)
