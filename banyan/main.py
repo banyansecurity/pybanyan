@@ -1,11 +1,12 @@
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
-from .core.exc import BanyanError
-from .controllers.base import Base
-from .controllers.services import ServiceController
-from .controllers.roles import RoleController
-from .controllers.policies import PolicyController
+
 from .api import BanyanApiClient
+from .controllers.base import Base
+from .controllers.policy import PolicyController
+from .controllers.role import RoleController
+from .controllers.service import ServiceController
+from .core.exc import BanyanError
 
 # configuration defaults
 CONFIG = init_defaults('banyan')
