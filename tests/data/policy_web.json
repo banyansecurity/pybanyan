@@ -3,7 +3,7 @@
   "apiVersion": "rbac.banyanops.com/v1",
   "metadata": {
     "name": "jupyter-allow",
-    "description": "Jupyter users",
+    "description": "Allow traffic to Jupyter for all users",
     "tags": {
       "template": "USER"
     }

@@ -7,6 +7,7 @@ from requests.auth import AuthBase
 
 from banyan.api.attachments import AttachmentAPI
 from banyan.api.policies import PolicyAPI
+from banyan.api.roles import RoleAPI
 from banyan.api.services import ServiceAPI
 from banyan.core.exc import BanyanError
 
@@ -41,6 +42,7 @@ class BanyanApiClient:
         self._services = ServiceAPI(self)
         self._policies = PolicyAPI(self)
         self._attach = AttachmentAPI(self)
+        self._roles = RoleAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -123,6 +125,10 @@ class BanyanApiClient:
     @property
     def policies(self) -> PolicyAPI:
         return self._policies
+
+    @property
+    def roles(self) -> RoleAPI:
+        return self._roles
 
     @property
     def attachments(self) -> AttachmentAPI:

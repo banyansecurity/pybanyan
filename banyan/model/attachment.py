@@ -22,5 +22,5 @@ class Attachment:
                                             'validate': validate.OneOf(_ATTACH_TYPES)})
     enabled: bool = field(metadata={'data_key': 'Enabled'})
     attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
-    attached_By: str = field(metadata={'data_key': 'AttachedBy'})
+    attached_by: str = field(metadata={'data_key': 'AttachedBy'})
     Schema: ClassVar[Type[Schema]] = Schema

@@ -25,7 +25,6 @@ class Tags:
     service_app_type: str
     icon: str = field(default="")
     port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
-    Schema: ClassVar[Type[Schema]] = Schema
 
     @pre_load
     def handle_empty_port(self, data, **kwargs):
@@ -130,10 +129,10 @@ class ExemptedPaths:
 @dataclass
 class HttpSettings:
     enabled: bool
-    oidc_settings: Optional[OIDCSettings]  # = field(default_factory=OIDCSettings)
-    http_health_check: Optional[HTTPHealthCheck]  # = field(default_factory=HTTPHealthCheck)
-    http_redirect: Optional[HTTPRedirect]  # = field(default_factory=HTTPRedirect)
-    exempted_paths: Optional[ExemptedPaths]  # = field(default_factory=ExemptedPaths)
+    oidc_settings: Optional[OIDCSettings]
+    http_health_check: Optional[HTTPHealthCheck]
+    http_redirect: Optional[HTTPRedirect]
+    exempted_paths: Optional[ExemptedPaths]
 
 
 @dataclass
@@ -167,17 +166,17 @@ class BackendTarget:
 
 @dataclass
 class Backend:
-    target: BackendTarget  # = field(default_factory=BackendTarget)
+    target: BackendTarget
     dns_overrides: Dict[str, str] = field(default_factory=dict)
     whitelist: List[str] = field(default_factory=list)
 
 
 @dataclass
 class Spec:
-    attributes: Attributes  # = field(default_factory=Attributes)
-    backend: Backend  # = field(default_factory=Backend)
-    cert_settings: CertSettings  # = field(default_factory=CertSettings)
-    http_settings: HttpSettings  # = field(default_factory=HttpSettings)
+    attributes: Attributes
+    backend: Backend
+    cert_settings: CertSettings
+    http_settings: HttpSettings
     client_cidrs: List[ClientCIDRs] = field(default_factory=list)
 
 
@@ -185,7 +184,6 @@ class Spec:
 class Service(BanyanApiObject):
     metadata: Metadata
     spec: Spec
-    Schema: ClassVar[Type[Schema]] = Schema
 
     @property
     def name(self):
@@ -203,23 +201,23 @@ class OIDCClient:
 
 @dataclass
 class ServiceInfo(InfoBase):
-    id: str = field(metadata={"data_key": "ServiceID"})
-    name: str = field(metadata={"data_key": "ServiceName"})
-    cluster_name: str = field(metadata={"data_key": "ClusterName"})
-    type: str = field(metadata={"data_key": "ServiceType"})
-    discovery: str = field(metadata={"data_key": "ServiceDiscovery"})
-    version: int = field(metadata={"data_key": "ServiceVersion"})
-    description: str = field(metadata={"data_key": "Description"})
-    external: str = field(metadata={"data_key": "External"})
-    oidc_enabled: bool = field(metadata={"data_key": "OIDCEnabled"})
-    oidc_client_spec: str = field(metadata={"data_key": "OIDCClientSpec"})
-    spec: str = field(metadata={"data_key": "ServiceSpec"})
-    user_facing: bool = field(metadata={"data_key": "UserFacing"})
-    protocol: str = field(metadata={"data_key": "Protocol"})
-    domain: str = field(metadata={"data_key": "Domain"})
-    port: int = field(metadata={"data_key": "Port"})
-    enabled: bool = field(metadata={"data_key": "Enabled"})
-    Schema: ClassVar[Type[Schema]] = Schema
+    id: str = field(metadata={'data_key': 'ServiceID'})
+    name: str = field(metadata={"data_key": 'ServiceName'})
+    description: str = field(metadata={"data_key": 'Description'})
+    spec: str = field(metadata={"data_key": 'ServiceSpec'})
+
+    discovery: str = field(metadata={'data_key': 'ServiceDiscovery'})
+    cluster_name: str = field(metadata={'data_key': 'ClusterName'})
+    type: str = field(metadata={'data_key': 'ServiceType'})
+    version: int = field(metadata={'data_key': 'ServiceVersion'})
+    external: str = field(metadata={'data_key': 'External'})
+    oidc_enabled: bool = field(metadata={'data_key': 'OIDCEnabled'})
+    oidc_client_spec: str = field(metadata={'data_key': 'OIDCClientSpec'})
+    user_facing: bool = field(metadata={'data_key': 'UserFacing'})
+    protocol: str = field(metadata={'data_key': 'Protocol'})
+    domain: str = field(metadata={'data_key': 'Domain'})
+    port: int = field(metadata={'data_key': 'Port'})
+    enabled: bool = field(metadata={'data_key': 'Enabled'})
 
     @property
     def service(self) -> Service:

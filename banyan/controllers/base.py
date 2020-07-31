@@ -13,6 +13,8 @@ API library and command-line interface for Banyan Security %s
 
 
 class Base(Controller):
+    TABLE_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
     class Meta:
         label = 'base'
         title = 'Commands'
@@ -53,7 +55,7 @@ class Base(Controller):
         self.app.args.print_help()
 
     @staticmethod
-    def get_json_input(self, arg: str):
+    def get_json_input(arg: str):
         if arg[0] == '@':
             arg = open(arg[1:]).read()
         elif arg == '-':

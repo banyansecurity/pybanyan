@@ -1,5 +1,6 @@
 from dataclasses import field
-from typing import List, Dict, ClassVar, Type, Optional
+from typing import List, Dict, ClassVar, Type, Optional, Union
+from uuid import UUID
 
 from marshmallow import validate, Schema
 from marshmallow_dataclass import dataclass
@@ -46,7 +47,6 @@ class Role(BanyanApiObject):
     KIND = "BanyanRole"
     metadata: Metadata
     spec: Spec
-    Schema: ClassVar[Type[Schema]] = Schema
 
     def __post_init__(self):
         self.kind = self.KIND
@@ -58,15 +58,18 @@ class Role(BanyanApiObject):
 
 @dataclass
 class RoleInfo(InfoBase):
-    id: str = field(metadata={"data_key": "RoleID"})
-    name: str = field(metadata={"data_key": "RoleName"})
-    spec: str = field(metadata={"data_key": "RoleSpec"})
-    description: str = field(metadata={"data_key": "Description"})
-    type: str = field(metadata={"data_key": "RoleType"})
-    version: int = field(metadata={"data_key": "RoleVersion"})
-    enabled: bool = field(metadata={"data_key": "Enabled"})
-    Schema: ClassVar[Type[Schema]] = Schema
+    id: UUID = field(metadata={'data_key': 'RoleID'})
+    name: str = field(metadata={'data_key': 'RoleName'})
+    spec: str = field(metadata={'data_key': 'RoleSpec'})
+    description: str = field(metadata={'data_key': 'Description'})
+
+    type: str = field(metadata={'data_key': 'RoleType'})
+    version: int = field(metadata={'data_key': 'RoleVersion'})
+    enabled: bool = field(metadata={'data_key': 'Enabled'})
 
     @property
-    def role(self):
+    def role(self) -> Role:
         return Role.Schema().loads(self.spec)
+
+
+RoleInfoOrName = Union[RoleInfo, str]

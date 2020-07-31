@@ -28,7 +28,7 @@ class Metadata:
 @dataclass
 class Options:
     disable_tls_client_authentication: bool
-    l7_protocol: str
+    l7_protocol: Optional[str]
     mixed_users_and_workloads: Optional[bool]
 
 
@@ -65,8 +65,8 @@ class Conditions:
     TRUST_LEVEL_ALWAYS_ALLOW = "AlwaysAllow"
     _TRUST_LEVEL_VALUES = (
         TRUST_LEVEL_ALWAYS_DENY, TRUST_LEVEL_LOW, TRUST_LEVEL_MEDIUM, TRUST_LEVEL_HIGH, TRUST_LEVEL_ALWAYS_ALLOW)
-    start_time: Optional[datetime]  # should really be a datetime
-    end_time: Optional[datetime]  # should really be a datetime
+    start_time: Optional[datetime]
+    end_time: Optional[datetime]
     trust_level: Optional[str] = field(metadata={"missing": TRUST_LEVEL_ALWAYS_ALLOW,
                                                  "validate": validate.OneOf(_TRUST_LEVEL_VALUES + ("",))})
 
@@ -81,9 +81,8 @@ class Conditions:
 
 @dataclass
 class Rules:
-    comment: Optional[str]
     conditions: Conditions
-    l7_access: List[L7Access] = field(default_factory=list)
+    l7_access: Optional[List[L7Access]] = field(default_factory=list)
 
 
 @dataclass
@@ -105,7 +104,6 @@ class Policy(BanyanApiObject):
     spec: Spec
     type: str
     KIND = "BanyanPolicy"
-    Schema: ClassVar[Type[Schema]] = Schema
 
     def __post_init__(self):
         self.kind = self.KIND
@@ -117,12 +115,12 @@ class Policy(BanyanApiObject):
 
 @dataclass
 class PolicyInfo(InfoBase):
-    id: UUID = field(metadata={"data_key": "PolicyID"})
-    name: str = field(metadata={"data_key": "PolicyName"})
-    spec: str = field(metadata={"data_key": "PolicySpec"})
-    description: str = field(metadata={"data_key": "Description"})
-    version: int = field(metadata={"data_key": "PolicyVersion"})
-    Schema: ClassVar[Type[Schema]] = Schema
+    id: UUID = field(metadata={'data_key': 'PolicyID'})
+    name: str = field(metadata={'data_key': 'PolicyName'})
+    spec: str = field(metadata={'data_key': 'PolicySpec'})
+    description: str = field(metadata={'data_key': 'Description'})
+
+    version: int = field(metadata={'data_key': 'PolicyVersion'})
 
     @property
     def policy(self) -> Policy:
@@ -131,14 +129,13 @@ class PolicyInfo(InfoBase):
 
 @dataclass
 class PolicyAttachInfo:
+    enabled: bool = field(metadata={'data_key': 'Enabled'})
     policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
     service_id: str = field(metadata={'data_key': 'ServiceID'})
     attached_by: str = field(metadata={'data_key': 'AttachedBy'})
-    attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
-    enabled: bool = field(metadata={'data_key': 'Enabled'})
     detached_by: str = field(metadata={'data_key': 'DetachedBy'})
+    attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
     detached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DetachedAt')})
-    Schema: ClassVar[Type[Schema]] = Schema
 
 
 PolicyInfoOrName = Union[PolicyInfo, str]

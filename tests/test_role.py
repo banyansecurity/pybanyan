@@ -10,7 +10,7 @@ class RoleGeneratorTest(unittest.TestCase):
                  metadata=Metadata(name="Gitlab", description="Gitlab",
                           tags=Tags(Tags.TEMPLATE_USER)),
                  spec=Spec(group=["Security"], known_device_only=True))
-        j: dict = r.Schema().dump(r)
+        j: dict = Role.Schema().dump(r)
         self.assertEqual(API_VERSION, j["apiVersion"])
         self.assertEqual(Role.KIND, j["kind"])
         self.assertIn("metadata", j.keys())

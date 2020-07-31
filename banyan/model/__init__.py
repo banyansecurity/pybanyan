@@ -1,8 +1,9 @@
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Interface
+from typing import ClassVar, Type
 
-from marshmallow import fields
+from marshmallow import fields, Schema
 from marshmallow_dataclass import dataclass
 
 API_VERSION = "rbac.banyanops.com/v1"
@@ -44,18 +45,21 @@ class IPv4InterfaceField(fields.Field):
             return super()._serialize(value, attr, data, **kwargs)
 
 
-
-
 @dataclass
 class BanyanApiObject:
     TYPE = "origin"
     apiVersion: str
     kind: str
     type: str
+    Schema: ClassVar[Type[Schema]] = Schema
 
     def __post_init__(self):
         self.apiVersion = API_VERSION
         self.type = self.TYPE
+
+    @property
+    def name(self) -> str:
+        raise NotImplementedError('not implemented in the base class')
 
 
 @dataclass
@@ -66,3 +70,8 @@ class InfoBase:
     last_updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='LastUpdatedAt')})
     deleted_by: str = field(metadata={'data_key': 'DeletedBy'})
     deleted_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DeletedAt')})
+    id: str
+    name: str
+    spec: str
+    description: str
+    Schema: ClassVar[Type[Schema]] = Schema
