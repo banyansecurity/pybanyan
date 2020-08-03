@@ -1,19 +1,21 @@
 from dataclasses import field
+from datetime import datetime
+from ipaddress import IPv4Address
+from typing import List, Dict, ClassVar, Type
+from uuid import UUID
+
+import OpenSSL.crypto
 from marshmallow import fields, Schema
 from marshmallow_dataclass import dataclass
-from typing import List, Dict, ClassVar, Type
-from banyan.model.netagent import Netagent
-from ipaddress import IPv4Address
-from uuid import UUID
 from semver import VersionInfo
-import OpenSSL.crypto
-from datetime import datetime
+
+from banyan.model.netagent import Netagent
 
 
 @dataclass
 class Shield:
     org_id: UUID = field(metadata={"data_key": "OrgID"})
-    uuid: UUID = field(metadata={"data_key": "UUID"})
+    id: UUID = field(metadata={"data_key": "UUID"})
     name: str = field(metadata={"data_key": "ShieldName"})
     group_type: str = field(metadata={"data_key": "GroupType"})
     cluster_mgr_type: str = field(metadata={"data_key": "ClusterMgrType"})

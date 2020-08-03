@@ -1,4 +1,5 @@
 import unittest
+
 from banyan.model.shield import Shield, ShieldLastActivity, ShieldConfig
 
 
@@ -8,7 +9,7 @@ class ShieldParserTest(unittest.TestCase):
     def test_parse_shield(self):
         s: Shield = Shield.Schema().loads(open("tests/data/shield.json").read())
         self.assertEqual("us-east-1", s.name)
-        self.assertEqual(self.SHIELD_UUID, str(s.uuid))
+        self.assertEqual(self.SHIELD_UUID, str(s.id))
 
     def test_parse_last_activity(self):
         la: ShieldLastActivity = ShieldLastActivity.Schema().loads(open("tests/data/shield_activity.json").read())
@@ -16,7 +17,7 @@ class ShieldParserTest(unittest.TestCase):
 
     def test_parse_config(self):
         c: ShieldConfig = ShieldConfig.Schema().loads(open("tests/data/shields.json").read())
-        self.assertIn(ShieldParserTest.SHIELD_UUID, [str(x.uuid) for x in c.shields])
+        self.assertIn(ShieldParserTest.SHIELD_UUID, [str(x.id) for x in c.shields])
         self.assertIn(ShieldParserTest.SHIELD_UUID, c.last_activity_map.keys())
         self.assertIn(ShieldParserTest.SHIELD_UUID, c.netagent_map.keys())
 
