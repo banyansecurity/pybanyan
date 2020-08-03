@@ -1,11 +1,6 @@
-from typing import Dict, List
-
-from banyan.core.exc import BanyanError
-from banyan.model import BanyanApiObject
-from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo
-from banyan.model.service import ServiceInfoOrName
-from banyan.model.role import Role, RoleInfo, RoleInfoOrName
 from banyan.api.base import ServiceBase
+from banyan.model import BanyanApiObject
+from banyan.model.role import Role, RoleInfo, RoleInfoOrName
 
 
 class RoleAPI(ServiceBase):
