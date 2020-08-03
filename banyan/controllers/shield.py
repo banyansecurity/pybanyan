@@ -49,7 +49,7 @@ class ShieldController(Controller):
             raise BanyanError(f'Shield {shield_name} is not enabled for OTK')
         self.app.print(str(shield.one_time_key))
 
-    @ex(help='show the status of a shield',
+    @ex(help='show detailed information about a shield',
         arguments=[
             (['shield_name'],
              {
@@ -64,7 +64,7 @@ class ShieldController(Controller):
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(shield_json, handler='json', indent=2, sort_keys=True)
 
-    @ex(help='list netagents connected to this shield',
+    @ex(help='list netagents connected to a shield',
         arguments=[
             (['shield_name'],
              {
