@@ -3,7 +3,9 @@ from typing import List
 from cement import Controller, ex
 
 from banyan.api.shield import ShieldAPI
+from banyan.controllers.base import Base
 from banyan.core.exc import BanyanError
+from banyan.model.netagent import Netagent
 from banyan.model.shield import Shield
 
 
@@ -46,3 +48,39 @@ class ShieldController(Controller):
         if not shield.otk_enabled:
             raise BanyanError(f'Shield {shield_name} is not enabled for OTK')
         self.app.print(str(shield.one_time_key))
+
+    @ex(help='show the status of a shield',
+        arguments=[
+            (['shield_name'],
+             {
+                 'metavar': 'shield_name_or_id',
+                 'help': 'Name or ID of the shield.'
+             }),
+        ])
+    def get(self):
+        shield_name = self.app.pargs.shield_name
+        shield = self._client.find(shield_name)
+        shield_json = Shield.Schema().dump(shield)
+        # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
+        self.app.render(shield_json, handler='json', indent=2, sort_keys=True)
+
+    @ex(help='list netagents connected to this shield',
+        arguments=[
+            (['shield_name'],
+             {
+                 'metavar': 'shield_name_or_id',
+                 'help': 'Name or ID of the shield.'
+             }),
+        ])
+    def list_netagents(self):
+        shield_name = self.app.pargs.shield_name
+        shield = self._client.find(shield_name)
+        agents: List[Netagent] = self._client.config.netagent_map[str(shield.id)]
+        results = list()
+        headers = ['Site Name', 'Hostname', 'Public IP', 'Status', 'Last Activity']
+        for agent in agents:
+            new_row = [agent.name, agent.hostname, agent.public_ip_addr, agent.status,
+                       agent.last_activity_at.strftime(Base.TABLE_DATE_FORMAT) if agent.last_activity_at else 'None']
+            results.append(new_row)
+        results.sort(key=lambda x: x[0] + x[1])
+        self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')

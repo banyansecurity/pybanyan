@@ -1,13 +1,14 @@
 from dataclasses import field
+from datetime import datetime
+from ipaddress import IPv4Interface
 from typing import List, Dict, Optional, ClassVar, Type
+from uuid import UUID
+
 from marshmallow import validate, fields, pre_load, Schema
 from marshmallow_dataclass import dataclass
 # from dataclasses_serialization.json import JSONStrSerializerMixin, JSONSerializerMixin
 # from banyan.model.custom_types import Iso8601Date
 from semver import VersionInfo
-from ipaddress import IPv4Interface
-from datetime import datetime
-from uuid import UUID
 
 
 @dataclass
@@ -70,3 +71,11 @@ class Netagent:
             tokens = tokens[3:]
             cidrs[net_str] = port
         return cidrs
+
+    @property
+    def public_ip_addr(self) -> str:
+        for ip in self.ip_addresses:
+            nic = IPv4Interface(ip)
+            if nic.is_global:
+                return ip
+        return ''
