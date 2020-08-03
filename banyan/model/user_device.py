@@ -5,7 +5,7 @@ from typing import List, ClassVar, Type, Optional
 # from dataclasses_serialization.json import JSONStrSerializerMixin, JSONSerializerMixin
 from uuid import UUID
 
-from marshmallow import Schema, validate, fields
+from marshmallow import Schema, validate, fields, pre_load
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
@@ -28,12 +28,12 @@ class TrustData:
     LOW = "Low"
     MEDIUM = "Medium"
     HIGH = "High"
-    _TRUST_VALUES = (ALWAYS_DENY, LOW, MEDIUM, HIGH, ALWAYS_ALLOW)
+    TRUST_VALUES = (ALWAYS_DENY, LOW, MEDIUM, HIGH, ALWAYS_ALLOW)
     entity_trustscore: int = field(metadata={'data_key': 'EntityTrustscore'})
     override_trustscore: int = field(metadata={'data_key': 'OverrideTrustscore'})
     access_trustscore: int = field(metadata={'data_key': 'AccessTrustscore'})
     override_active: bool = field(metadata={'data_key': 'OverrideActive'})
-    level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(_TRUST_VALUES)})
+    level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(TRUST_VALUES)})
     updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='UpdatedAt')})
     factors: List[TrustFactor] = field(default_factory=list, metadata={'data_key': 'Factors'})
 
@@ -42,7 +42,7 @@ class TrustData:
 class MdmData:
     timestamp: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='Timestamp')})
     source: str = field(metadata={'data_key': 'Source'})
-    compromised_status: bool = field(metadata={'data_key': 'CompromisedStatus'})
+    compromised_status: str = field(metadata={'data_key': 'CompromisedStatus'})
     compliant_status: str = field(metadata={'data_key': 'CompliantStatus'})
 
 
@@ -69,12 +69,17 @@ class User(Resource):
 
 @dataclass
 class Device(Resource):
-    device_id: UUID = field(metadata={'data_key': 'DeviceID'})
+    CORPORATE_DEDICATED = 'Corporate Dedicated'
+    CORPORATE_SHARED = 'Corporate Shared'
+    EMPLOYEE_OWNED = 'Employee Owned'
+    OTHER = 'Other'
+    _OWNERSHIP_VALUES = (CORPORATE_DEDICATED, CORPORATE_SHARED, EMPLOYEE_OWNED, OTHER)
+
     serial_number: str = field(metadata={'data_key': 'SerialNumber'})
     device_friendly_name: str = field(metadata={'data_key': 'DeviceFriendlyName'})
     last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
-    ownership: str = field(metadata={'data_key': 'Ownership'})
+    ownership: str = field(metadata={'data_key': 'Ownership', 'validate': validate.OneOf(_OWNERSHIP_VALUES)})
     platform: str = field(metadata={'data_key': 'Platform'})
     model: str = field(metadata={'data_key': 'Model'})
     architecture: str = field(metadata={'data_key': 'Architecture'})
@@ -87,6 +92,7 @@ class Device(Resource):
     trust_data: TrustData = field(metadata={'data_key': 'TrustData'})
     emails: List[str] = field(default_factory=list, metadata={'data_key': 'Emails'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles'})
+    device_id: UUID = field(default=None, metadata={'data_key': 'DeviceID', 'missing': ''})
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property
@@ -95,5 +101,33 @@ class Device(Resource):
 
     @property
     def id(self) -> str:
-        return str(self.device_id)
+        return self.serial_number
 
+    @pre_load
+    def _remove_empty_id(self, data, **kwargs):
+        if 'DeviceID' in data and data['DeviceID'] == '':
+            del data['DeviceID']
+        return data
+
+
+@dataclass
+class TrustAdjustment(Resource):
+    trust_type: str = field(metadata={'data_key': 'TrustType'})
+    trust_id: str = field(metadata={'data_key': 'TrustID'})
+    score: int = field(metadata={'data_key': 'Score'})
+    level: str = field(metadata={'data_key': 'Level'})
+    ext_source: str = field(metadata={'data_key': 'ExtSource'})
+    reason: str = field(metadata={'data_key': 'Reason'})
+    factors_json: str = field(metadata={'data_key': 'FactorsJSON'})
+    created_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='CreatedAt')})
+    deleted_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='DeletedAt')})
+    last_updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastUpdatedAt')})
+    Schema: ClassVar[Type[Schema]] = Schema
+
+    @property
+    def name(self) -> str:
+        return self.trust_id
+
+    @property
+    def id(self) -> str:
+        return self.trust_id

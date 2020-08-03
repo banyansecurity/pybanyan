@@ -47,7 +47,7 @@ class ServiceBase(ABC):
 
     def exists(self, name: str) -> bool:
         self._ensure_cache()
-        return name.lower() in self._by_name.keys() or name in self._by_id.keys()
+        return name.lower() in self._by_name.keys() or name.lower() in self._by_id.keys()
 
     def _ensure_cache(self) -> None:
         if not self._cache:

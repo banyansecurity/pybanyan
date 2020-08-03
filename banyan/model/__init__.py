@@ -25,7 +25,7 @@ class NanoTimestampField(fields.DateTime):
         if not value:
             return 0
         elif isinstance(value, datetime):
-            return value.timestamp() * 1000000000
+            return int(value.timestamp() * 1000000000)
         else:
             return super()._serialize(value, attr, obj, **kwargs)
 

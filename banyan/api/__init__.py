@@ -6,6 +6,7 @@ import requests
 from requests.auth import AuthBase
 
 from banyan.api.attachment import AttachmentAPI
+from banyan.api.device import DeviceAPI
 from banyan.api.netagent import NetagentAPI
 from banyan.api.policy import PolicyAPI
 from banyan.api.role import RoleAPI
@@ -49,6 +50,7 @@ class BanyanApiClient:
         self._shields = ShieldAPI(self)
         self._agents = NetagentAPI(self)
         self._users = UserAPI(self)
+        self._devices = DeviceAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -86,7 +88,7 @@ class BanyanApiClient:
                 content = response.json()
                 if 'Message' in content:
                     raise BanyanError(f'{response.status_code} Client Error: {response.reason} for '
-                                      'url: {response.url}: {content["Message"]}')
+                                      f'url: {response.url}: {content["Message"]}')
             except ValueError:
                 raise BanyanError(f'{response.status_code} Client Error: {response.reason} for url: {response.url}')
         return response
@@ -151,6 +153,10 @@ class BanyanApiClient:
     @property
     def users(self):
         return self._users
+
+    @property
+    def devices(self):
+        return self._devices
 
 
 if __name__ == '__main__':
