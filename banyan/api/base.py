@@ -69,6 +69,8 @@ class ServiceBase(ABC):
             return self.__getitem__(obj)
 
     def create(self, obj: BanyanApiObject):
+        if not self.Meta.insert_uri:
+            raise BanyanError(f'{self.Meta.obj_name} API does not support creating objects')
         self._ensure_does_not_exist(obj.name)
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
@@ -76,6 +78,8 @@ class ServiceBase(ABC):
         return self.Meta.info_class.Schema().load(response_json)
 
     def update(self, obj: BanyanApiObject):
+        if not self.Meta.insert_uri:
+            raise BanyanError(f'{self.Meta.obj_name} API does not support updating objects')
         self._ensure_exists(obj.name)
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
@@ -83,6 +87,8 @@ class ServiceBase(ABC):
         return self.Meta.info_class.Schema().load(response_json)
 
     def delete(self, obj: ResourceOrName):
+        if not self.Meta.delete_uri:
+            raise BanyanError(f'{self.Meta.obj_name} API does not support deleting objects')
         obj = self.find(obj)
         json_response = self._client.api_request('DELETE',
                                                  self.Meta.delete_uri,

@@ -2,8 +2,6 @@ from datetime import timezone, datetime
 from typing import List
 
 from banyan.api.base import ServiceBase
-from banyan.core.exc import BanyanError
-from banyan.model import BanyanApiObject, ResourceOrName
 from banyan.model.shield import Shield, ShieldConfig
 
 
@@ -30,16 +28,8 @@ class ShieldAPI(ServiceBase):
 
     def active(self) -> List[Shield]:
         shields = self.list()
-        return [x for x in shields if self.status(str(x.shield_id)) == 'REPORTING']  # what defines a shield as "enabled"?
-
-    def create(self, obj: BanyanApiObject):
-        raise BanyanError('Shields cannot be created via API')
-
-    def delete(self, obj: ResourceOrName):
-        raise BanyanError('Shields cannot be deleted via API')
-
-    def update(self, obj: BanyanApiObject):
-        raise BanyanError('Shields cannot be updated via API')
+        # what defines a shield as "enabled"?
+        return [x for x in shields if self.status(str(x.shield_id)) == 'REPORTING']
 
     def status(self, shield_name_or_id: str) -> str:
         shield: Shield = self.find(shield_name_or_id)
