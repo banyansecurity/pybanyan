@@ -24,9 +24,10 @@ class ServiceController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
-            new_row = [service.service_name, service.service_id, service.service.metadata.tags.service_app_type,
-                       service.enabled,
-                       service.created_at.strftime(Base.TABLE_DATE_FORMAT), service.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
+            app_type = service.service.metadata.tags.service_app_type
+            new_row = [service.service_name, service.service_id, app_type, service.enabled,
+                       service.created_at.strftime(Base.TABLE_DATE_FORMAT),
+                       service.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
             results.append(new_row)
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
