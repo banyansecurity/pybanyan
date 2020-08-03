@@ -1,5 +1,4 @@
-
-from pytest import raises
+# noinspection PyPackageRequirements
 from banyan.main import MyAppTest
 
 
@@ -23,7 +22,7 @@ def test_command1():
     argv = ['command1']
     with MyAppTest(argv=argv) as app:
         app.run()
-        data,output = app.last_rendered
+        data, output = app.last_rendered
         assert data['foo'] == 'bar'
         assert output.find('Foo => bar')
 
@@ -31,6 +30,6 @@ def test_command1():
     argv = ['command1', '--foo', 'not-bar']
     with MyAppTest(argv=argv) as app:
         app.run()
-        data,output = app.last_rendered
+        data, output = app.last_rendered
         assert data['foo'] == 'not-bar'
         assert output.find('Foo => not-bar')

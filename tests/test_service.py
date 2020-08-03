@@ -16,7 +16,7 @@ class ServiceParserTest(unittest.TestCase):
 
     def test_parse_info(self):
         i: ServiceInfo = ServiceInfo.Schema().loads(open("tests/data/serviceinfo.json").read())
-        self.assertEqual("*.staging.earnest.com", i.name)
+        self.assertEqual("*.staging.earnest.com", i.service_name)
         self.assertEqual("*.staging.earnest.com", i.service.name)
 
     def test_parse_attachments(self):
@@ -31,8 +31,7 @@ class ServiceParserTest(unittest.TestCase):
 
 class TagParserTest(unittest.TestCase):
     def test_parse_tags(self):
-        s = Tags.Schema()
-        t: Tags = s.loads(open("tests/data/service_tags.json").read())
+        t: Tags = Tags.Schema().loads(open("tests/data/service_tags.json").read())
         self.assertEqual("*.staging.earnest.com", t.domain)
         self.assertEqual(Tags.TEMPLATE_WEB, t.template)
         self.assertEqual(Tags.APP_TYPE_WEB, t.service_app_type)
