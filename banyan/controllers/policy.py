@@ -24,7 +24,7 @@ class PolicyController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Created', 'Last Updated']
         for policy in policies:
-            new_row = [policy.name, policy.id,
+            new_row = [policy.policy_name, policy.policy_id,
                        policy.created_at.strftime(Base.TABLE_DATE_FORMAT),
                        policy.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
             results.append(new_row)

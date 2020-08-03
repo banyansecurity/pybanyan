@@ -9,14 +9,15 @@ from marshmallow import fields, Schema
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
+from banyan.model import Resource
 from banyan.model.netagent import Netagent
 
 
 @dataclass
-class Shield:
+class Shield(Resource):
     org_id: UUID = field(metadata={"data_key": "OrgID"})
-    id: UUID = field(metadata={"data_key": "UUID"})
-    name: str = field(metadata={"data_key": "ShieldName"})
+    shield_id: UUID = field(metadata={"data_key": "UUID"})
+    shield_name: str = field(metadata={"data_key": "ShieldName"})
     group_type: str = field(metadata={"data_key": "GroupType"})
     cluster_mgr_type: str = field(metadata={"data_key": "ClusterMgrType"})
     cluster_mgr_ip: IPv4Address = field(metadata={"marshmallow_field": fields.String(data_key="ClusterMgrIP")})
@@ -34,6 +35,14 @@ class Shield:
     def load_cacert(self) -> OpenSSL.crypto.X509:
         cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, self.ca_cert_str.encode('utf-8'))
         return cert
+
+    @property
+    def name(self) -> str:
+        return self.shield_name
+
+    @property
+    def id(self) -> str:
+        return str(self.shield_id)
 
 
 @dataclass

@@ -10,9 +10,11 @@ from marshmallow_dataclass import dataclass
 # from banyan.model.custom_types import Iso8601Date
 from semver import VersionInfo
 
+from banyan.model import Resource
+
 
 @dataclass
-class Netagent:
+class Netagent(Resource):
     TERMINATED = "Terminated"
     REPORTING = "Reporting"
     TAG_HOSTNAME = "com.banyanops.hosttag.hname"
@@ -34,14 +36,18 @@ class Netagent:
     Schema: ClassVar[Type[Schema]] = Schema
 
     @pre_load
-    def remove_empty_dates(self, data, many, **kwargs):
+    def _remove_empty_dates(self, data, many, **kwargs):
         if "LastActivityAt" in data and data["LastActivityAt"] == "":
             del data["LastActivityAt"]
         return data
 
     @property
     def name(self) -> str:
-        return self.host_tags.get(Netagent.TAG_SITE_NAME)
+        return self.hostname
+
+    @property
+    def id(self) -> str:
+        return self.hostname
 
     @property
     def domain_names(self) -> List[str]:

@@ -1,10 +1,13 @@
+from abc import ABC
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Interface
-from typing import ClassVar, Type
+from typing import ClassVar, Type, Union
 
 from marshmallow import fields, Schema
 from marshmallow_dataclass import dataclass
+
+from banyan.core.exc import BanyanError
 
 API_VERSION = "rbac.banyanops.com/v1"
 
@@ -63,15 +66,29 @@ class BanyanApiObject:
 
 
 @dataclass
-class InfoBase:
+class Resource(ABC):
+    Schema: ClassVar[Type[Schema]] = Schema
+
+    @property
+    def name(self) -> str:
+        raise BanyanError('not implemented')
+
+    @property
+    def id(self) -> str:
+        raise BanyanError('not implemented')
+
+
+ResourceOrName = Union[Resource, str]
+
+
+@dataclass
+class InfoBase(Resource, ABC):
     created_by: str = field(metadata={'data_key': 'CreatedBy'})
     created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='CreatedAt')})
     last_updated_by: str = field(metadata={'data_key': 'LastUpdatedBy'})
     last_updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='LastUpdatedAt')})
     deleted_by: str = field(metadata={'data_key': 'DeletedBy'})
     deleted_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DeletedAt')})
-    id: str
-    name: str
     spec: str
     description: str
     Schema: ClassVar[Type[Schema]] = Schema

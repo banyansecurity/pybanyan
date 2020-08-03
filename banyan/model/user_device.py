@@ -9,7 +9,7 @@ from marshmallow import Schema, validate, fields
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
-from banyan.model import NanoTimestampField
+from banyan.model import NanoTimestampField, Resource
 
 
 @dataclass
@@ -47,8 +47,8 @@ class MdmData:
 
 
 @dataclass
-class User:
-    name: str = field(metadata={'data_key': 'Name'})
+class User(Resource):
+    username: str = field(metadata={'data_key': 'Name'})
     email: str = field(metadata={'data_key': 'Email'})
     groups: str = field(metadata={'data_key': 'Groups'})
     last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
@@ -58,9 +58,17 @@ class User:
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles'})
     Schema: ClassVar[Type[Schema]] = Schema
 
+    @property
+    def name(self) -> str:
+        return self.name
+
+    @property
+    def id(self) -> str:
+        return self.email
+
 
 @dataclass
-class Device:
+class Device(Resource):
     device_id: UUID = field(metadata={'data_key': 'DeviceID'})
     serial_number: str = field(metadata={'data_key': 'SerialNumber'})
     device_friendly_name: str = field(metadata={'data_key': 'DeviceFriendlyName'})
@@ -80,3 +88,12 @@ class Device:
     emails: List[str] = field(default_factory=list, metadata={'data_key': 'Emails'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles'})
     Schema: ClassVar[Type[Schema]] = Schema
+
+    @property
+    def name(self) -> str:
+        return self.device_friendly_name
+
+    @property
+    def id(self) -> str:
+        return str(self.device_id)
+

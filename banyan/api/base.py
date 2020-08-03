@@ -2,37 +2,35 @@ from abc import ABC
 from typing import Dict, List, Union
 
 from banyan.core.exc import BanyanError
-from banyan.model import InfoBase, BanyanApiObject
-from banyan.model.policy import PolicyInfo
-from banyan.model.role import Role, RoleInfo, RoleInfoOrName
+from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
 
 InfoObjectOrName = Union[InfoBase, str]
 
 
 class ServiceBase(ABC):
     class Meta:
-        data_class = Role
-        info_class = RoleInfo
-        arg_type = RoleInfoOrName
-        list_uri = '/security_roles'
-        delete_uri = '/delete_security_role'
-        insert_uri = '/insert_security_role'
-        uri_param = 'RoleID'
-        obj_name = 'role'
+        data_class = BanyanApiObject
+        info_class = Resource
+        arg_type = ResourceOrName
+        list_uri = '/undeclared'
+        delete_uri = '/undeclared'
+        insert_uri = '/undeclared'
+        uri_param = 'ObjectID'
+        obj_name = 'object'
 
     def __init__(self, client):
         self._client = client
-        self._cache: List[InfoBase] = list()
-        self._by_name: Dict[str, InfoBase] = dict()
-        self._by_id: Dict[str, InfoBase] = dict()
+        self._cache: List[Resource] = list()
+        self._by_name: Dict[str, Resource] = dict()
+        self._by_id: Dict[str, Resource] = dict()
 
     def list(self) -> list:
         response_json = self._client.api_request('GET', self.Meta.list_uri)
-        data: List[InfoBase] = self.Meta.info_class.Schema().load(response_json, many=True)
+        data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data
 
-    def _build_cache(self, info: list) -> None:
+    def _build_cache(self, info: List[Resource]) -> None:
         self._cache = info
         self._by_name = {i.name.lower(): i for i in info}
         self._by_id = {str(i.id).lower(): i for i in info}
@@ -63,8 +61,8 @@ class ServiceBase(ABC):
         if self.exists(name):
             raise BanyanError(f'{self.Meta.obj_name} name already exists: {name}')
 
-    def find(self, obj: InfoObjectOrName):
-        if isinstance(obj, InfoBase):
+    def find(self, obj: ResourceOrName):
+        if isinstance(obj, Resource):
             self._ensure_exists(obj.name)
             return obj
         else:
@@ -75,16 +73,16 @@ class ServiceBase(ABC):
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
                                                  json=obj.Schema().dump(obj))
-        return PolicyInfo.Schema().load(response_json)
+        return self.Meta.info_class.Schema().load(response_json)
 
     def update(self, obj: BanyanApiObject):
         self._ensure_exists(obj.name)
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
                                                  json=obj.Schema().dump(obj))
-        return PolicyInfo.Schema().load(response_json)
+        return self.Meta.info_class.Schema().load(response_json)
 
-    def delete(self, obj: InfoObjectOrName):
+    def delete(self, obj: ResourceOrName):
         obj = self.find(obj)
         json_response = self._client.api_request('DELETE',
                                                  self.Meta.delete_uri,

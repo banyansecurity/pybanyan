@@ -1,8 +1,8 @@
 from dataclasses import field
-from typing import List, Dict, ClassVar, Type, Optional, Union
+from typing import List, Dict, Optional, Union
 from uuid import UUID
 
-from marshmallow import validate, Schema
+from marshmallow import validate
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase
@@ -58,8 +58,8 @@ class Role(BanyanApiObject):
 
 @dataclass
 class RoleInfo(InfoBase):
-    id: UUID = field(metadata={'data_key': 'RoleID'})
-    name: str = field(metadata={'data_key': 'RoleName'})
+    role_id: UUID = field(metadata={'data_key': 'RoleID'})
+    role_name: str = field(metadata={'data_key': 'RoleName'})
     spec: str = field(metadata={'data_key': 'RoleSpec'})
     description: str = field(metadata={'data_key': 'Description'})
 
@@ -70,6 +70,14 @@ class RoleInfo(InfoBase):
     @property
     def role(self) -> Role:
         return Role.Schema().loads(self.spec)
+
+    @property
+    def name(self) -> str:
+        return self.role_name
+
+    @property
+    def id(self) -> str:
+        return str(self.role_id)
 
 
 RoleInfoOrName = Union[RoleInfo, str]

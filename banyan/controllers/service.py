@@ -24,7 +24,7 @@ class ServiceController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
-            new_row = [service.name, service.id, service.service.metadata.tags.service_app_type,
+            new_row = [service.service_name, service.service_id, service.service.metadata.tags.service_app_type,
                        service.enabled,
                        service.created_at.strftime(Base.TABLE_DATE_FORMAT), service.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
             results.append(new_row)

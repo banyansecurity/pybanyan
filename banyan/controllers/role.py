@@ -24,7 +24,7 @@ class RoleController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Created', 'Last Updated']
         for role in roles:
-            new_row = [role.name, role.id,
+            new_row = [role.role_name, role.role_id,
                        role.created_at.strftime(Base.TABLE_DATE_FORMAT),
                        role.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
             results.append(new_row)

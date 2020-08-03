@@ -1,16 +1,16 @@
 from datetime import timezone, datetime
 from typing import List
 
-from banyan.api.base import ServiceBase, InfoObjectOrName
+from banyan.api.base import ServiceBase
 from banyan.core.exc import BanyanError
-from banyan.model import BanyanApiObject
+from banyan.model import BanyanApiObject, ResourceOrName
 from banyan.model.shield import Shield, ShieldConfig
 
 
 class ShieldAPI(ServiceBase):
     class Meta:
         data_class = Shield
-        info_class = None
+        info_class = Shield
         arg_type = str
         list_uri = '/shield_config'
         delete_uri = None
@@ -30,23 +30,20 @@ class ShieldAPI(ServiceBase):
 
     def active(self) -> List[Shield]:
         shields = self.list()
-        return [x for x in shields if x.name]  # what defines a shield as "enabled"?
+        return [x for x in shields if self.status(str(x.shield_id)) == 'REPORTING']  # what defines a shield as "enabled"?
 
     def create(self, obj: BanyanApiObject):
         raise BanyanError('Shields cannot be created via API')
 
-    def delete(self, obj: InfoObjectOrName):
+    def delete(self, obj: ResourceOrName):
         raise BanyanError('Shields cannot be deleted via API')
 
     def update(self, obj: BanyanApiObject):
         raise BanyanError('Shields cannot be updated via API')
 
-    def find(self, obj: InfoObjectOrName) -> Shield:
-        return super().find(obj)
-
     def status(self, shield_name_or_id: str) -> str:
-        shield = self.find(shield_name_or_id)
-        activity = self.config.last_activity_map[str(shield.id)]
+        shield: Shield = self.find(shield_name_or_id)
+        activity = self.config.last_activity_map[shield.id]
         now = datetime.now(tz=timezone.utc)
         age = now - activity.last_activity_time
         return 'INACTIVE' if age.total_seconds() >= 900 else 'REPORTING'

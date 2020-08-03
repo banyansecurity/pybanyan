@@ -1,6 +1,6 @@
 from dataclasses import field
 from datetime import datetime
-from typing import List, ClassVar, Type, Optional, Union
+from typing import List, ClassVar, Optional, Union
 from uuid import UUID
 
 from marshmallow import validate, Schema, pre_load
@@ -71,7 +71,7 @@ class Conditions:
                                                  "validate": validate.OneOf(_TRUST_LEVEL_VALUES + ("",))})
 
     @pre_load
-    def replace_empty_dates(self, data, many, **kwargs):
+    def _replace_empty_dates(self, data, many, **kwargs):
         if "start_time" in data and data["start_time"] == "":
             del data["start_time"]
         if "end_time" in data and data["end_time"] == "":
@@ -115,16 +115,24 @@ class Policy(BanyanApiObject):
 
 @dataclass
 class PolicyInfo(InfoBase):
-    id: UUID = field(metadata={'data_key': 'PolicyID'})
-    name: str = field(metadata={'data_key': 'PolicyName'})
+    policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
+    policy_name: str = field(metadata={'data_key': 'PolicyName'})
     spec: str = field(metadata={'data_key': 'PolicySpec'})
     description: str = field(metadata={'data_key': 'Description'})
-
     version: int = field(metadata={'data_key': 'PolicyVersion'})
+    Schema: ClassVar[Schema] = Schema
 
     @property
     def policy(self) -> Policy:
         return Policy.Schema().loads(self.spec)
+
+    @property
+    def name(self) -> str:
+        return self.policy_name
+
+    @property
+    def id(self) -> str:
+        return str(self.policy_id)
 
 
 @dataclass
@@ -136,6 +144,7 @@ class PolicyAttachInfo:
     detached_by: str = field(metadata={'data_key': 'DetachedBy'})
     attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
     detached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='DetachedAt')})
+    Schema: ClassVar[Schema] = Schema
 
 
 PolicyInfoOrName = Union[PolicyInfo, str]

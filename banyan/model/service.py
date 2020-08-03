@@ -1,8 +1,8 @@
 from dataclasses import field
 from ipaddress import IPv4Interface
-from typing import List, Dict, Union, Optional, ClassVar, Type
+from typing import List, Dict, Union, Optional
 
-from marshmallow import validate, Schema, pre_load, fields
+from marshmallow import validate, pre_load, fields
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
@@ -27,7 +27,7 @@ class Tags:
     port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
 
     @pre_load
-    def handle_empty_port(self, data, **kwargs):
+    def _handle_empty_port(self, data, **kwargs):
         if 'port' in data and data['port'] == '':
             del data['port']
         return data
@@ -158,7 +158,7 @@ class BackendTarget:
     client_certificate: Optional[bool] = False
 
     @pre_load
-    def handle_empty_port(self, data, **kwargs):
+    def _handle_empty_port(self, data, **kwargs):
         if 'port' in data and data['port'] == '':
             del data['port']
         return data
@@ -201,8 +201,8 @@ class OIDCClient:
 
 @dataclass
 class ServiceInfo(InfoBase):
-    id: str = field(metadata={'data_key': 'ServiceID'})
-    name: str = field(metadata={"data_key": 'ServiceName'})
+    service_id: str = field(metadata={'data_key': 'ServiceID'})
+    service_name: str = field(metadata={"data_key": 'ServiceName'})
     description: str = field(metadata={"data_key": 'Description'})
     spec: str = field(metadata={"data_key": 'ServiceSpec'})
 
@@ -226,6 +226,14 @@ class ServiceInfo(InfoBase):
     @property
     def oidc_client(self) -> OIDCClient:
         return OIDCClient.Schema().loads(self.oidc_client_spec)
+
+    @property
+    def name(self) -> str:
+        return self.service_name
+
+    @property
+    def id(self) -> str:
+        return self.service_id
 
 
 ServiceInfoOrName = Union[ServiceInfo, str]
