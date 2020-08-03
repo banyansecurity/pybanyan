@@ -33,4 +33,3 @@ class Attachment(Resource):
     @property
     def id(self) -> str:
         return str(self.policy_id) + '|' + self.attached_to_type + '|' + self.attached_to_id
-
