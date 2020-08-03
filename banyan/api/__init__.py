@@ -5,10 +5,11 @@ from typing import Dict, Any
 import requests
 from requests.auth import AuthBase
 
-from banyan.api.attachments import AttachmentAPI
-from banyan.api.policies import PolicyAPI
-from banyan.api.roles import RoleAPI
-from banyan.api.services import ServiceAPI
+from banyan.api.attachment import AttachmentAPI
+from banyan.api.policy import PolicyAPI
+from banyan.api.role import RoleAPI
+from banyan.api.service import ServiceAPI
+from banyan.api.shield import ShieldAPI
 from banyan.core.exc import BanyanError
 
 
@@ -43,6 +44,7 @@ class BanyanApiClient:
         self._policies = PolicyAPI(self)
         self._attach = AttachmentAPI(self)
         self._roles = RoleAPI(self)
+        self._shields = ShieldAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -133,6 +135,10 @@ class BanyanApiClient:
     @property
     def attachments(self) -> AttachmentAPI:
         return self._attach
+
+    @property
+    def shields(self) -> ShieldAPI:
+        return self._shields
 
 
 if __name__ == '__main__':

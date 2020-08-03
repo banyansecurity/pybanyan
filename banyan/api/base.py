@@ -32,7 +32,7 @@ class ServiceBase(ABC):
         self._build_cache(data)
         return data
 
-    def _build_cache(self, info: List[InfoBase]) -> None:
+    def _build_cache(self, info: list) -> None:
         self._cache = info
         self._by_name = {i.name.lower(): i for i in info}
         self._by_id = {str(i.id).lower(): i for i in info}
