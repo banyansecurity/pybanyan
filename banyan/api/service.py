@@ -1,7 +1,4 @@
-from typing import Dict, List
-
 from banyan.api.base import ServiceBase
-from banyan.core.exc import BanyanError
 from banyan.model.policy import PolicyInfoOrName, PolicyAttachInfo
 from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName
 
@@ -32,9 +29,9 @@ class ServiceAPI(ServiceBase):
         return json_response['Message']
 
     def attach(self, service: ServiceInfoOrName, policy: PolicyInfoOrName, enforcing: bool) -> PolicyAttachInfo:
-        from banyan.api.policies import PolicyAPI
+        from banyan.api.policy import PolicyAPI
         return PolicyAPI(self._client).attach(policy, service, enforcing)
 
     def detach(self, service: ServiceInfoOrName, policy: PolicyInfoOrName) -> str:
-        from banyan.api.policies import PolicyAPI
+        from banyan.api.policy import PolicyAPI
         return PolicyAPI(self._client).detach(policy, service)
