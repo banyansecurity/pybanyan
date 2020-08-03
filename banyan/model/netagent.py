@@ -18,6 +18,7 @@ class Netagent(Resource):
     TERMINATED = "Terminated"
     REPORTING = "Reporting"
     TAG_HOSTNAME = "com.banyanops.hosttag.hname"
+    TAG_TYPE = "com.banyanops.hosttag.type"
     TAG_SITE_NAME = "com.banyanops.hosttag.site_name"
     TAG_DOMAIN_NAMES = "com.banyanops.hosttag.site_domain_names"
     TAG_FQDN = "com.banyanops.hosttag.site_address"
@@ -35,6 +36,7 @@ class Netagent(Resource):
     host_tags: Dict[str, str] = field(default_factory=dict, metadata={"data_key": "HostTags"})
     Schema: ClassVar[Type[Schema]] = Schema
 
+    # noinspection PyUnusedLocal
     @pre_load
     def _remove_empty_dates(self, data, many, **kwargs):
         if "LastActivityAt" in data and data["LastActivityAt"] == "":
@@ -51,7 +53,8 @@ class Netagent(Resource):
 
     @property
     def domain_names(self) -> List[str]:
-        return self.host_tags.get(Netagent.TAG_DOMAIN_NAMES).split(',')
+        names = self.host_tags.get(Netagent.TAG_DOMAIN_NAMES).split(',')
+        return [x.strip() for x in names]
 
     @property
     def fqdn(self):
@@ -85,3 +88,12 @@ class Netagent(Resource):
             if nic.is_global:
                 return ip
         return ''
+
+    @property
+    def is_access_tier(self):
+        host_type = self.host_tags.get(Netagent.TAG_TYPE)
+        return host_type == 'access_tier'
+
+    @property
+    def host_type(self):
+        return self.host_tags.get(Netagent.TAG_TYPE)

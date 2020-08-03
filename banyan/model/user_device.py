@@ -60,7 +60,7 @@ class User(Resource):
 
     @property
     def name(self) -> str:
-        return self.name
+        return self.username
 
     @property
     def id(self) -> str:
