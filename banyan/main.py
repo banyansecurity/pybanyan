@@ -1,11 +1,17 @@
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
-from .api import BanyanApiClient
-from .controllers.base import Base
-from .controllers.policy import PolicyController
-from .controllers.role import RoleController
-from .controllers.service import ServiceController
+from banyan.api import BanyanApiClient
+from banyan.controllers.admin import AdminController
+from banyan.controllers.base import Base
+from banyan.controllers.device import DeviceController
+from banyan.controllers.event import EventV1Controller
+from banyan.controllers.netagent import NetagentController
+from banyan.controllers.policy import PolicyController
+from banyan.controllers.role import RoleController
+from banyan.controllers.service import ServiceController
+from banyan.controllers.shield import ShieldController
+from banyan.controllers.user import UserController
 from .core.exc import BanyanError
 
 # configuration defaults
@@ -65,7 +71,13 @@ class MyApp(App):
             Base,
             ServiceController,
             RoleController,
-            PolicyController
+            PolicyController,
+            ShieldController,
+            NetagentController,
+            UserController,
+            DeviceController,
+            AdminController,
+            EventV1Controller
         ]
 
 
