@@ -2,7 +2,7 @@ from typing import List
 
 from cement import Controller, ex
 
-from banyan.api.services import ServiceAPI
+from banyan.api.service import ServiceAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
 

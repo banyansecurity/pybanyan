@@ -2,7 +2,7 @@ from typing import List
 
 from cement import Controller, ex
 
-from banyan.api.roles import RoleAPI
+from banyan.api.role import RoleAPI
 from banyan.controllers.base import Base
 from banyan.model.role import RoleInfo, Role
 
