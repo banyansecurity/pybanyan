@@ -70,6 +70,7 @@ class Conditions:
     trust_level: Optional[str] = field(metadata={"missing": TRUST_LEVEL_ALWAYS_ALLOW,
                                                  "validate": validate.OneOf(_TRUST_LEVEL_VALUES + ("",))})
 
+    # noinspection PyUnusedLocal
     @pre_load
     def _replace_empty_dates(self, data, many, **kwargs):
         if "start_time" in data and data["start_time"] == "":

@@ -56,6 +56,8 @@ class ShieldLastActivity:
 @dataclass
 class ShieldConfig:
     shields: List[Shield] = field(default_factory=list, metadata={"data_key": "Configs"})
-    last_activity_map: Dict[str, ShieldLastActivity] = field(default_factory=dict, metadata={"data_key": "ShieldLastActivitiesMap"})
-    netagent_map: Dict[str, List[Netagent]] = field(default_factory=dict, metadata={"data_key": "NetagentHostInfoMap"})
+    last_activity_map: Dict[str, ShieldLastActivity] = field(default_factory=dict,
+                                                             metadata={"data_key": "ShieldLastActivitiesMap"})
+    netagent_map: Dict[str, List[Netagent]] = field(default_factory=dict,
+                                                    metadata={"data_key": "NetagentHostInfoMap"})
     Schema: ClassVar[Type[Schema]] = Schema
