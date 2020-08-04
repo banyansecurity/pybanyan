@@ -15,43 +15,43 @@ class ServiceCommandTest(unittest.TestCase):
             c.services.delete(self.SERVICE_NAME)
 
     def test_service_create(self):
-        child = pexpect.spawnu('banyan service create @tests/data/service_create.json')
+        child = pexpect.spawnu('python -m banyan.main service create @tests/data/service_create.json')
         child.expect('"Description": "Test service"')
         child.close()
 
-        child = pexpect.spawnu('banyan service update @tests/data/service_update.json')
+        child = pexpect.spawnu('python -m banyan.main service update @tests/data/service_update.json')
         child.expect('"Description": "foobar"')
         child.close()
 
-        child = pexpect.spawnu('banyan service list')
+        child = pexpect.spawnu('python -m banyan.main service list')
         child.expect(self.SERVICE_NAME)
         child.close()
 
-        child = pexpect.spawnu(f'banyan service get {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service get {self.SERVICE_NAME}')
         child.expect(f'"description": "foobar"')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service disable {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service disable {self.SERVICE_NAME}')
         child.expect('updated successfully')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service disable {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service disable {self.SERVICE_NAME}')
         child.expect('no update was needed')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service enable {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service enable {self.SERVICE_NAME}')
         child.expect('updated successfully')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service enable {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service enable {self.SERVICE_NAME}')
         child.expect('no update was needed')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service delete {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service delete {self.SERVICE_NAME}')
         child.expect('Successfully deleted registered service from db')
         child.close()
 
-        child = pexpect.spawnu(f'banyan service get {self.SERVICE_NAME}')
+        child = pexpect.spawnu(f'python -m banyan.main service get {self.SERVICE_NAME}')
         child.expect(f'does not exist: {self.SERVICE_NAME}')
         child.close()
 
