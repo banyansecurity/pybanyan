@@ -49,7 +49,8 @@ class TrustFactorsV2(Resource):
     explanation: TrustFactorDetailsV2 = field(metadata={'data_key': 'Explanation'})
     created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='CreatedAt')})
     updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='UpdatedAt')})
-    factors_updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='FactorsUpdatedAt')})
+    factors_updated_at: datetime = field(metadata={'marshmallow_field':
+                                                   NanoTimestampField(data_key='FactorsUpdatedAt')})
     active_factors: List[TrustFactorV2] = field(default_factory=list, metadata={'data_key': 'ActiveFactors'})
     inactive_factors: List[TrustFactorV2] = field(default_factory=list, metadata={'data_key': 'InactiveFactors'})
     Schema: ClassVar[Schema] = Schema
@@ -61,4 +62,3 @@ class TrustFactorsV2(Resource):
     @property
     def id(self) -> str:
         return self.score_id
-

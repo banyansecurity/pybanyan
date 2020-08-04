@@ -102,6 +102,7 @@ class Device(Resource):
     def id(self) -> str:
         return self.serial_number
 
+    # noinspection PyUnusedLocal
     @pre_load
     def _remove_empty_id(self, data, **kwargs):
         if 'DeviceID' in data and data['DeviceID'] == '':
@@ -138,4 +139,3 @@ class TrustScore(Resource):
     @property
     def factors(self) -> TrustFactorsV2:
         return TrustFactorsV2.Schema().loads(self.factors_json)
-

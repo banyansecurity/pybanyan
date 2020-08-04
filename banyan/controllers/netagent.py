@@ -19,14 +19,15 @@ class NetagentController(Controller):
         return self.app.client.netagents
 
     @ex(help='list netagents',
-        arguments=[(['--all'],
-                    {
-                        'action': 'store_true',
-                        'dest': 'show_all',
-                        'help': 'Display all agents, including terminated agents. The default is to show only '
-                                'active, reporting agents.',
-                    }),
-                   ])
+        arguments=[
+            (['--all'],
+             {
+                 'action': 'store_true',
+                 'dest': 'show_all',
+                 'help': 'Display all agents, including terminated agents. The default is to show only '
+                         'active, reporting agents.',
+             }),
+        ])
     def list(self):
         agents: List[Netagent] = self._client.list()
         clusters: ShieldAPI = self.app.client.shields
@@ -57,4 +58,3 @@ class NetagentController(Controller):
         agent_json = Netagent.Schema().dump(agent)
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(agent_json, handler='json', indent=2, sort_keys=True)
-

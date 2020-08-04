@@ -116,4 +116,3 @@ class UserController(Controller):
     @ex(help='revoke a user\'s refresh token')
     def revoke_token(self):
         pass
-

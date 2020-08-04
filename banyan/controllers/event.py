@@ -21,4 +21,3 @@ class EventV1Controller(Controller):
     @ex(help='show summary of events in database')
     def summary(self):
         pass
-
