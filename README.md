@@ -1,5 +1,7 @@
 # API library and command-line interface for Banyan Security
 [![Build Status](https://travis-ci.org/banyansecurity/pybanyan.svg?branch=master)](https://travis-ci.org/banyansecurity/pybanyan)
+[![codecov](https://codecov.io/gh/banyansecurity/pybanyan/branch/master/graph/badge.svg)](https://codecov.io/gh/banyansecurity/pybanyan)
+
 
 ## Prerequisites
 Python 3.6, 3.7, or 3.8 must be installed.
