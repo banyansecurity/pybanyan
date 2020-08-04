@@ -1,18 +1,19 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
+- '3.6'
+- '3.7'
+- '3.8'
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
-
+- pip install -r requirements.txt
+- pip install -r requirements-dev.txt
 script:
-  - pytest --cov=banyan tests/
-  - flake8 --exit-zero
-  - python setup.py sdist bdist_wheel
-
+- pytest --cov=banyan tests/
+- flake8 --exit-zero
+- python setup.py sdist bdist_wheel
 after_success:
-  - codecov
-  - twine upload dist/*
+- codecov
+- twine upload dist/*
+notifications:
+  slack:
+    rooms:
+      - secure: CQKz7HtlrUJVmy062QILGzq2AcuvaQrZ3yUSCzKfPyWf/hXJY7UWCWLutAGDMuH3RD913xxujYN5EmN/ZaxUoYIL72x8nDEE3E7vqt+s01yzgjrVMIpZ0cWwQKaQyomFrqw8gJFxBccdRU5ZtOCDDrDdchiHX4iXYrj84k0K1JvEVXijK8PxCRzNZWbBq6XiNF3cuT8ZNJY8jl0GEkTqSFrXVrP6x9zFQgx597uzEL3xgvvqtbPH8sbmgdb44pZUM535rUXDwecOxOoNKa+YpWWJUDIk5QH9upQGr83aA5q7qxxpIqee5h8epp44tNK9Qio5JPyTLu9AHi4UUK+4X+mO8W04+PUjPZNagYDq/QEkpqH2e5XjAfxO9Z9MlYjGDrvG94VOzBaF7wObYQnEEhccSJLS71D1UmIw+NktZCZU7d5Acopjlnl3aaps23TMan5QEi7oW7PiTtPwSmERBU0ZiSayzpW0jYAxyLBTjmeoHMkjIRJH8mwmjejt9A6RxeDwI0Qh2OZgDB5JZwNcN93ZFAGnxkZgYfGjFMCOExuvsE5StPUgy9/DoxymH93h+17xKYuUOPBtYuCkoGGoQYZdrvDY9WCqS1CZrD70jXl0w0GrV/eCoY8xA9Mgk1POAlWuEuimwLkwcuHC8hgUjTy4pTObpvnF7wnUw0bFBkc=
