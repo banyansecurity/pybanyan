@@ -20,7 +20,7 @@ $ pip install pybanyan
 $ git clone https://github.com/banyansecurity/pybanyan.git
 $ cd pybanyan
 $ pip install -r requirements.txt
-$ pip install setup.py
+$ python setup.py install
 ```
 
 ## Usage
