@@ -1,5 +1,5 @@
-
 from setuptools import setup, find_packages
+
 from banyan.core.version import get_version
 
 VERSION = get_version()
@@ -21,7 +21,24 @@ setup(
     packages=find_packages(exclude=['ez_setup', 'tests*']),
     package_data={'banyan': ['templates/*']},
     include_package_data=True,
+    python_requires='~=3.6',
+    install_requires=[
+        'dnspython',
+        'marshmallow',
+        'marshmallow_dataclass',
+        'python-dateutil',
+        'cement==3.0.4',
+        'jinja2',
+        'pyyaml',
+        'colorlog',
+        'semver',
+        'jwt',
+        'iso8601',
+        'tabulate',
+        'pyOpenSSL',
+        'requests',
+    ],
     entry_points={'console_scripts': [
-        "banyan = banyan.main:main"
+        "banyan=banyan.main:main"
     ]},
 )

@@ -1,6 +1,7 @@
 # API library and command-line interface for Banyan Security
 [![Build Status](https://travis-ci.org/banyansecurity/pybanyan.svg?branch=master)](https://travis-ci.org/banyansecurity/pybanyan)
 [![codecov](https://codecov.io/gh/banyansecurity/pybanyan/branch/master/graph/badge.svg)](https://codecov.io/gh/banyansecurity/pybanyan)
+[![PyPI version](https://badge.fury.io/py/pybanyan.svg)](https://badge.fury.io/py/pybanyan)
 
 
 ## Prerequisites
