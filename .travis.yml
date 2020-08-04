@@ -9,8 +9,10 @@ install:
   - pip install -r requirements-dev.txt
 
 script:
-  - pytest
-  - flake8
+  - pytest --cov=banyan tests/
+  - flake8 --exit-zero
+  - python setup.py sdist bdist_wheel
 
 after_success:
   - codecov
+  - twine upload dist/*
