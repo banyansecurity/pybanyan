@@ -20,4 +20,3 @@ class ShieldParserTest(unittest.TestCase):
         self.assertIn(ShieldParserTest.SHIELD_UUID, [str(x.id) for x in c.shields])
         self.assertIn(ShieldParserTest.SHIELD_UUID, c.last_activity_map.keys())
         self.assertIn(ShieldParserTest.SHIELD_UUID, c.netagent_map.keys())
-
