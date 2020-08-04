@@ -1,5 +1,7 @@
+from typing import List
+
 from banyan.api.base import ServiceBase
-from banyan.model.user_device import User, TrustAdjustment
+from banyan.model.user_device import User, TrustScore
 
 
 class UserAPI(ServiceBase):
@@ -23,4 +25,11 @@ class UserAPI(ServiceBase):
                                                      'Reason': reason,
                                                      'ExtSource': ext_source
                                                  })
-        return TrustAdjustment.Schema().load(response_json)
+        return TrustScore.Schema().load(response_json)
+
+    def get_trustscores(self, obj: User) -> List[TrustScore]:
+        self._ensure_exists(obj.email)
+        response_json = self._client.api_request('GET',
+                                                 '/trustscore',
+                                                 params={self.Meta.uri_param: obj.email})
+        return TrustScore.Schema().load(response_json, many=True)

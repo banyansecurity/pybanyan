@@ -1,6 +1,8 @@
+from typing import List
+
 from banyan.api.base import ServiceBase
 from banyan.core.exc import BanyanError
-from banyan.model.user_device import Device, TrustAdjustment
+from banyan.model.user_device import Device, TrustScore
 
 
 class DeviceAPI(ServiceBase):
@@ -45,4 +47,11 @@ class DeviceAPI(ServiceBase):
                                                      'Reason': reason,
                                                      'ExtSource': ext_source
                                                  })
-        return TrustAdjustment.Schema().load(response_json)
+        return TrustScore.Schema().load(response_json)
+
+    def get_trustscores(self, obj: Device) -> List[TrustScore]:
+        self._ensure_exists(obj.serial_number)
+        response_json = self._client.api_request('GET',
+                                                 '/trustscore',
+                                                 params={self.Meta.uri_param: obj.serial_number})
+        return TrustScore.Schema().load(response_json, many=True)

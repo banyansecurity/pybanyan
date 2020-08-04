@@ -1,8 +1,6 @@
 from dataclasses import field
 from datetime import datetime
 from typing import List, ClassVar, Type, Optional
-# from banyan.model.custom_types import NanoTimestamp, BoolString
-# from dataclasses_serialization.json import JSONStrSerializerMixin, JSONSerializerMixin
 from uuid import UUID
 
 from marshmallow import Schema, validate, fields, pre_load
@@ -10,10 +8,11 @@ from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
 from banyan.model import NanoTimestampField, Resource
+from banyan.model.trustscore import TrustFactorsV2
 
 
 @dataclass
-class TrustFactor:
+class TrustFactorV1:
     name: str = field(metadata={'data_key': 'Name'})
     value: bool = field(metadata={'data_key': 'Value'})
     type: str = field(metadata={'data_key': 'Type'})
@@ -22,7 +21,7 @@ class TrustFactor:
 
 
 @dataclass
-class TrustData:
+class TrustDataV1:
     ALWAYS_ALLOW = "AlwaysAllow"
     ALWAYS_DENY = "AlwaysDeny"
     LOW = "Low"
@@ -35,7 +34,7 @@ class TrustData:
     override_active: bool = field(metadata={'data_key': 'OverrideActive'})
     level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(TRUST_VALUES)})
     updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='UpdatedAt')})
-    factors: List[TrustFactor] = field(default_factory=list, metadata={'data_key': 'Factors'})
+    factors: List[TrustFactorV1] = field(default_factory=list, metadata={'data_key': 'Factors'})
 
 
 @dataclass
@@ -53,7 +52,7 @@ class User(Resource):
     groups: str = field(metadata={'data_key': 'Groups'})
     last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
-    trust_data: TrustData = field(metadata={'data_key': 'TrustData'})
+    trust_data: TrustDataV1 = field(metadata={'data_key': 'TrustData'})
     serial_numbers: List[str] = field(default_factory=list, metadata={'data_key': 'SerialNumbers'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles'})
     Schema: ClassVar[Type[Schema]] = Schema
@@ -89,7 +88,7 @@ class Device(Resource):
     app_version: Optional[VersionInfo] = field(metadata={'marshmallow_field': fields.String(data_key='AppVersion'),
                                                          "missing": None})
     mdm_data: MdmData = field(metadata={'data_key': 'MdmData'})
-    trust_data: TrustData = field(metadata={'data_key': 'TrustData'})
+    trust_data: TrustDataV1 = field(metadata={'data_key': 'TrustData'})
     emails: List[str] = field(default_factory=list, metadata={'data_key': 'Emails'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles'})
     device_id: UUID = field(default=None, metadata={'data_key': 'DeviceID', 'missing': ''})
@@ -111,8 +110,12 @@ class Device(Resource):
 
 
 @dataclass
-class TrustAdjustment(Resource):
-    trust_type: str = field(metadata={'data_key': 'TrustType'})
+class TrustScore(Resource):
+    TRUST_TYPE_DEVICE = 'Device'
+    TRUST_TYPE_USER = 'EndUser'
+    TRUST_TYPE_EXTERNAL = 'External'
+    _TRUST_TYPE_VALUES = (TRUST_TYPE_DEVICE, TRUST_TYPE_USER, TRUST_TYPE_EXTERNAL)
+    trust_type: str = field(metadata={'data_key': 'TrustType', 'validate': validate.OneOf(_TRUST_TYPE_VALUES)})
     trust_id: str = field(metadata={'data_key': 'TrustID'})
     score: int = field(metadata={'data_key': 'Score'})
     level: str = field(metadata={'data_key': 'Level'})
@@ -131,3 +134,8 @@ class TrustAdjustment(Resource):
     @property
     def id(self) -> str:
         return self.trust_id
+
+    @property
+    def factors(self) -> TrustFactorsV2:
+        return TrustFactorsV2.Schema().loads(self.factors_json)
+

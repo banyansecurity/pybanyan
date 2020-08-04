@@ -1,0 +1,26 @@
+[
+  {
+    "TrustType": "Device",
+    "TrustID": "C02TQ08VHF1R",
+    "Score": 99,
+    "Level": "High",
+    "ExtSource": "Bnn",
+    "Reason": "n/a",
+    "FactorsJSON": "{\"Id\":\"932f0800-556b-4296-a07c-92971a5c87c4\",\"AlgorithmId\":\"215ecc9f-7105-43ea-9af0-a4cfd933b6cc\",\"ResourceId\":\"C02TQ08VHF1R\",\"Score\":99,\"ScoreType\":\"device.algo\",\"ActiveFactors\":[{\"Id\":\"\",\"Name\":\"UpToDateOS\",\"Value\":\"mac os x|10.15.5|19f101\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"OS\":\"mac os x|10.15.5|19f101\"},\"ScoringAlgo\":\"\"},{\"Id\":\"\",\"Name\":\"AutoUpdateEnabled\",\"Value\":\"true\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"AutoUpdateEnabled\":\"true\"},\"ScoringAlgo\":\"\"},{\"Id\":\"\",\"Name\":\"FirewallEnabled\",\"Value\":\"true\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"FirewallEnabled\":\"true\"},\"ScoringAlgo\":\"\"},{\"Id\":\"\",\"Name\":\"DiskEncryptionEnabled\",\"Value\":\"true\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"DiskEncryptionEnabled\":\"true\"},\"ScoringAlgo\":\"\"}],\"InactiveFactors\":[{\"Id\":\"\",\"Name\":\"ScreenLockEnabled\",\"Value\":\"\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"ScreenLockEnabled\":\"\"},\"ScoringAlgo\":\"\"},{\"Id\":\"\",\"Name\":\"OrgPreferredAppsRunning\",\"Value\":\"\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"OrgPreferredAppsRunning\":\"\"},\"ScoringAlgo\":\"\"},{\"Id\":\"\",\"Name\":\"NotJailbroken\",\"Value\":\"\",\"ResourceId\":\"C02TQ08VHF1R\",\"ReportingEpoch\":45,\"Source\":\"BanyanApp\",\"SourceType\":\"Banyan\",\"FactorId\":\"\",\"IsMLFactor\":false,\"InputFeatures\":{\"NotJailbroken\":\"\"},\"ScoringAlgo\":\"\"}],\"Timestamp\":1596490465234507074,\"Explanation\":{\"Details\":{\"AutoUpdateEnabled\":{\"FactorName\":\"AutoUpdateEnabled\",\"FactorValue\":\"true\",\"IsActive\":true,\"InactiveReason\":\"\",\"RelativeContribution\":1,\"Recommendation\":\"\"},\"DiskEncryptionEnabled\":{\"FactorName\":\"DiskEncryptionEnabled\",\"FactorValue\":\"true\",\"IsActive\":true,\"InactiveReason\":\"\",\"RelativeContribution\":1,\"Recommendation\":\"\"},\"FirewallEnabled\":{\"FactorName\":\"FirewallEnabled\",\"FactorValue\":\"true\",\"IsActive\":true,\"InactiveReason\":\"\",\"RelativeContribution\":1,\"Recommendation\":\"\"},\"NotJailbroken\":{\"FactorName\":\"NotJailbroken\",\"FactorValue\":\"\",\"IsActive\":false,\"InactiveReason\":\"Factor not applicable for this device platform\",\"RelativeContribution\":0,\"Recommendation\":\"\"},\"OrgPreferredAppsRunning\":{\"FactorName\":\"OrgPreferredAppsRunning\",\"FactorValue\":\"\",\"IsActive\":false,\"InactiveReason\":\"Factor not applicable for this device platform\",\"RelativeContribution\":0,\"Recommendation\":\"\"},\"ScreenLockEnabled\":{\"FactorName\":\"ScreenLockEnabled\",\"FactorValue\":\"\",\"IsActive\":false,\"InactiveReason\":\"Factor not applicable for this device platform\",\"RelativeContribution\":0,\"Recommendation\":\"\"},\"UpToDateOS\":{\"FactorName\":\"UpToDateOS\",\"FactorValue\":\"mac os x|10.15.5|19f101\",\"IsActive\":true,\"InactiveReason\":\"\",\"RelativeContribution\":1,\"Recommendation\":\"\"}}},\"CreatedAt\":1582661395123156401,\"UpdatedAt\":1596490465235123551,\"FactorsUpdatedAt\":1596490465235123551}",
+    "CreatedAt": 1582661395123156500,
+    "DeletedAt": 0,
+    "LastUpdatedAt": 1596490465235123500
+  },
+  {
+    "TrustType": "External",
+    "TrustID": "C02TQ08VHF1R",
+    "Score": 100,
+    "Level": "AlwaysAllow",
+    "ExtSource": "Bnn",
+    "Reason": "n/a",
+    "FactorsJSON": "{\"Id\":\"eb087ea4-25d1-4ee7-9f15-a9137411c170\",\"AlgorithmId\":\"\",\"ResourceId\":\"C02TQ08VHF1R\",\"Score\":100,\"ScoreType\":\"external.algo\",\"ActiveFactors\":[],\"InactiveFactors\":[],\"Timestamp\":0,\"Explanation\":{\"Details\":{\"Todd\":{\"FactorName\":\"Todd\",\"FactorValue\":\"true\",\"IsActive\":true,\"InactiveReason\":\"\",\"RelativeContribution\":1,\"Recommendation\":\"\"}}},\"CreatedAt\":1596490799489508760,\"UpdatedAt\":1596491591321915691,\"FactorsUpdatedAt\":1596491591321915691}",
+    "CreatedAt": 1596490799489508900,
+    "DeletedAt": 0,
+    "LastUpdatedAt": 1596491591321915600
+  }
+]
