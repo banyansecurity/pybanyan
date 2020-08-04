@@ -4,7 +4,7 @@ from cement import Controller, ex
 
 from banyan.api import UserAPI
 from banyan.controllers.base import Base
-from banyan.model.user_device import User, TrustData, TrustAdjustment
+from banyan.model.user_device import User, TrustDataV1, TrustScore
 
 
 class UserController(Controller):
@@ -45,6 +45,21 @@ class UserController(Controller):
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(user_json, handler='json', indent=2, sort_keys=True)
 
+    @ex(help='show details about the user\'s trust score calculation',
+        arguments=[
+            (['email'],
+             {
+                 'help': 'Email address for the user.'
+             }),
+        ])
+    def get_trust(self):
+        email = self.app.pargs.email
+        user = self._client.find(email)
+        trust = self._client.get_trustscores(user)
+        trust_json = TrustScore.Schema().dump(trust, many=True)
+        # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
+        self.app.render(trust_json, handler='json', indent=2, sort_keys=True)
+
     @ex(help='set the maximum trust level for a user',
         arguments=[
             (['email'],
@@ -53,9 +68,9 @@ class UserController(Controller):
              }),
             (['--trust-level'],
              {
-                 'choices': TrustData.TRUST_VALUES,
+                 'choices': TrustDataV1.TRUST_VALUES,
                  'required': True,
-                 'help': f'Maximum trust level for this device. Must be one of: {TrustData.TRUST_VALUES}.'
+                 'help': f'Maximum trust level for this device. Must be one of: {TrustDataV1.TRUST_VALUES}.'
              }
              ),
             (['--reason'],
@@ -74,5 +89,31 @@ class UserController(Controller):
         device = self._client.find(serial_number)
         trust = self._client.set_max_trustlevel(device, self.app.pargs.trust_level,
                                                 self.app.pargs.reason, self.app.pargs.ext_source)
-        trust_json = TrustAdjustment.Schema().dump(trust)
+        trust_json = TrustScore.Schema().dump(trust)
         self.app.render(trust_json, handler='json', indent=2, sort_keys=True)
+
+    # TODO: implement /user/verify
+    @ex(help='force verify a user')
+    def verify(self):
+        pass
+
+    # TODO: implement /forgot_password
+    @ex(help='send password reminder email')
+    def forgot_password(self):
+        pass
+
+    # TODO: implement /reset_password
+    @ex(help='send password reset email')
+    def reset_password(self):
+        pass
+
+    # TODO: implement /refresh_token
+    @ex(help='generate API refresh token for a user')
+    def refresh_token(self):
+        pass
+
+    # TODO: implement /revoke_token
+    @ex(help='revoke a user\'s refresh token')
+    def revoke_token(self):
+        pass
+

@@ -4,7 +4,7 @@ from cement import Controller, ex
 
 from banyan.api import DeviceAPI
 from banyan.controllers.base import Base
-from banyan.model.user_device import Device, TrustData, TrustAdjustment
+from banyan.model.user_device import Device, TrustDataV1, TrustScore
 
 
 class DeviceController(Controller):
@@ -45,12 +45,24 @@ class DeviceController(Controller):
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(device_json, handler='json', indent=2, sort_keys=True)
 
+    # TODO: implement /mdm/update_device?SerialNumber=X
     @ex(help='update device status')
     def update(self):
         pass
 
-    @ex(help='delete (unregister) a device')
+    # TODO: implement /delete_device?Email=X&SerialNumber=Y
+    @ex(help='delete a device')
     def delete(self):
+        pass
+
+    # TODO: implement /device/unregister
+    @ex(help='unregister a device')
+    def unregister(self):
+        pass
+
+    # TODO: implement /devices/stats
+    @ex(help='display statistics about registered devices')
+    def summary(self):
         pass
 
     @ex(help='ban a device (prevent it from accessing network resources)',
@@ -85,9 +97,9 @@ class DeviceController(Controller):
              }),
             (['--trust-level'],
              {
-                 'choices': TrustData.TRUST_VALUES,
+                 'choices': TrustDataV1.TRUST_VALUES,
                  'required': True,
-                 'help': f'Maximum trust level for this device. Must be one of: {TrustData.TRUST_VALUES}.'
+                 'help': f'Maximum trust level for this device. Must be one of: {TrustDataV1.TRUST_VALUES}.'
              }
              ),
             (['--reason'],
@@ -106,5 +118,20 @@ class DeviceController(Controller):
         device = self._client.find(serial_number)
         trust = self._client.set_max_trustlevel(device, self.app.pargs.trust_level,
                                                 self.app.pargs.reason, self.app.pargs.ext_source)
-        trust_json = TrustAdjustment.Schema().dump(trust)
+        trust_json = TrustScore.Schema().dump(trust)
+        self.app.render(trust_json, handler='json', indent=2, sort_keys=True)
+
+    @ex(help='show details about the device\'s trust score calculation',
+        arguments=[
+            (['serial_number'],
+             {
+                 'help': 'Serial number of the device.'
+             }),
+        ])
+    def get_trust(self):
+        serial_number = self.app.pargs.serial_number
+        device = self._client.find(serial_number)
+        trust = self._client.get_trustscores(device)
+        trust_json = TrustScore.Schema().dump(trust, many=True)
+        # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(trust_json, handler='json', indent=2, sort_keys=True)

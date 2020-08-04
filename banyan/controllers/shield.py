@@ -84,3 +84,23 @@ class ShieldController(Controller):
             results.append(new_row)
         results.sort(key=lambda x: x[0] + x[1])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
+
+    # TODO: implement for /shield_activity?num=1000&ShieldName=<name>
+    @ex(help='show activity (stats, links, events) recorded by a shield')
+    def list_activity(self):
+        pass
+
+    # TODO: implement /register_shield
+    @ex(help='register a shield with the system')
+    def create(self):
+        pass
+
+    # TODO: implement /delete_shield_cluster
+    @ex(help='delete a shield')
+    def delete(self):
+        pass
+
+    # TODO: implement /shield_events?StartTime=&EndTime=
+    @ex(help='show security events recorded by a shield')
+    def list_events(self):
+        pass
