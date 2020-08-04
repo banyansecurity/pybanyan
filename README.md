@@ -182,12 +182,15 @@ password = YOUR_OTHER_PASSWORD
 
 ```
 
-Then use the `Makefile` to upload to pypi.org or test.pypi.org:
+Then follow the steps below:
 
-```console
-$ make test-upload
-$ make dist-upload
-```
+ 1. Run `make test` and confirm all tests pass locally.
+ 2. Bump the version number in `banyan/core/version.py`.
+ 3. Commit all changes to your branch.
+ 4. Run `make tag && git push && git push --tags`.
+ 5. Wait for Travis CI to finish testing and releasing.
+ 6. Edit the release on github and add release notes.
+  
 
 ## Deployments
 
