@@ -1,0 +1,71 @@
+{
+  "kind": "BanyanService",
+  "apiVersion": "rbac.banyanops.com/v1",
+  "type": "origin",
+  "metadata": {
+    "name": "foo",
+    "description": "Test service",
+    "cluster": "us-east-1",
+    "tags": {
+      "template": "USER_WEB",
+      "user_facing": "true",
+      "protocol": "https",
+      "domain": "*.foo.bnndemos.com",
+      "port": "443",
+      "service_app_type": "WEB"
+    }
+  },
+  "spec": {
+    "attributes": {
+      "frontend_addresses": [
+        {
+          "cidr": "",
+          "port": "443"
+        }
+      ],
+      "host_tag_selector": [
+        {
+          "com.banyanops.hosttag.site_name": "us-east-1"
+        }
+      ],
+      "tls_sni": [
+        "*.foo.bnndemos.com"
+      ]
+    },
+    "backend": {
+      "target": {
+        "name": "{{ .Name }}.foo-internal.bnndemos.com",
+        "port": "443",
+        "tls": true,
+        "tls_insecure": true,
+        "client_certificate": false
+      },
+      "dns_overrides": {},
+      "whitelist": []
+    },
+    "cert_settings": {
+      "dns_names": [
+        "*.foo.bnndemos.com"
+      ],
+      "custom_tls_cert": {
+        "enabled": false
+      }
+    },
+    "http_settings": {
+      "enabled": true,
+      "oidc_settings": {
+        "enabled": true,
+        "service_domain_name": "https://*.foo.bnndemos.com",
+        "post_auth_redirect_path": "",
+        "api_path": ""
+      },
+      "http_health_check": {
+        "enabled": false
+      },
+      "exempted_paths": {
+        "enabled": false
+      }
+    },
+    "client_cidrs": []
+  }
+}

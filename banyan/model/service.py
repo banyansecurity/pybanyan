@@ -73,17 +73,17 @@ class CertSettings:
 @dataclass
 class OIDCSettings:
     enabled: bool
-    service_domain_name: str
-    post_auth_redirect_path: str
-    api_path: str
+    service_domain_name: str = field(default='')
+    post_auth_redirect_path: str = field(default='')
+    api_path: str = field(default='')
     trust_callbacks: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
 class HTTPRedirect:
     enabled: bool
-    url: str
-    status_code: int
+    url: str = field(default='')
+    status_code: int = field(default=302)
     addresses: List[str] = field(default_factory=list)
     from_address: List[str] = field(default_factory=list)
 
@@ -98,11 +98,11 @@ class HTTPHealthCheck:
     METHOD_OPTIONS = "OPTIONS"
     METHOD_ALL = "*"
     _METHOD_VALUES = (METHOD_GET, METHOD_POST, METHOD_HEAD, METHOD_PUT, METHOD_DELETE, METHOD_OPTIONS, METHOD_ALL, "")
-    enabled: bool
-    path: str
-    user_agent: str
-    https: bool
-    method: str = field(metadata={"validate": validate.OneOf(_METHOD_VALUES)})
+    enabled: bool = field(default=False)
+    path: str = field(default='/')
+    user_agent: str = field(default='')
+    https: bool = field(default=True)
+    method: str = field(default='GET', metadata={'validate': validate.OneOf(_METHOD_VALUES)})
     addresses: List[str] = field(default_factory=list)
     from_address: List[str] = field(default_factory=list)
 

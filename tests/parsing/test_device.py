@@ -1,4 +1,5 @@
 import unittest
+
 from banyan.model.user_device import Device
 
 

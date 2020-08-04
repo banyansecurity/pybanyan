@@ -92,7 +92,7 @@
               "Access-Control-Request-Headers"
             ],
             "paths": [
-              "*"
+              "/*"
             ]
           }
         ]
