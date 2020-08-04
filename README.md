@@ -28,6 +28,34 @@ $ python setup.py install
 This package contains both an API client and a CLI tool.
 To use either one, you need to [generate] an API token from the Banyan Command Center.
 
+### API library
+
+Here's a sample script that uses the library to print the names of every service registered in Banyan:
+
+```python
+from banyan.api import BanyanApiClient
+
+c = BanyanApiClient()
+for service in c.services.list():
+    print(service.name)
+```
+
+Output:
+```console
+$ python examples/list_services.py
+jira
+jupyter
+kube
+mysql
+rds-mysql
+rds-pgsql
+```
+
+The `BanyanApiClient` class accepts optional arguments to specify the API server and refresh token. If not provided, 
+it gets them from environment variables named `BANYAN_API_URL` and `BANYAN_REFRESH_TOKEN`.
+
+Full API documentation will be available soon.
+
 ### Banyan CLI tool
 
 Before you use the CLI, create a file called `~/.banyan.conf` in your home directory and paste in your API token:

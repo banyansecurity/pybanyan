@@ -33,9 +33,10 @@ class BanyanApiClient:
                  log: logging.Logger = None) -> None:
         self._debug = debug
         self._log = log
-        self._api_url = self._normalize_url(api_server_url or BanyanApiClient.DEFAULT_API_URL)
+        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
+                                            or BanyanApiClient.DEFAULT_API_URL)
         self._access_token = None
-        self._refresh_token = refresh_token
+        self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
         if self._debug:
