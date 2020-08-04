@@ -27,5 +27,8 @@ dist: clean
 	python setup.py sdist
 	python setup.py bdist_wheel
 
-dist-upload:
+test-upload: dist
+	twine upload -r testpypi dist/*
+
+dist-upload: dist
 	twine upload dist/*
