@@ -22,13 +22,16 @@ test:
 docker: clean
 	docker build -t banyan:latest .
 
+tag:
+	git tag -f `python -c 'from banyan.core.version import get_version; print(get_version())'`
+
 dist: clean
 	rm -rf dist/*
 	python setup.py sdist
 	python setup.py bdist_wheel
 
-test-upload: dist
+test-upload: dist tag
 	twine upload -r testpypi dist/*
 
-dist-upload: dist
+dist-upload: dist tag
 	twine upload dist/*
