@@ -6,13 +6,13 @@ Python 3.6, 3.7, or 3.8 must be installed.
 ## Installation 
 ### Installing the easy way
 
-```
+```console
 $ pip install pybanyan
 ```
 
 ### Installing the hard way
 
-```
+```console
 $ git clone https://github.com/banyansecurity/pybanyan.git
 $ cd pybanyan
 $ pip install -r requirements.txt
@@ -36,7 +36,7 @@ refresh_token = MY_API_TOKEN
 
 Run the command `banyan` by itself to see the available categories.
 
-```
+```console
 $ banyan
 usage: banyan [options] <command> <subcommand> [<subcommand> ...] [parameters]
 
@@ -71,7 +71,7 @@ Commands:
 
 Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
 
-```
+```console
 $ banyan service
 usage: banyan service [-h]
                       {attach-policy,create,delete,detach-policy,disable,enable,get,list,test,update}
@@ -96,7 +96,7 @@ sub-commands:
 
 To see the full help available for any command, just add the `-h` or `--help` option to the end of the command. For example:
 
-```
+```console
 $ banyan service attach-policy --help
 usage: banyan service attach-policy [-h] [--permissive] [--enforcing]
                                     service_name_or_id policy_name_or_id
@@ -121,7 +121,7 @@ This project includes a number of helpers in the `Makefile` to streamline common
 
 The easiest way to work on the code is to create a local `virtualenv`. The included Makefile will do that for you:
 
-```
+```console
 $ make virtualenv
 $ source env/bin/activate
 ```
@@ -130,7 +130,7 @@ $ source env/bin/activate
 
 Place unit tests in the `tests/` folder and run them with `make test` or `pytest`:
 
-```
+```console
 $ pytest tests/
 ```
 
@@ -139,7 +139,7 @@ $ pytest tests/
 
 Before releasing to PyPi, you must configure your login credentials in `~/.pypirc`:
 
-```
+```ini
 [pypi]
 username = YOUR_USERNAME
 password = YOUR_PASSWORD
@@ -152,7 +152,7 @@ password = YOUR_OTHER_PASSWORD
 
 Then use the `Makefile` to upload to pypi.org or test.pypi.org:
 
-```
+```console
 $ make test-upload
 $ make dist-upload
 ```
@@ -164,7 +164,7 @@ $ make dist-upload
 Included is a basic `Dockerfile` for building and distributing `Banyan CLI`,
 and can be built with the included `make` helper:
 
-```
+```console
 $ make docker
 $ docker run -it banyan --help
 ```
