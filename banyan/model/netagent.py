@@ -6,8 +6,6 @@ from uuid import UUID
 
 from marshmallow import validate, fields, pre_load, Schema
 from marshmallow_dataclass import dataclass
-# from dataclasses_serialization.json import JSONStrSerializerMixin, JSONSerializerMixin
-# from banyan.model.custom_types import Iso8601Date
 from semver import VersionInfo
 
 from banyan.model import Resource
@@ -23,7 +21,7 @@ class Netagent(Resource):
     TAG_DOMAIN_NAMES = "com.banyanops.hosttag.site_domain_names"
     TAG_FQDN = "com.banyanops.hosttag.site_address"
     hostname: str = field(metadata={"data_key": "Hostname"})
-    version: VersionInfo = field(metadata={"marshmallow_field": fields.String(data_key="Version")})
+    version: str = field(metadata={"marshmallow_field": fields.String(data_key="Version")})
     visibility: bool = field(metadata={"data_key": "Visibility"})
     cidrs_txt: str = field(metadata={"data_key": "CIDRs"})
     uname_txt: str = field(metadata={"data_key": "Uname"})

@@ -4,7 +4,7 @@ from cement import Controller, ex
 
 from banyan.api import UserAPI
 from banyan.controllers.base import Base
-from banyan.model.user_device import User, TrustDataV1, TrustScore
+from banyan.model.user_device import User, TrustDataV1, TrustScore, TrustLevel
 
 
 class UserController(Controller):
@@ -68,9 +68,9 @@ class UserController(Controller):
              }),
             (['--trust-level'],
              {
-                 'choices': TrustDataV1.TRUST_VALUES,
+                 'choices': TrustLevel.ALL,
                  'required': True,
-                 'help': f'Maximum trust level for this device. Must be one of: {TrustDataV1.TRUST_VALUES}.'
+                 'help': f'Maximum trust level for this user. Must be one of: {TrustLevel.ALL}.'
              }
              ),
             (['--reason'],

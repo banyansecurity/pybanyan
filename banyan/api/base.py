@@ -1,3 +1,5 @@
+import logging
+
 from abc import ABC
 from typing import Dict, List, Union
 
@@ -25,7 +27,7 @@ class ServiceBase(ABC):
         self._by_id: Dict[str, Resource] = dict()
 
     def list(self) -> list:
-        response_json = self._client.api_request('GET', self.Meta.list_uri)
+        response_json = list(self._client.paged_request('GET', self.Meta.list_uri))
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data

@@ -2,7 +2,7 @@ from dataclasses import field
 from ipaddress import IPv4Interface
 from typing import List, Dict, Union, Optional, ClassVar
 
-from marshmallow import validate, pre_load, fields, Schema
+from marshmallow import validate, fields, Schema
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
@@ -24,15 +24,8 @@ class Tags:
     template: str
     service_app_type: str
     icon: str = field(default="")
-    port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
+    port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     Schema: ClassVar[Schema] = Schema
-
-    # noinspection PyUnusedLocal
-    @pre_load
-    def _handle_empty_port(self, data, **kwargs):
-        if 'port' in data and data['port'] == '':
-            del data['port']
-        return data
 
 
 @dataclass
@@ -154,17 +147,10 @@ class ClientCIDRs:
 class BackendTarget:
     name: str
     name_delimiter: Optional[str]
-    port: int = field(default=443, metadata={'marshmallow_field': fields.String()})
+    port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     tls: Optional[bool] = True
     tls_insecure: Optional[bool] = False
     client_certificate: Optional[bool] = False
-
-    # noinspection PyUnusedLocal
-    @pre_load
-    def _handle_empty_port(self, data, **kwargs):
-        if 'port' in data and data['port'] == '':
-            del data['port']
-        return data
 
 
 @dataclass

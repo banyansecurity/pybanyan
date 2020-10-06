@@ -66,7 +66,10 @@ api_url = https://net.banyanops.com
 refresh_token = MY_API_TOKEN
 ```
 
-Run the command `banyan` by itself to see the available categories.
+The CLI is invoked with the `banyan` tool. It contains a number of commands and sub-commands to help you work
+with policies, roles, services, users, and other objects in Banyan. 
+
+Run the `banyan` tool by itself to see the available commands.
 
 ```console
 $ banyan
@@ -101,7 +104,8 @@ Commands:
     service             manage web and TCP services and workloads
 ```
 
-Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
+Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, 
+create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
 
 ```console
 $ banyan service
@@ -126,7 +130,8 @@ sub-commands:
     update              update an existing service from a JSON specification
 ```
 
-To see the full help available for any command, just add the `-h` or `--help` option to the end of the command. For example:
+To see the full help available for any command, just add the `-h` or `--help` option to the end of the command. 
+For example:
 
 ```console
 $ banyan service attach-policy --help
@@ -147,71 +152,19 @@ optional arguments:
 
 ## Development
 
-This project includes a number of helpers in the `Makefile` to streamline common development tasks.
-
-### Environment Setup
-
-The easiest way to work on the code is to create a local `virtualenv`. The included Makefile will do that for you:
-
-```console
-$ make virtualenv
-$ source env/bin/activate
-```
-
-### Running tests
-
-Place unit tests in the `tests/` folder and run them with `make test` or `pytest`:
-
-```console
-$ pytest tests/
-```
-
-
-### Releasing to PyPi
-
-Before releasing to PyPi, you must configure your login credentials in `~/.pypirc`:
-
-```ini
-[pypi]
-username = YOUR_USERNAME
-password = YOUR_PASSWORD
-
-[testpypi]
-username = YOUR_USERNAME
-password = YOUR_OTHER_PASSWORD
-
-```
-
-Then follow the steps below:
-
- 1. Run `make test` and confirm all tests pass locally.
- 2. Bump the version number in `banyan/core/version.py`.
- 3. Commit all changes to your branch.
- 4. Run `make tag && git push && git push --tags`.
- 5. Wait for Travis CI to finish testing and releasing.
- 6. Edit the release on github and add release notes.
-  
-
-## Deployments
-
-### Docker
-
-Included is a basic `Dockerfile` for building and distributing `Banyan CLI`,
-and can be built with the included `make` helper:
-
-```console
-$ make docker
-$ docker run -it banyan --help
-```
+To work on the pybanyan code, follow the instructions in the [documentation][devel]. 
 
 ## Support
 
-This API library and its accompanying CLI utility are provided free of charge and without support. To report issues with the library, please create a new [issue in Github][github-issue].
+This API library and its accompanying CLI utility are provided free of charge and without support. To report 
+issues with the library, please create a new [issue in Github][github-issue].
 
 ## Contributions
 
-We welcome your contributions in the form of pull requests! Please follow the standard [Github pull request workflow][github-pr].
+We welcome your contributions in the form of pull requests! Please follow the standard [Github pull request 
+workflow][github-pr].
 
 [generate]: https://net.banyanops.com/app/myprofile
 [github-pr]: https://gist.github.com/Chaser324/ce0505fbed06b947d962
 [github-issue]: https://github.com/banyansecurity/pybanyan/issues/new
+[devel]: https://pybanyan.readthedocs.io/development.html
