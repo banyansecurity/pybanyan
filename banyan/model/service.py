@@ -10,8 +10,8 @@ from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
 
 @dataclass
 class Tags:
-    TEMPLATE_WEB = "USER_WEB"
-    TEMPLATE_TCP = "USER_TCP"
+    TEMPLATE_WEB = "WEB_USER"
+    TEMPLATE_TCP = "TCP_USER"
     TEMPLATE_CUSTOM = "CUSTOM"
     APP_TYPE_WEB = "WEB"
     APP_TYPE_SSH = "SSH"
