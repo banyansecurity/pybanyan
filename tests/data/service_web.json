@@ -3,101 +3,91 @@
   "apiVersion": "rbac.banyanops.com/v1",
   "type": "origin",
   "metadata": {
-    "name": "*.staging.earnest.com",
-    "description": "Earnest microservies in staging",
-    "cluster": "uswest",
-    "tags": {
-      "template": "USER_WEB",
-      "user_facing": "true",
-      "protocol": "https",
-      "domain": "*.staging.earnest.com",
-      "port": "443",
-      "service_app_type": "WEB"
-    }
+      "name": "jenkins",
+      "description": "Jenkins CI server",
+      "cluster": "us-west1",
+      "tags": {
+          "template": "WEB_USER",
+          "user_facing": "true",
+          "protocol": "https",
+          "domain": "jenkins.bnndemos.com",
+          "port": "443",
+          "icon": "cloud",
+          "service_app_type": "WEB"
+      }
   },
   "spec": {
-    "attributes": {
-      "frontend_addresses": [
-        {
-          "cidr": "",
-          "port": "443"
-        }
-      ],
-      "host_tag_selector": [
-        {
-          "com.banyanops.hosttag.site_name": "aws.staging.kubernetes-vpc"
-        }
-      ],
-      "tls_sni": [
-        "*.staging.earnest.com"
-      ]
-    },
-    "backend": {
-      "target": {
-        "name": "{{ .Name }}.staging.zerotrust",
-        "port": "443",
-        "tls": true,
-        "tls_insecure": true,
-        "client_certificate": false
-      },
-      "dns_overrides": {},
-      "whitelist": []
-    },
-    "cert_settings": {
-      "dns_names": [
-        "*.staging.earnest.com"
-      ],
-      "custom_tls_cert": {
-        "enabled": false,
-        "cert_file": "",
-        "key_file": ""
-      }
-    },
-    "http_settings": {
-      "enabled": true,
-      "oidc_settings": {
-        "enabled": true,
-        "service_domain_name": "https://*.staging.earnest.com",
-        "post_auth_redirect_path": "",
-        "api_path": ""
-      },
-      "http_health_check": {
-        "enabled": false,
-        "method": "",
-        "path": "",
-        "user_agent": "",
-        "from_address": [],
-        "https": false
-      },
-      "exempted_paths": {
-        "enabled": true,
-        "patterns": [
-          {
-            "hosts": [
+      "attributes": {
+          "frontend_addresses": [
               {
-                "origin_header": [
-                  "https://www.staging.earnest.com:443",
-                  "https://my.staging.earnest.com:443"
-                ],
-                "target": [
-                  "*"
-                ]
+                  "cidr": "",
+                  "port": "443"
               }
-            ],
-            "methods": [
-              "OPTIONS"
-            ],
-            "mandatory_headers": [
-              "Access-Control-Request-Method",
-              "Access-Control-Request-Headers"
-            ],
-            "paths": [
-              "/*"
-            ]
+          ],
+          "host_tag_selector": [
+              {
+                  "com.banyanops.hosttag.site_name": "bnndemos"
+              }
+          ],
+          "tls_sni": [
+              "jenkins.bnndemos.com"
+          ]
+      },
+      "backend": {
+          "target": {
+              "name": "10.1.3.30",
+              "port": "443",
+              "tls": true,
+              "tls_insecure": true,
+              "client_certificate": false
+          },
+          "dns_overrides": {},
+          "whitelist": []
+      },
+      "cert_settings": {
+          "dns_names": [
+              "jenkins.bnndemos.com"
+          ],
+          "custom_tls_cert": {
+              "enabled": false,
+              "cert_file": "",
+              "key_file": ""
           }
-        ]
-      }
-    },
-    "client_cidrs": []
+      },
+      "http_settings": {
+          "enabled": true,
+          "oidc_settings": {
+              "enabled": true,
+              "service_domain_name": "https://jenkins.bnndemos.com",
+              "post_auth_redirect_path": "",
+              "api_path": ""
+          },
+          "http_health_check": {
+              "enabled": false,
+              "method": "",
+              "path": "",
+              "user_agent": "",
+              "from_address": [],
+              "https": false
+          },
+          "exempted_paths": {
+              "enabled": false,
+              "paths": [],
+              "patterns": [
+                  {
+                      "hosts": [
+                          {
+                              "origin_header": [],
+                              "target": []
+                          }
+                      ],
+                      "methods": [],
+                      "mandatory_headers": [],
+                      "paths": []
+                  }
+              ]
+          }
+      },
+      "client_cidrs": []
   }
 }

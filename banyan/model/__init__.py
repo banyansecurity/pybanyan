@@ -12,6 +12,24 @@ from banyan.core.exc import BanyanError
 API_VERSION = "rbac.banyanops.com/v1"
 
 
+class TimestampField(fields.DateTime):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not value:
+            return None
+        elif isinstance(value, int):
+            return datetime.fromtimestamp(value)
+        else:
+            return super()._deserialize(value, attr, data, **kwargs)
+
+    def _serialize(self, value: datetime, attr, obj, **kwargs):
+        if not value:
+            return 0
+        elif isinstance(value, datetime):
+            return int(value.timestamp())
+        else:
+            return super()._serialize(value, attr, obj, **kwargs)
+
+
 class NanoTimestampField(fields.DateTime):
     def _deserialize(self, value, attr, data, **kwargs):
         if not value:
@@ -26,6 +44,24 @@ class NanoTimestampField(fields.DateTime):
             return 0
         elif isinstance(value, datetime):
             return int(value.timestamp() * 1000000000)
+        else:
+            return super()._serialize(value, attr, obj, **kwargs)
+
+
+class MilliTimestampField(fields.DateTime):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not value:
+            return None
+        elif isinstance(value, int):
+            return datetime.fromtimestamp(value / 1000)
+        else:
+            return super()._deserialize(value, attr, data, **kwargs)
+
+    def _serialize(self, value: datetime, attr, obj, **kwargs):
+        if not value:
+            return 0
+        elif isinstance(value, datetime):
+            return int(value.timestamp() * 1000)
         else:
             return super()._serialize(value, attr, obj, **kwargs)
 

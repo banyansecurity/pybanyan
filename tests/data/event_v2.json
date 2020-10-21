@@ -1,0 +1,136 @@
+{
+    "id": "26b10ef2-d31d-4ac1-bafa-7ee25da01722",
+    "org_id": "c121d8d8-f319-498c-b107-480be7cf5fea",
+    "org_name": "",
+    "severity": "INFO",
+    "action": "Authorized",
+    "type": "Access",
+    "sub_type": "Resource",
+    "message": "Authorized",
+    "result": "",
+    "created_at": 1602206351114,
+    "user_principal": {
+        "user": {
+            "email": "devanath@banyansecurity.com",
+            "groups": [
+                "Everyone",
+                "Banyan"
+            ],
+            "roles": [
+                "all-users-role",
+                "banyan"
+            ]
+        },
+        "device": {
+            "id": "55e59806-8b8c-4d82-8f64-4326da073784",
+            "friendly_name": "",
+            "mac_address": "",
+            "serial_number": "C02C40NTMD6M",
+            "registration_status": "FALSE",
+            "compromised_status": "",
+            "compliance_status": "",
+            "oem_info": "",
+            "model": "",
+            "platform": "",
+            "ownership": "",
+            "architecture": "",
+            "udid": "",
+            "source": "",
+            "last_mdm_data_synced_at": 0
+        },
+        "client": {
+            "user_agent": "",
+            "ip_address": "24.6.80.4:63134"
+        }
+    },
+    "workload_principal": {
+        "workload_set": {
+            "container_name": "",
+            "container_id": "",
+            "image": "",
+            "repo": "",
+            "tag": "",
+            "labels": "",
+            "container_ips": "24.6.80.4:63134",
+            "app_name": "dsrini-edge-plain-web-service.shaobo.bnn"
+        },
+        "host": {
+            "host_ips": "",
+            "host_name": "",
+            "cluster_id": "",
+            "port_map": ""
+        }
+    },
+    "role": [
+        {
+            "id": "ba5c9726-c28a-4855-b017-afefb02efc54",
+            "name": "all-users-role",
+            "version": "6",
+            "bound_by": "",
+            "bound_at": 0
+        },
+        {
+            "id": "88194f7e-f2ea-4a6d-9c7b-f74dff6c9284",
+            "name": "banyan",
+            "version": "1",
+            "bound_by": "",
+            "bound_at": 0
+        }
+    ],
+    "trustscore": {
+        "id": "C02C40NTMD6M",
+        "type": "Device",
+        "timestamp": 1585714986708092970,
+        "score": 79
+    },
+    "service": {
+        "id": "dsrini-edge-plain-web-service.shaobo.bnn",
+        "name": "dsrini-edge-plain-web-service.shaobo.bnn",
+        "type": "",
+        "version": ""
+    },
+    "policy": {
+        "id": "5992b549-31d4-4506-9755-747a3ccd1003",
+        "name": "Web.preview",
+        "version": "5",
+        "attached_by": "",
+        "attached_at": 0,
+        "enabled": false
+    },
+    "channel": {
+        "access_level": {
+            "resource": "l7resource"
+        },
+        "sni_data": {
+            "name_requested": "dsrini-edge-plain-web-service.dn.bnntest.com",
+            "name_matched": "dsrini-edge-plain-web-service.dn.bnntest.com"
+        },
+        "request_data": {
+            "protocol": "http",
+            "type": "GET",
+            "query_crud_types": "READ",
+            "query_resources": "/"
+        }
+    },
+    "link": {
+        "source": {
+            "container_id": "",
+            "container_name": "",
+            "service_id": "",
+            "service_name": "",
+            "service_version": "",
+            "host_name": "",
+            "ip": "24.6.80.4:63134"
+        },
+        "destination": {
+            "container_id": "",
+            "container_name": "",
+            "service_id": "dsrini-edge-plain-web-service.shaobo.bnn",
+            "service_name": "dsrini-edge-plain-web-service.shaobo.bnn",
+            "serivce_version": "",
+            "host_name": "",
+            "ip": "10.128.0.25:80",
+            "port": ""
+        }
+    }
+}
