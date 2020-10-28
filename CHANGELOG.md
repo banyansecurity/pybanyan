@@ -1,4 +1,9 @@
-# Banyan CLI Change History
+# PyBanyan Change History
+
+## 0.0.5
+ * support both USER_WEB and WEB_USER style templates in services
+ * turn off strict schema validation in Marshmallow (by excluding unknown fields)
+ * only request paging on endpoints that support it
 
 ## 0.0.3
 
