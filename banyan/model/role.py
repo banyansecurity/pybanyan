@@ -2,7 +2,7 @@ from dataclasses import field
 from typing import List, Dict, Optional, Union
 from uuid import UUID
 
-from marshmallow import validate
+from marshmallow import validate, EXCLUDE
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase
@@ -10,6 +10,9 @@ from banyan.model import BanyanApiObject, InfoBase
 
 @dataclass
 class Tags:
+    class Meta:
+        unknown = EXCLUDE
+
     TEMPLATE_USER = "USER"
     TEMPLATE_WORKLOAD = "WORKLOAD"
     TEMPLATE_CUSTOM = "CUSTOM"
@@ -19,6 +22,9 @@ class Tags:
 
 @dataclass
 class Metadata:
+    class Meta:
+        unknown = EXCLUDE
+
     name: str
     description: str
     tags: Tags
@@ -26,6 +32,9 @@ class Metadata:
 
 @dataclass
 class Spec:
+    class Meta:
+        unknown = EXCLUDE
+
     EMPLOYEE_OWNED = "E"
     CORPORATE_DEDICATED = "D"
     CORPORATE_SHARED = "C"
@@ -44,6 +53,9 @@ class Spec:
 
 @dataclass
 class Role(BanyanApiObject):
+    class Meta:
+        unknown = EXCLUDE
+
     KIND = "BanyanRole"
     metadata: Metadata
     spec: Spec
@@ -58,6 +70,9 @@ class Role(BanyanApiObject):
 
 @dataclass
 class RoleInfo(InfoBase):
+    class Meta:
+        unknown = EXCLUDE
+
     role_id: UUID = field(metadata={'data_key': 'RoleID'})
     role_name: str = field(metadata={'data_key': 'RoleName'})
     spec: str = field(metadata={'data_key': 'RoleSpec'})

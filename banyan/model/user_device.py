@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, List, ClassVar, Type, Optional
 from uuid import UUID
 
-from marshmallow import Schema, validate, fields
+from marshmallow import Schema, validate, fields, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
@@ -20,12 +20,20 @@ class TrustLevel:
     ALL = (ALWAYS_DENY, LOW, MEDIUM, HIGH, ALWAYS_ALLOW)
 
 
+@dataclass
 class Remediation:
+    class Meta:
+        unknown = EXCLUDE
+
     description: str = field(metadata={'data_key': 'Description'})
     url: str = field(metadata={'data_key': 'URL'})
 
+
 @dataclass
 class TrustFactorV1:
+    class Meta:
+        unknown = EXCLUDE
+
     name: str = field(metadata={'data_key': 'Name'})
     value: str = field(metadata={'data_key': 'Value'})
     type: str = field(metadata={'data_key': 'Type'})
@@ -37,6 +45,9 @@ class TrustFactorV1:
 
 @dataclass
 class TrustDataV1:
+    class Meta:
+        unknown = EXCLUDE
+
     _TRUST_VALUES = (TrustLevel.ALWAYS_DENY, TrustLevel.LOW, TrustLevel.MEDIUM,
                      TrustLevel.HIGH, TrustLevel.ALWAYS_ALLOW)
     entity_trustscore: int = field(metadata={'data_key': 'EntityTrustscore'})
@@ -50,6 +61,9 @@ class TrustDataV1:
 
 @dataclass
 class MdmData:
+    class Meta:
+        unknown = EXCLUDE
+
     timestamp: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='Timestamp')})
     source: str = field(metadata={'data_key': 'Source'})
     compromised_status: str = field(metadata={'data_key': 'CompromisedStatus'})
@@ -58,6 +72,9 @@ class MdmData:
 
 @dataclass
 class User(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     username: str = field(metadata={'data_key': 'Name'})
     email: str = field(metadata={'data_key': 'Email'})
     groups: str = field(metadata={'data_key': 'Groups'})
@@ -80,6 +97,9 @@ class User(Resource):
 
 @dataclass
 class Device(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     CORPORATE_DEDICATED = 'Corporate Dedicated'
     CORPORATE_SHARED = 'Corporate Shared'
     EMPLOYEE_OWNED = 'Employee Owned'
@@ -118,6 +138,9 @@ class Device(Resource):
 
 @dataclass
 class TrustScore(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     TRUST_TYPE_DEVICE = 'Device'
     TRUST_TYPE_USER = 'EndUser'
     TRUST_TYPE_EXTERNAL = 'External'
