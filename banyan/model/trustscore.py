@@ -2,7 +2,7 @@ from dataclasses import field
 from datetime import datetime
 from typing import List, ClassVar, Dict
 
-from marshmallow import Schema
+from marshmallow import Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 
 from banyan.model import NanoTimestampField, Resource
@@ -10,6 +10,9 @@ from banyan.model import NanoTimestampField, Resource
 
 @dataclass
 class TrustFactorDetailV2:
+    class Meta:
+        unknown = EXCLUDE
+
     factor_name: str = field(metadata={'data_key': 'FactorName'})
     factor_value: str = field(metadata={'data_key': 'FactorValue'})
     is_active: bool = field(metadata={'data_key': 'IsActive'})
@@ -20,11 +23,17 @@ class TrustFactorDetailV2:
 
 @dataclass
 class TrustFactorDetailsV2:
+    class Meta:
+        unknown = EXCLUDE
+
     details: Dict[str, TrustFactorDetailV2] = field(default_factory=dict, metadata={'data_key': 'Details'})
 
 
 @dataclass
 class TrustFactorV2:
+    class Meta:
+        unknown = EXCLUDE
+
     id: str = field(metadata={'data_key': 'Id'})
     name: str = field(metadata={'data_key': 'Name'})
     value: str = field(metadata={'data_key': 'Value'})
@@ -40,6 +49,9 @@ class TrustFactorV2:
 
 @dataclass
 class TrustFactorsV2(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     score_id: str = field(metadata={'data_key': 'Id'})
     algorithm_id: str = field(metadata={'data_key': 'AlgorithmId'})
     resource_id: str = field(metadata={'data_key': 'ResourceId'})

@@ -19,6 +19,7 @@ class ServiceBase(ABC):
         insert_uri = '/undeclared'
         uri_param = 'ObjectID'
         obj_name = 'object'
+        supports_paging = False
 
     def __init__(self, client):
         self._client = client
@@ -27,7 +28,13 @@ class ServiceBase(ABC):
         self._by_id: Dict[str, Resource] = dict()
 
     def list(self) -> list:
-        response_json = list(self._client.paged_request('GET', self.Meta.list_uri))
+        list_func = self._client.api_request
+        try:
+            if self.Meta.supports_paging:
+                list_func = self._client.paged_request
+        except AttributeError:
+            pass
+        response_json = list(list_func('GET', self.Meta.list_uri))
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data

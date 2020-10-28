@@ -14,6 +14,7 @@ class UserAPI(ServiceBase):
         insert_uri = None
         uri_param = 'Email'
         obj_name = 'user'
+        supports_paging = True
 
     def set_max_trustlevel(self, obj: User, max_level: str, reason: str, ext_source: str) -> str:
         self._ensure_exists(obj.email)

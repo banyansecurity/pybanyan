@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import ClassVar, Type
 from uuid import UUID
 
-from marshmallow import Schema, validate
+from marshmallow import EXCLUDE, Schema, validate
 from marshmallow_dataclass import dataclass
 
 from banyan.model import NanoTimestampField, Resource
@@ -11,6 +11,9 @@ from banyan.model import NanoTimestampField, Resource
 
 @dataclass
 class Attachment(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     SERVICE = "service"
     SAAS_APP = "saasapp"
     _ATTACH_TYPES = (SERVICE, SAAS_APP)

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, ClassVar, Optional, Union
 from uuid import UUID
 
-from marshmallow import validate, Schema, pre_load
+from marshmallow import validate, Schema, pre_load, EXCLUDE
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, NanoTimestampField
@@ -11,6 +11,9 @@ from banyan.model import BanyanApiObject, InfoBase, NanoTimestampField
 
 @dataclass
 class Tags:
+    class Meta:
+        unknown = EXCLUDE
+
     TEMPLATE_USER = "USER"
     TEMPLATE_WORKLOAD = "WORKLOAD"
     TEMPLATE_CUSTOM = "CUSTOM"
@@ -20,6 +23,9 @@ class Tags:
 
 @dataclass
 class Metadata:
+    class Meta:
+        unknown = EXCLUDE
+
     name: str
     description: str
     tags: Tags = field(default_factory=Tags)
@@ -27,6 +33,9 @@ class Metadata:
 
 @dataclass
 class Options:
+    class Meta:
+        unknown = EXCLUDE
+
     disable_tls_client_authentication: bool
     l7_protocol: Optional[str]
     mixed_users_and_workloads: Optional[bool]
@@ -34,12 +43,18 @@ class Options:
 
 @dataclass
 class PolicyException:
+    class Meta:
+        unknown = EXCLUDE
+
     src_addr: List[str] = field(default_factory=list)
     tls_src_addr: List[str] = field(default_factory=list)  # Deprecated
 
 
 @dataclass
 class L7Access:
+    class Meta:
+        unknown = EXCLUDE
+
     PROTOCOL_HTTP = "http"
     PROTOCOL_KAFKA = "kafka"
     PROTOCOL_MYSQL = "mysql"
@@ -58,6 +73,9 @@ class L7Access:
 
 @dataclass
 class Conditions:
+    class Meta:
+        unknown = EXCLUDE
+
     TRUST_LEVEL_ALWAYS_DENY = "AlwaysDeny"
     TRUST_LEVEL_LOW = "Low"
     TRUST_LEVEL_MEDIUM = "Medium"
@@ -82,18 +100,27 @@ class Conditions:
 
 @dataclass
 class Rules:
+    class Meta:
+        unknown = EXCLUDE
+
     conditions: Conditions
     l7_access: Optional[List[L7Access]] = field(default_factory=list)
 
 
 @dataclass
 class Access:
+    class Meta:
+        unknown = EXCLUDE
+
     rules: Rules
     roles: List[str] = field(default_factory=list)
 
 
 @dataclass
 class Spec:
+    class Meta:
+        unknown = EXCLUDE
+
     options: Options
     exception: PolicyException
     access: List[Access] = field(default_factory=list)
@@ -101,6 +128,9 @@ class Spec:
 
 @dataclass
 class Policy(BanyanApiObject):
+    class Meta:
+        unknown = EXCLUDE
+
     metadata: Metadata
     spec: Spec
     type: str
@@ -116,6 +146,9 @@ class Policy(BanyanApiObject):
 
 @dataclass
 class PolicyInfo(InfoBase):
+    class Meta:
+        unknown = EXCLUDE
+
     policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
     policy_name: str = field(metadata={'data_key': 'PolicyName'})
     spec: str = field(metadata={'data_key': 'PolicySpec'})
@@ -138,6 +171,9 @@ class PolicyInfo(InfoBase):
 
 @dataclass
 class PolicyAttachInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool = field(metadata={'data_key': 'Enabled'})
     policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
     service_id: str = field(metadata={'data_key': 'ServiceID'})
