@@ -7,17 +7,21 @@ from banyan.model.service import Service, ServiceInfo, Tags
 
 
 class ServiceParserTest(unittest.TestCase):
+    SERVICE_NAME = "jenkins"
+    SERVICE_DOMAIN = "jenkins.bnndemos.com"
+
     def test_parse_web_service(self):
         s: Service = Service.Schema().loads(open("tests/data/service_web.json").read())
         self.assertEqual(API_VERSION, s.apiVersion)
-        self.assertEqual("*.staging.earnest.com", s.metadata.name)
+        self.assertEqual(ServiceParserTest.SERVICE_NAME, s.metadata.name)
+        self.assertEqual(ServiceParserTest.SERVICE_DOMAIN, s.metadata.tags.domain)
         self.assertEqual(Tags.TEMPLATE_WEB, s.metadata.tags.template)
         self.assertEqual(Tags.APP_TYPE_WEB, s.metadata.tags.service_app_type)
 
     def test_parse_info(self):
         i: ServiceInfo = ServiceInfo.Schema().loads(open("tests/data/serviceinfo.json").read())
-        self.assertEqual("*.staging.earnest.com", i.service_name)
-        self.assertEqual("*.staging.earnest.com", i.service.name)
+        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service_name)
+        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service.name)
 
     def test_parse_attachments(self):
         a: List[Attachment] = Attachment.Schema().loads(open("tests/data/attachments.json").read(), many=True)
@@ -32,6 +36,6 @@ class ServiceParserTest(unittest.TestCase):
 class TagParserTest(unittest.TestCase):
     def test_parse_tags(self):
         t: Tags = Tags.Schema().loads(open("tests/data/service_tags.json").read())
-        self.assertEqual("*.staging.earnest.com", t.domain)
+        self.assertEqual(ServiceParserTest.SERVICE_DOMAIN, t.domain)
         self.assertEqual(Tags.TEMPLATE_WEB, t.template)
         self.assertEqual(Tags.APP_TYPE_WEB, t.service_app_type)
