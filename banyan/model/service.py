@@ -13,19 +13,24 @@ class Tags:
     class Meta:
         unknown = EXCLUDE
 
-    TEMPLATE_WEB = "USER_WEB"
-    TEMPLATE_TCP = "USER_TCP"
+    TEMPLATE_WEB = "WEB_USER"
+    TEMPLATE_TCP = "TCP_USER"
+    TEMPLATE_WORKLOAD = "TCP_WORKLOAD"
     TEMPLATE_CUSTOM = "CUSTOM"
+    _TEMPLATES = (TEMPLATE_WEB, TEMPLATE_TCP, TEMPLATE_WORKLOAD, TEMPLATE_CUSTOM, "USER_WEB", "USER_TCP")
+
     APP_TYPE_WEB = "WEB"
     APP_TYPE_SSH = "SSH"
     APP_TYPE_TCP = "TCP"
     APP_TYPE_RDP = "RDP"
     APP_TYPE_GENERIC = "GENERIC"
+    _APP_TYPES = (APP_TYPE_WEB, APP_TYPE_SSH, APP_TYPE_TCP, APP_TYPE_RDP, APP_TYPE_GENERIC)
+
     protocol: str
     domain: str
     user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
-    template: str
-    service_app_type: str
+    template: str = field(metadata={'validate': validate.OneOf(_TEMPLATES)})
+    service_app_type: str = field(metadata={'validate': validate.OneOf(_APP_TYPES)})
     icon: str = field(default="")
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     Schema: ClassVar[Schema] = Schema
@@ -118,6 +123,7 @@ class HTTPHealthCheck:
     METHOD_OPTIONS = "OPTIONS"
     METHOD_ALL = "*"
     _METHOD_VALUES = (METHOD_GET, METHOD_POST, METHOD_HEAD, METHOD_PUT, METHOD_DELETE, METHOD_OPTIONS, METHOD_ALL, "")
+
     enabled: bool = field(default=False)
     path: str = field(default='/')
     user_agent: str = field(default='')
