@@ -5,7 +5,7 @@ from typing import List, Dict, ClassVar, Type
 from uuid import UUID
 
 import OpenSSL.crypto
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
@@ -15,6 +15,9 @@ from banyan.model.netagent import Netagent
 
 @dataclass
 class Shield(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     org_id: UUID = field(metadata={"data_key": "OrgID"})
     shield_id: UUID = field(metadata={"data_key": "UUID"})
     shield_name: str = field(metadata={"data_key": "ShieldName"})
@@ -47,6 +50,9 @@ class Shield(Resource):
 
 @dataclass
 class ShieldLastActivity:
+    class Meta:
+        unknown = EXCLUDE
+
     last_activity_time: datetime = field(metadata={"data_key": "InsertTime"})
     status: str = field(metadata={"data_key": "Status"})
     uuid: UUID = field(metadata={"data_key": "UUID"})
@@ -55,6 +61,9 @@ class ShieldLastActivity:
 
 @dataclass
 class ShieldConfig:
+    class Meta:
+        unknown = EXCLUDE
+
     shields: List[Shield] = field(default_factory=list, metadata={"data_key": "Configs"})
     last_activity_map: Dict[str, ShieldLastActivity] = field(default_factory=dict,
                                                              metadata={"data_key": "ShieldLastActivitiesMap"})

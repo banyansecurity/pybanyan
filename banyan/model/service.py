@@ -2,7 +2,7 @@ from dataclasses import field
 from ipaddress import IPv4Interface
 from typing import List, Dict, Union, Optional, ClassVar
 
-from marshmallow import validate, fields, Schema
+from marshmallow import validate, fields, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
@@ -10,6 +10,9 @@ from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
 
 @dataclass
 class Tags:
+    class Meta:
+        unknown = EXCLUDE
+
     TEMPLATE_WEB = "USER_WEB"
     TEMPLATE_TCP = "USER_TCP"
     TEMPLATE_CUSTOM = "CUSTOM"
@@ -30,6 +33,9 @@ class Tags:
 
 @dataclass
 class Metadata:
+    class Meta:
+        unknown = EXCLUDE
+
     tags: Tags
     name: str
     description: str
@@ -38,12 +44,18 @@ class Metadata:
 
 @dataclass
 class FrontendAddress:
+    class Meta:
+        unknown = EXCLUDE
+
     port: int = field(metadata={'marshmallow_field': fields.String()})
     cidr: IPv4Interface = field(metadata={'marshmallow_field': IPv4InterfaceField()})
 
 
 @dataclass
 class Attributes:
+    class Meta:
+        unknown = EXCLUDE
+
     tls_sni: List[str] = field(default_factory=list)
     frontend_addresses: List[FrontendAddress] = field(default_factory=list)
     host_tag_selector: List[Dict[str, str]] = field(default_factory=list)
@@ -52,6 +64,9 @@ class Attributes:
 
 @dataclass
 class CustomTLSCert:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool
     cert_file: str = ""
     key_file: str = ""
@@ -59,12 +74,18 @@ class CustomTLSCert:
 
 @dataclass
 class CertSettings:
+    class Meta:
+        unknown = EXCLUDE
+
     custom_tls_cert: CustomTLSCert = field(default_factory=CustomTLSCert)
     dns_names: List[str] = field(default_factory=list)
 
 
 @dataclass
 class OIDCSettings:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool
     service_domain_name: str = field(default='')
     post_auth_redirect_path: str = field(default='')
@@ -74,6 +95,9 @@ class OIDCSettings:
 
 @dataclass
 class HTTPRedirect:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool
     url: str = field(default='')
     status_code: int = field(default=302)
@@ -83,6 +107,9 @@ class HTTPRedirect:
 
 @dataclass
 class HTTPHealthCheck:
+    class Meta:
+        unknown = EXCLUDE
+
     METHOD_GET = "GET"
     METHOD_HEAD = "HEAD"
     METHOD_DELETE = "DELETE"
@@ -102,12 +129,18 @@ class HTTPHealthCheck:
 
 @dataclass
 class Host:
+    class Meta:
+        unknown = EXCLUDE
+
     origin_header: List[str] = field(default_factory=list)
     target: List[str] = field(default_factory=list)
 
 
 @dataclass
 class Pattern:
+    class Meta:
+        unknown = EXCLUDE
+
     hosts: List[Host] = field(default_factory=list)
     methods: List[str] = field(default_factory=list)
     mandatory_headers: List[str] = field(default_factory=list)
@@ -116,6 +149,9 @@ class Pattern:
 
 @dataclass
 class ExemptedPaths:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool
     paths: Optional[List[str]]
     patterns: List[Pattern] = field(default_factory=list)
@@ -123,6 +159,9 @@ class ExemptedPaths:
 
 @dataclass
 class HttpSettings:
+    class Meta:
+        unknown = EXCLUDE
+
     enabled: bool
     oidc_settings: Optional[OIDCSettings]
     http_health_check: Optional[HTTPHealthCheck]
@@ -132,12 +171,18 @@ class HttpSettings:
 
 @dataclass
 class CIDRAddress:
+    class Meta:
+        unknown = EXCLUDE
+
     cidr: IPv4Interface = field(metadata={'marshmallow_field': IPv4InterfaceField()})
     ports: int
 
 
 @dataclass
 class ClientCIDRs:
+    class Meta:
+        unknown = EXCLUDE
+
     addresses: List[CIDRAddress] = field(default_factory=list)
     host_tag_selector: List[Dict[str, str]] = field(default_factory=list)
     clusters: List[str] = field(default_factory=list)
@@ -145,6 +190,9 @@ class ClientCIDRs:
 
 @dataclass
 class BackendTarget:
+    class Meta:
+        unknown = EXCLUDE
+
     name: str
     name_delimiter: Optional[str]
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
@@ -155,6 +203,9 @@ class BackendTarget:
 
 @dataclass
 class Backend:
+    class Meta:
+        unknown = EXCLUDE
+
     target: BackendTarget
     dns_overrides: Dict[str, str] = field(default_factory=dict)
     whitelist: List[str] = field(default_factory=list)
@@ -162,6 +213,9 @@ class Backend:
 
 @dataclass
 class Spec:
+    class Meta:
+        unknown = EXCLUDE
+
     attributes: Attributes
     backend: Backend
     cert_settings: CertSettings
@@ -171,6 +225,9 @@ class Spec:
 
 @dataclass
 class Service(BanyanApiObject):
+    class Meta:
+        unknown = EXCLUDE
+
     metadata: Metadata
     spec: Spec
 
@@ -181,20 +238,26 @@ class Service(BanyanApiObject):
 
 @dataclass
 class OIDCClient:
+    class Meta:
+        unknown = EXCLUDE
+
     trust_auth: str
     trust_cb: str
     client_id: str
     client_secret: str
     trust_callbacks: Dict[str, str] = field(default_factory=dict)
+    Schema: ClassVar[Schema] = Schema
 
 
 @dataclass
 class ServiceInfo(InfoBase):
+    class Meta:
+        unknown = EXCLUDE
+
     service_id: str = field(metadata={'data_key': 'ServiceID'})
     service_name: str = field(metadata={"data_key": 'ServiceName'})
     description: str = field(metadata={"data_key": 'Description'})
     spec: str = field(metadata={"data_key": 'ServiceSpec'})
-
     discovery: str = field(metadata={'data_key': 'ServiceDiscovery'})
     cluster_name: str = field(metadata={'data_key': 'ClusterName'})
     type: str = field(metadata={'data_key': 'ServiceType'})

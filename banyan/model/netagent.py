@@ -4,7 +4,7 @@ from ipaddress import IPv4Interface
 from typing import List, Dict, Optional, ClassVar, Type
 from uuid import UUID
 
-from marshmallow import validate, fields, pre_load, Schema
+from marshmallow import validate, fields, pre_load, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
@@ -13,6 +13,9 @@ from banyan.model import Resource
 
 @dataclass
 class Netagent(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
     TERMINATED = "Terminated"
     REPORTING = "Reporting"
     TAG_HOSTNAME = "com.banyanops.hosttag.hname"
