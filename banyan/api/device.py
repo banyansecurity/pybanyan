@@ -26,6 +26,7 @@ class DeviceAPI(ServiceBase):
         insert_uri = '/mdm/update_device'
         uri_param = 'SerialNumber'
         obj_name = 'device'
+        supports_paging = True
 
     def create(self, obj: Device):
         """
