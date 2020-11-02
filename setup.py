@@ -21,7 +21,7 @@ setup(
     packages=find_packages(exclude=['ez_setup', 'tests*']),
     package_data={'banyan': ['templates/*']},
     include_package_data=True,
-    python_requires='~=3.6',
+    python_requires='~=3.7',
     install_requires=[
         'dnspython',
         'marshmallow',

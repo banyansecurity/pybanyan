@@ -5,7 +5,7 @@
 
 
 ## Prerequisites
-Python 3.6, 3.7, or 3.8 must be installed.
+Python 3.7 or 3.8 must be installed.
 
 ## Installation 
 ### Installing the easy way
