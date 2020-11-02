@@ -68,9 +68,9 @@ class UserController(Controller):
              }),
             (['--trust-level'],
              {
-                 'choices': TrustLevel.ALL,
+                 'choices': TrustLevel.choices(),
                  'required': True,
-                 'help': f'Maximum trust level for this user. Must be one of: {TrustLevel.ALL}.'
+                 'help': f'Maximum trust level for this user.'
              }
              ),
             (['--reason'],

@@ -97,9 +97,9 @@ class DeviceController(Controller):
              }),
             (['--trust-level'],
              {
-                 'choices': TrustLevel.ALL,
+                 'choices': TrustLevel.choices(),
                  'required': True,
-                 'help': f'Maximum trust level for this device. Must be one of: {TrustLevel.ALL}.'
+                 'help': f'Maximum trust level for this device.'
              }
              ),
             (['--reason'],
