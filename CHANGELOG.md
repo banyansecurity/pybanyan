@@ -1,5 +1,11 @@
 # PyBanyan Change History
 
+## 0.0.6
+ * added support for listing security events
+ * fixed resource leak warnings in unit tests
+ * make pybanyan more resilient to unexpected fields in API responses
+ * use paging only on endpoints 
+ 
 ## 0.0.5
  * support both USER_WEB and WEB_USER style templates in services
  * turn off strict schema validation in Marshmallow (by excluding unknown fields)
