@@ -12,3 +12,4 @@ iso8601
 tabulate
 pyOpenSSL
 requests
+aenum

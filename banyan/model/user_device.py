@@ -1,23 +1,13 @@
 from dataclasses import field
 from datetime import datetime
 from typing import Dict, List, ClassVar, Type, Optional
-from uuid import UUID
 
-from marshmallow import Schema, validate, fields, EXCLUDE
+from marshmallow import Schema, validate, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
-from banyan.model import NanoTimestampField, Resource
-from banyan.model.trustscore import TrustFactorsV2
-
-
-class TrustLevel:
-    ALWAYS_ALLOW = "AlwaysAllow"
-    ALWAYS_DENY = "AlwaysDeny"
-    LOW = "Low"
-    MEDIUM = "Medium"
-    HIGH = "High"
-    ALL = (ALWAYS_DENY, LOW, MEDIUM, HIGH, ALWAYS_ALLOW)
+from banyan.model import NanoTimestampField, Resource, BanyanEnum, VersionField
+from banyan.model.trustscore import TrustFactorsV2, TrustLevel
 
 
 @dataclass
@@ -48,13 +38,11 @@ class TrustDataV1:
     class Meta:
         unknown = EXCLUDE
 
-    _TRUST_VALUES = (TrustLevel.ALWAYS_DENY, TrustLevel.LOW, TrustLevel.MEDIUM,
-                     TrustLevel.HIGH, TrustLevel.ALWAYS_ALLOW)
     entity_trustscore: int = field(metadata={'data_key': 'EntityTrustscore'})
     override_trustscore: int = field(metadata={'data_key': 'OverrideTrustscore'})
     access_trustscore: int = field(metadata={'data_key': 'AccessTrustscore'})
     override_active: bool = field(metadata={'data_key': 'OverrideActive'})
-    level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(_TRUST_VALUES)})
+    level: str = field(metadata={'data_key': 'Level', 'validate': validate.OneOf(TrustLevel.choices())})
     updated_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='UpdatedAt')})
     factors: List[TrustFactorV1] = field(default_factory=list, metadata={'data_key': 'Factors'})
 
@@ -95,16 +83,17 @@ class User(Resource):
         return self.email
 
 
-@dataclass
-class Device(Resource):
-    class Meta:
-        unknown = EXCLUDE
-
+class DeviceOwnership(BanyanEnum):
     CORPORATE_DEDICATED = 'Corporate Dedicated'
     CORPORATE_SHARED = 'Corporate Shared'
     EMPLOYEE_OWNED = 'Employee Owned'
     OTHER = 'Other'
-    _OWNERSHIP_VALUES = (CORPORATE_DEDICATED, CORPORATE_SHARED, EMPLOYEE_OWNED, OTHER, 'UNKNOWN', 'Undefined', '')
+
+
+@dataclass
+class Device(Resource):
+    class Meta:
+        unknown = EXCLUDE
 
     serial_number: str = field(metadata={'data_key': 'SerialNumber'})
     device_id: str = field(metadata={'data_key': 'DeviceID', 'allow_none': True})
@@ -112,14 +101,15 @@ class Device(Resource):
     created_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='CreatedAt')})
     last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
-    ownership: str = field(metadata={'data_key': 'Ownership', 'validate': validate.OneOf(_OWNERSHIP_VALUES)})
+    ownership: str = field(metadata={'data_key': 'Ownership',
+                                     'validate': validate.OneOf(DeviceOwnership.choices() + ['UNKNOWN', 'Undefined', ''])})
     platform: str = field(metadata={'data_key': 'Platform'})
     model: str = field(metadata={'data_key': 'Model'})
     architecture: str = field(metadata={'data_key': 'Architecture'})
     registered_status: bool = field(metadata={'data_key': 'RegisteredStatus'})
     is_banned: bool = field(metadata={'data_key': 'Banned'})
     os_level: str = field(metadata={'data_key': 'OS'})
-    app_version: Optional[VersionInfo] = field(metadata={'marshmallow_field': fields.String(data_key='AppVersion'),
+    app_version: Optional[VersionInfo] = field(metadata={'marshmallow_field': VersionField(data_key='AppVersion'),
                                                          "missing": None})
     mdm_data: MdmData = field(metadata={'data_key': 'MdmData'})
     trust_data: TrustDataV1 = field(metadata={'data_key': 'TrustData'})
@@ -136,16 +126,19 @@ class Device(Resource):
         return self.serial_number
 
 
+class TrustType(BanyanEnum):
+    DEVICE = 'Device'
+    USER = 'EndUser'
+    EXTERNAL = 'External'
+
+
 @dataclass
 class TrustScore(Resource):
     class Meta:
         unknown = EXCLUDE
 
-    TRUST_TYPE_DEVICE = 'Device'
-    TRUST_TYPE_USER = 'EndUser'
-    TRUST_TYPE_EXTERNAL = 'External'
-    _TRUST_TYPE_VALUES = (TRUST_TYPE_DEVICE, TRUST_TYPE_USER, TRUST_TYPE_EXTERNAL)
-    trust_type: str = field(metadata={'data_key': 'TrustType', 'validate': validate.OneOf(_TRUST_TYPE_VALUES)})
+    trust_type: str = field(metadata={'data_key': 'TrustType',
+                                      'validate': validate.OneOf(TrustType.choices())})
     trust_id: str = field(metadata={'data_key': 'TrustID'})
     score: int = field(metadata={'data_key': 'Score'})
     level: str = field(metadata={'data_key': 'Level'})

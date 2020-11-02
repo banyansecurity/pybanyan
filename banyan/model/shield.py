@@ -9,7 +9,7 @@ from marshmallow import fields, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
-from banyan.model import Resource
+from banyan.model import Resource, VersionField
 from banyan.model.netagent import Netagent
 
 
@@ -24,7 +24,7 @@ class Shield(Resource):
     group_type: str = field(metadata={"data_key": "GroupType"})
     cluster_mgr_type: str = field(metadata={"data_key": "ClusterMgrType"})
     cluster_mgr_ip: IPv4Address = field(metadata={"marshmallow_field": fields.String(data_key="ClusterMgrIP")})
-    version: VersionInfo = field(metadata={"marshmallow_field": fields.String(data_key="ShieldVersion")})
+    version: VersionInfo = field(metadata={"marshmallow_field": VersionField(data_key="ShieldVersion")})
     auto_upgrade: bool = field(metadata={"data_key": "AutoUpgrade"})
     one_time_key: UUID = field(metadata={"data_key": "OneTimeKey"})
     otk_expire_dt: datetime = field(metadata={"data_key": "OTKExpiryTime"})

@@ -6,7 +6,14 @@ from uuid import UUID
 from marshmallow import validate, Schema, pre_load, EXCLUDE
 from marshmallow_dataclass import dataclass
 
-from banyan.model import BanyanApiObject, InfoBase, NanoTimestampField
+from banyan.model import BanyanApiObject, InfoBase, NanoTimestampField, BanyanEnum
+from banyan.model.trustscore import TrustLevel
+
+
+class Template(BanyanEnum):
+    USER = "USER"
+    WORKLOAD = "WORKLOAD"
+    CUSTOM = "CUSTOM"
 
 
 @dataclass
@@ -14,11 +21,7 @@ class Tags:
     class Meta:
         unknown = EXCLUDE
 
-    TEMPLATE_USER = "USER"
-    TEMPLATE_WORKLOAD = "WORKLOAD"
-    TEMPLATE_CUSTOM = "CUSTOM"
-    _TEMPLATE_VALUES = (TEMPLATE_USER, TEMPLATE_WORKLOAD, TEMPLATE_CUSTOM)
-    template: str = field(metadata={"validate": validate.OneOf(_TEMPLATE_VALUES)})
+    template: str = field(metadata={"validate": validate.OneOf(Template.choices())})
 
 
 @dataclass
@@ -50,23 +53,28 @@ class PolicyException:
     tls_src_addr: List[str] = field(default_factory=list)  # Deprecated
 
 
+class L7Protocol(BanyanEnum):
+    HTTP = "http"
+    KAFKA = "kafka"
+    MYSQL = "mysql"
+
+
+class L7Action(BanyanEnum):
+    READ = "READ"
+    WRITE = "WRITE"
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    ALL = "*"
+
+
 @dataclass
 class L7Access:
     class Meta:
         unknown = EXCLUDE
 
-    PROTOCOL_HTTP = "http"
-    PROTOCOL_KAFKA = "kafka"
-    PROTOCOL_MYSQL = "mysql"
     RESOURCE_ALL = "*"
-    ACTION_READ = "READ"
-    ACTION_WRITE = "WRITE"
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_ALL = "*"
-    _ACTION_VALUES = (ACTION_READ, ACTION_WRITE, ACTION_CREATE, ACTION_UPDATE, ACTION_DELETE, ACTION_ALL)
-    action: Optional[str] = field(metadata={"validate": validate.OneOf(_ACTION_VALUES + ("",))})
+    action: Optional[str] = field(metadata={"validate": validate.OneOf(L7Action.choices() + [""])})
     resources: List[str] = field(default_factory=list)
     actions: List[str] = field(default_factory=list)
 
@@ -76,17 +84,10 @@ class Conditions:
     class Meta:
         unknown = EXCLUDE
 
-    TRUST_LEVEL_ALWAYS_DENY = "AlwaysDeny"
-    TRUST_LEVEL_LOW = "Low"
-    TRUST_LEVEL_MEDIUM = "Medium"
-    TRUST_LEVEL_HIGH = "High"
-    TRUST_LEVEL_ALWAYS_ALLOW = "AlwaysAllow"
-    _TRUST_LEVEL_VALUES = (
-        TRUST_LEVEL_ALWAYS_DENY, TRUST_LEVEL_LOW, TRUST_LEVEL_MEDIUM, TRUST_LEVEL_HIGH, TRUST_LEVEL_ALWAYS_ALLOW)
     start_time: Optional[datetime]
     end_time: Optional[datetime]
-    trust_level: Optional[str] = field(metadata={"missing": TRUST_LEVEL_ALWAYS_ALLOW,
-                                                 "validate": validate.OneOf(_TRUST_LEVEL_VALUES + ("",))})
+    trust_level: Optional[str] = field(metadata={"missing": TrustLevel.ALWAYS_ALLOW,
+                                                 "validate": validate.OneOf(TrustLevel.choices() + [""])})
 
     # noinspection PyUnusedLocal
     @pre_load
