@@ -37,6 +37,7 @@ setup(
         'tabulate',
         'pyOpenSSL',
         'requests',
+        'aenum'
     ],
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"

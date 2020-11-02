@@ -5,7 +5,15 @@ from typing import List, ClassVar, Dict
 from marshmallow import Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 
-from banyan.model import NanoTimestampField, Resource
+from banyan.model import NanoTimestampField, Resource, BanyanEnum
+
+
+class TrustLevel(BanyanEnum):
+    ALWAYS_ALLOW = "AlwaysAllow"
+    ALWAYS_DENY = "AlwaysDeny"
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
 
 
 @dataclass

@@ -6,7 +6,12 @@ from uuid import UUID
 from marshmallow import EXCLUDE, Schema, validate
 from marshmallow_dataclass import dataclass
 
-from banyan.model import NanoTimestampField, Resource
+from banyan.model import NanoTimestampField, Resource, BanyanEnum
+
+
+class AttachmentType(BanyanEnum):
+    SERVICE = "service"
+    SAAS_APP = "saasapp"
 
 
 @dataclass
@@ -14,16 +19,12 @@ class Attachment(Resource):
     class Meta:
         unknown = EXCLUDE
 
-    SERVICE = "service"
-    SAAS_APP = "saasapp"
-    _ATTACH_TYPES = (SERVICE, SAAS_APP)
-
     policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
     policy_name: str = field(metadata={'data_key': 'PolicyName'})
     attached_to_id: str = field(metadata={'data_key': 'AttachedToID'})
     attached_to_name: str = field(metadata={'data_key': 'AttachedToName'})
     attached_to_type: str = field(metadata={'data_key': 'AttachedToType',
-                                            'validate': validate.OneOf(_ATTACH_TYPES)})
+                                            'validate': validate.OneOf(AttachmentType.choices())})
     enabled: bool = field(metadata={'data_key': 'Enabled'})
     attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
     attached_by: str = field(metadata={'data_key': 'AttachedBy'})

@@ -1,7 +1,8 @@
 import unittest
 
-from banyan.model import API_VERSION, TrustLevel
+from banyan.model import API_VERSION
 from banyan.model.policy import Policy, PolicyInfo, Template
+from banyan.model.trustscore import TrustLevel
 from tests.parsing import load_testdata
 
 

@@ -1,29 +1,31 @@
 from dataclasses import field
 from datetime import datetime
-from ipaddress import IPv4Address
-from typing import List, Dict, ClassVar, Type, Optional
+from typing import List, ClassVar, Type, Optional, Union
 from uuid import UUID
 
-import OpenSSL.crypto
-from marshmallow import fields, Schema, validate, pre_load
+from marshmallow import fields, Schema, validate, pre_load, EXCLUDE
+from marshmallow.fields import String
 from marshmallow_dataclass import dataclass
-from marshmallow.fields import Integer, String
-from semver import VersionInfo
 
-from banyan.model import Resource, NanoTimestampField, MilliTimestampField
-from banyan.model.netagent import Netagent
+from banyan.model import Resource, NanoTimestampField, MilliTimestampField, BanyanEnum
 
 
 @dataclass
 class EventUser:
+    class Meta:
+        unknown = EXCLUDE
+
     email: str
-    groups: List[str]
-    roles: List[str]
+    groups: List[str] = field(default_factory=list)
+    roles: List[str] = field(default_factory=list)
 
 
 @dataclass
 class EventDevice:
-    device_id: UUID = field(metadata={"data_key": "id"})
+    class Meta:
+        unknown = EXCLUDE
+
+    device_id: Optional[UUID] = field(metadata={"data_key": "id"})
     friendly_name: str
     mac_address: str
     serial_number: str
@@ -37,24 +39,33 @@ class EventDevice:
     architecture: str
     udid: str
     source: str
-    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
+    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField()})
 
 
 @dataclass
 class EventClient:
+    class Meta:
+        unknown = EXCLUDE
+
     user_agent: str
     ip_address: str
 
 
 @dataclass
 class EventUserPrincipal:
+    class Meta:
+        unknown = EXCLUDE
+
     user: EventUser
     device: EventDevice
-    client: EventClient
+    client: Optional[EventClient]
 
 
 @dataclass
 class EventWorkloadSet:
+    class Meta:
+        unknown = EXCLUDE
+
     container_name: str
     container_id: str
     image: str
@@ -67,6 +78,9 @@ class EventWorkloadSet:
 
 @dataclass
 class EventWorkloadHost:
+    class Meta:
+        unknown = EXCLUDE
+
     host_ips: str
     host_name: str
     cluster_id: str
@@ -75,12 +89,18 @@ class EventWorkloadHost:
 
 @dataclass
 class EventWorkloadPrincipal:
+    class Meta:
+        unknown = EXCLUDE
+
     workload_set: EventWorkloadSet
     host: EventWorkloadHost
 
 
 @dataclass
 class EventRoleInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     role_id: UUID = field(metadata={"data_key": "id"})
     role_name: str = field(metadata={"data_key": "name"})
     version: int
@@ -90,6 +110,9 @@ class EventRoleInfo:
 
 @dataclass
 class EventPolicyInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     policy_id: str = field(metadata={"data_key": "id"})
     policy_name: str = field(metadata={"data_key": "name"})
     version: int
@@ -100,6 +123,9 @@ class EventPolicyInfo:
 
 @dataclass
 class EventServiceInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     service_id: str = field(metadata={"data_key": "id"})
     service_name: str = field(metadata={"data_key": "name"})
     service_type: str = field(metadata={"data_key": "type"})
@@ -108,17 +134,26 @@ class EventServiceInfo:
 
 @dataclass
 class EventAccessLevel:
+    class Meta:
+        unknown = EXCLUDE
+
     resource: str
 
 
 @dataclass
 class EventSniData:
+    class Meta:
+        unknown = EXCLUDE
+
     name_requested: str
     name_matched: str
 
 
 @dataclass
 class EventRequestData:
+    class Meta:
+        unknown = EXCLUDE
+
     protocol: str
     request_type: str = field(metadata={"data_key": "type"})
     query_crud_types: str
@@ -127,6 +162,9 @@ class EventRequestData:
 
 @dataclass
 class EventChannelInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     access_level: EventAccessLevel
     sni_data: EventSniData
     request_data: EventRequestData
@@ -134,6 +172,9 @@ class EventChannelInfo:
 
 @dataclass
 class EventLinkSource:
+    class Meta:
+        unknown = EXCLUDE
+
     container_id: str
     container_name: str
     service_id: str
@@ -145,6 +186,9 @@ class EventLinkSource:
 
 @dataclass
 class EventLinkDestination:
+    class Meta:
+        unknown = EXCLUDE
+
     container_id: str
     container_name: str
     service_id: str
@@ -157,58 +201,68 @@ class EventLinkDestination:
 
 @dataclass
 class EventLinkInfo:
+    class Meta:
+        unknown = EXCLUDE
+
     source: EventLinkSource
     destination: EventLinkDestination
 
 
 @dataclass
 class EventTrustScore:
+    class Meta:
+        unknown = EXCLUDE
+
     trustscore_id: str = field(metadata={"data_key": "id"})
     trustscore_type: str = field(metadata={"data_key": "type"})
     timestamp: datetime = field(metadata={'marshmallow_field': NanoTimestampField()})
     score: int
 
 
+class EventV2Severity(BanyanEnum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARN = "WARN"
+    ERROR = "ERROR"
+
+
+class EventV2Type(BanyanEnum):
+    ACCESS = "Access"
+    IDENTITY = "Identity"
+    REGISTRATION = "Registration"
+    TRUSTSCORING = "TrustScoring"
+
+
+class EventV2Subtype(BanyanEnum):
+    DEVICE = "Device"
+    USERPRINCIPAL = "UserPrincipal"
+    CONNECTION = "Connection"
+    RESOURCE = "Resource"
+
 @dataclass
 class EventV2(Resource):
-    SEVERITY_DEBUG = "DEBUG"
-    SEVERITY_INFO = "INFO"
-    SEVERITY_WARN = "WARN"
-    SEVERITY_ERROR = "ERROR"
-    _SEVERITIES = (SEVERITY_DEBUG, SEVERITY_INFO, SEVERITY_WARN, SEVERITY_ERROR)
-
-    TYPE_ACCESS = "Access"
-    TYPE_IDENTITY = "Identity"
-    TYPE_REGISTRATION = "Registration"
-    TYPE_TRUSTSCORING = "Trustscoring"
-    _TYPES = (TYPE_ACCESS, TYPE_IDENTITY, TYPE_REGISTRATION, TYPE_TRUSTSCORING)
-
-    SUBTYPE_DEVICE = "Device"
-    SUBTYPE_USERPRINCIPAL = "UserPrincipal"
-    SUBTYPE_CONNECTION = "Connection"
-    SUBTYPE_RESOURCE = "Resource"
-    _SUBTYPES = (SUBTYPE_DEVICE, SUBTYPE_USERPRINCIPAL, SUBTYPE_CONNECTION, SUBTYPE_RESOURCE)
+    class Meta:
+        unknown = EXCLUDE
 
     event_id: UUID = field(metadata={"data_key": "id"})
     external_id: Optional[str]
     org_id: UUID
     org_name: str
-    severity: str = field(metadata={"validate": validate.OneOf(_SEVERITIES)})
+    event_type: str = field(metadata={"data_key": "type", "validate": validate.OneOf(EventV2Type.choices())})
+    sub_type: str = field(metadata={"validate": validate.OneOf(EventV2Subtype.choices())})
+    severity: str = field(metadata={"validate": validate.OneOf(EventV2Severity.choices())})
     action: str
-    event_type: str = field(metadata={"data_key": "type", "validate": validate.OneOf(_TYPES)})
-    sub_type: str = field(metadata={"validate": validate.OneOf(_SUBTYPES)})
-    message: str
     message: str
     result: str
     created_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
     user_principal: EventUserPrincipal
-    workload_principal: EventWorkloadPrincipal
-    role: List[EventRoleInfo]
-    trustscore: EventTrustScore
-    service: EventServiceInfo
-    policy: EventPolicyInfo
-    channel: EventChannelInfo
-    link: EventLinkInfo
+    workload_principal: Optional[EventWorkloadPrincipal]
+    role: Optional[List[EventRoleInfo]]
+    trustscore: Optional[EventTrustScore]
+    service: Optional[EventServiceInfo]
+    policy: Optional[EventPolicyInfo]
+    channel: Optional[EventChannelInfo]
+    link: Optional[EventLinkInfo]
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property
@@ -220,7 +274,29 @@ class EventV2(Resource):
         return str(self.event_id)
 
     @pre_load
-    def _remove_empty_dates(self, data, many, **kwargs):
-        if "LastActivityAt" in data and data["LastActivityAt"] == "":
-            del data["LastActivityAt"]
+    def _remove_empty_fields(self, data, many, **kwargs):
+        if data["user_principal"]["device"]["id"] == "":
+            del data["user_principal"]["device"]["id"]
+        if data["user_principal"]["user"]["roles"] == None:
+            data["user_principal"]["user"]["roles"] = list()
         return data
+
+
+@dataclass
+class EventV2TypeCount(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
+        StatsEndTime: datetime
+        DeltaTime: int
+        NumEventTypeAccessAuth: int
+        NumEventTypeAccessUnauth: int
+        NumEventTypeIdentityDeny: int
+        NumEventTypeService: int
+        NumEventTypeIdentityGrant: int
+        NumEventTypeLink: int
+        NumEventTypePolicy: int
+        NumEventTypeRole: int
+
+
+EventOrID = Union[EventV2, str]

@@ -4,12 +4,21 @@ from datetime import datetime
 from ipaddress import IPv4Interface
 from typing import ClassVar, Type, Union
 
+from aenum import StrEnum
 from marshmallow import fields, Schema
 from marshmallow_dataclass import dataclass
+from semver import VersionInfo
 
 from banyan.core.exc import BanyanError
 
 API_VERSION = "rbac.banyanops.com/v1"
+
+
+class BanyanEnum(StrEnum):
+
+    @classmethod
+    def choices(cls):
+        return [m.value for m in cls]
 
 
 class TimestampField(fields.DateTime):
@@ -53,7 +62,10 @@ class MilliTimestampField(fields.DateTime):
         if not value:
             return None
         elif isinstance(value, int):
-            return datetime.fromtimestamp(value / 1000)
+            try:
+                return datetime.fromtimestamp(value / 1000)
+            except ValueError as ex:
+                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -79,6 +91,26 @@ class IPv4InterfaceField(fields.Field):
         if not value:
             return ""
         elif isinstance(value, IPv4Interface):
+            return str(value)
+        else:
+            return super()._serialize(value, attr, data, **kwargs)
+
+
+class VersionField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if not value:
+            return None
+        elif isinstance(value, str):
+            if '_' in value:
+                value = value.split('_')[0]
+            return VersionInfo.parse(value)
+        else:
+            return super()._deserialize(value, attr, data, **kwargs)
+
+    def _serialize(self, value, attr, data, **kwargs):
+        if not value:
+            return ""
+        elif isinstance(value, VersionInfo):
             return str(value)
         else:
             return super()._serialize(value, attr, data, **kwargs)
