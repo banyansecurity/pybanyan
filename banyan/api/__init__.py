@@ -12,6 +12,7 @@ from requests.auth import AuthBase
 
 from banyan.api.attachment import AttachmentAPI
 from banyan.api.device import DeviceAPI
+from banyan.api.event_v2 import EventV2API
 from banyan.api.netagent import NetagentAPI
 from banyan.api.policy import PolicyAPI
 from banyan.api.role import RoleAPI
@@ -94,6 +95,7 @@ class BanyanApiClient:
         self._agents = NetagentAPI(self)
         self._users = UserAPI(self)
         self._devices = DeviceAPI(self)
+        self._events = EventV2API(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -138,6 +140,9 @@ class BanyanApiClient:
                 if 'Message' in content:
                     raise BanyanError(f'{response.status_code} Client Error: {response.reason} for '
                                       f'url: {response.url}: {content["Message"]}')
+                elif 'error' in content:
+                    raise BanyanError(f'{response.status_code} Client Error: {response.reason} for '
+                                      f'url: {response.url}: {content["error_code"]}: {content["error"]}')
             except ValueError:
                 raise BanyanError(f'{response.status_code} Client Error: {response.reason} for url: {response.url}')
         return response
@@ -294,6 +299,10 @@ class BanyanApiClient:
         as laptops and tablets.
         """
         return self._devices
+
+    @property
+    def events(self) -> EventV2API:
+        return self._events
 
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
+import logging
+
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
@@ -5,7 +7,7 @@ from banyan.api import BanyanApiClient
 from banyan.controllers.admin import AdminController
 from banyan.controllers.base import Base
 from banyan.controllers.device import DeviceController
-from banyan.controllers.event import EventV1Controller
+from banyan.controllers.event import EventV2Controller
 from banyan.controllers.netagent import NetagentController
 from banyan.controllers.policy import PolicyController
 from banyan.controllers.role import RoleController
@@ -25,6 +27,11 @@ def extend_client(app: App) -> None:
     refresh_token = app.config.get('banyan', 'refresh_token')
     client = BanyanApiClient(api_url, refresh_token, debug=app.debug)
     app.extend('client', client)
+
+
+def set_logging(app: App) -> None:
+    if app.debug:
+        logging.basicConfig(level=logging.DEBUG)
 
 
 class MyApp(App):
@@ -51,7 +58,8 @@ class MyApp(App):
         ]
 
         hooks = [
-            ('post_setup', extend_client)
+            ('post_setup', extend_client),
+            ('post_setup', set_logging)
         ]
 
         # configuration handler
@@ -77,7 +85,7 @@ class MyApp(App):
             UserController,
             DeviceController,
             AdminController,
-            EventV1Controller
+            EventV2Controller
         ]
 
 
