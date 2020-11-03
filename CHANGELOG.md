@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.0.7
+ * removed Python 3.6 from compatibility list
+
 ## 0.0.6
  * added support for listing security events
  * fixed resource leak warnings in unit tests
