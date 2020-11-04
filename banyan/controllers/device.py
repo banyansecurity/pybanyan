@@ -22,11 +22,11 @@ class DeviceController(Controller):
     def list(self):
         devices: List[Device] = self._client.list()
         results = list()
-        headers = ['Friendly Name', 'Serial Number', 'Platform', 'Ownership', 'Trust Score', 'Banned', 'Last Login']
+        headers = ['Device Name', 'Serial Number', 'Platform', 'Ownership', 'Trust Score', 'Banned', 'Last Login']
         for device in devices:
             new_row = [device.device_friendly_name, device.serial_number, device.platform,
                        device.ownership, device.trust_data.level, device.is_banned,
-                       device.last_login.strftime(Base.TABLE_DATE_FORMAT)]
+                       device.last_login.strftime(Base.TABLE_DATE_FORMAT) if device.last_login else 'None']
             results.append(new_row)
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
