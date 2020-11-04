@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.0.8
+ * fix for reporting users or devices with no last_login value
+
 ## 0.0.7
  * removed Python 3.6 from compatibility list
 
