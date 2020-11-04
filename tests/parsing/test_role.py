@@ -1,7 +1,7 @@
 import unittest
 
 from banyan.model import API_VERSION
-from banyan.model.role import Role, Metadata, Tags, Spec, RoleInfo
+from banyan.model.role import Role, Metadata, Tags, Spec, RoleInfo, RoleTemplate
 from tests.parsing import load_testdata
 
 
@@ -10,7 +10,7 @@ class RoleGeneratorTest(unittest.TestCase):
         # noinspection PyArgumentList
         r = Role(apiVersion=API_VERSION, kind=Role.KIND, type=Role.TYPE,
                  metadata=Metadata(name="Gitlab", description="Gitlab",
-                                   tags=Tags(Tags.TEMPLATE_USER)),
+                                   tags=Tags(RoleTemplate.USER)),
                  spec=Spec(group=["Security"], known_device_only=True))
         j: dict = Role.Schema().dump(r)
         self.assertEqual(API_VERSION, j["apiVersion"])

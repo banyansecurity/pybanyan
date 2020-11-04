@@ -3,7 +3,7 @@ from typing import List
 
 from banyan.model import API_VERSION
 from banyan.model.attachment import Attachment, AttachmentType
-from banyan.model.service import Service, ServiceInfo, Tags
+from banyan.model.service import Service, ServiceInfo, Tags, ServiceTemplate, ServiceAppType
 from tests.parsing import load_testdata
 
 
@@ -16,8 +16,8 @@ class ServiceParserTest(unittest.TestCase):
         self.assertEqual(API_VERSION, s.apiVersion)
         self.assertEqual(ServiceParserTest.SERVICE_NAME, s.metadata.name)
         self.assertEqual(ServiceParserTest.SERVICE_DOMAIN, s.metadata.tags.domain)
-        self.assertEqual(Tags.TEMPLATE_WEB, s.metadata.tags.template)
-        self.assertEqual(Tags.APP_TYPE_WEB, s.metadata.tags.service_app_type)
+        self.assertEqual(ServiceTemplate.WEB, s.metadata.tags.template)
+        self.assertEqual(ServiceAppType.WEB, s.metadata.tags.service_app_type)
 
     def test_parse_info(self):
         i: ServiceInfo = ServiceInfo.Schema().loads(load_testdata("tests/data/serviceinfo.json"))
@@ -38,5 +38,5 @@ class TagParserTest(unittest.TestCase):
     def test_parse_tags(self):
         t: Tags = Tags.Schema().loads(load_testdata("tests/data/service_tags.json"))
         self.assertEqual(ServiceParserTest.SERVICE_DOMAIN, t.domain)
-        self.assertEqual(Tags.TEMPLATE_WEB, t.template)
-        self.assertEqual(Tags.APP_TYPE_WEB, t.service_app_type)
+        self.assertEqual(ServiceTemplate.WEB, t.template)
+        self.assertEqual(ServiceAppType.WEB, t.service_app_type)

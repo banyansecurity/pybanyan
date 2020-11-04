@@ -5,7 +5,23 @@ from typing import List, Dict, Union, Optional, ClassVar
 from marshmallow import validate, fields, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 
-from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField
+from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField, BanyanEnum
+
+
+class ServiceTemplate(BanyanEnum):
+    WEB = "WEB_USER"
+    TCP = "TCP_USER"
+    WORKLOAD = "TCP_WORKLOAD"
+    CUSTOM = "CUSTOM"
+
+
+class ServiceAppType(BanyanEnum):
+    WEB = "WEB"
+    SSH = "SSH"
+    TCP = "TCP"
+    RDP = "RDP"
+    K8S = "K8S"
+    GENERIC = "GENERIC"
 
 
 @dataclass
@@ -13,24 +29,11 @@ class Tags:
     class Meta:
         unknown = EXCLUDE
 
-    TEMPLATE_WEB = "WEB_USER"
-    TEMPLATE_TCP = "TCP_USER"
-    TEMPLATE_WORKLOAD = "TCP_WORKLOAD"
-    TEMPLATE_CUSTOM = "CUSTOM"
-    _TEMPLATES = (TEMPLATE_WEB, TEMPLATE_TCP, TEMPLATE_WORKLOAD, TEMPLATE_CUSTOM, "USER_WEB", "USER_TCP")
-
-    APP_TYPE_WEB = "WEB"
-    APP_TYPE_SSH = "SSH"
-    APP_TYPE_TCP = "TCP"
-    APP_TYPE_RDP = "RDP"
-    APP_TYPE_GENERIC = "GENERIC"
-    _APP_TYPES = (APP_TYPE_WEB, APP_TYPE_SSH, APP_TYPE_TCP, APP_TYPE_RDP, APP_TYPE_GENERIC)
-
     protocol: str
     domain: str
     user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
-    template: str = field(metadata={'validate': validate.OneOf(_TEMPLATES)})
-    service_app_type: str = field(metadata={'validate': validate.OneOf(_APP_TYPES)})
+    template: str = field(metadata={'validate': validate.OneOf(ServiceTemplate.choices() + ["USER_WEB", "USER_TCP"])})
+    service_app_type: str = field(metadata={'validate': validate.OneOf(ServiceAppType.choices())})
     icon: str = field(default="")
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     Schema: ClassVar[Schema] = Schema
@@ -110,25 +113,26 @@ class HTTPRedirect:
     from_address: List[str] = field(default_factory=list)
 
 
+class HttpMethod(BanyanEnum):
+    GET = "GET"
+    HEAD = "HEAD"
+    DELETE = "DELETE"
+    PUT = "PUT"
+    POST = "POST"
+    OPTIONS = "OPTIONS"
+    ALL = "*"
+
+
 @dataclass
 class HTTPHealthCheck:
     class Meta:
         unknown = EXCLUDE
 
-    METHOD_GET = "GET"
-    METHOD_HEAD = "HEAD"
-    METHOD_DELETE = "DELETE"
-    METHOD_PUT = "PUT"
-    METHOD_POST = "POST"
-    METHOD_OPTIONS = "OPTIONS"
-    METHOD_ALL = "*"
-    _METHOD_VALUES = (METHOD_GET, METHOD_POST, METHOD_HEAD, METHOD_PUT, METHOD_DELETE, METHOD_OPTIONS, METHOD_ALL, "")
-
     enabled: bool = field(default=False)
     path: str = field(default='/')
     user_agent: str = field(default='')
     https: bool = field(default=True)
-    method: str = field(default='GET', metadata={'validate': validate.OneOf(_METHOD_VALUES)})
+    method: str = field(default='GET', metadata={'validate': validate.OneOf(HttpMethod.choices() + [""])})
     addresses: List[str] = field(default_factory=list)
     from_address: List[str] = field(default_factory=list)
 
