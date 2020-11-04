@@ -239,6 +239,7 @@ class EventV2Subtype(BanyanEnum):
     CONNECTION = "Connection"
     RESOURCE = "Resource"
 
+
 @dataclass
 class EventV2(Resource):
     class Meta:
@@ -277,7 +278,7 @@ class EventV2(Resource):
     def _remove_empty_fields(self, data, many, **kwargs):
         if data["user_principal"]["device"]["id"] == "":
             del data["user_principal"]["device"]["id"]
-        if data["user_principal"]["user"]["roles"] == None:
+        if data["user_principal"]["user"]["roles"] is None:
             data["user_principal"]["user"]["roles"] = list()
         return data
 
