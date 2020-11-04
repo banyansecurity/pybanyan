@@ -5,7 +5,7 @@ Command Center, translating JSON responses into objects from the :py:mod:`banyan
 
 import logging
 import os
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, List, Union
 
 import requests
 from requests.auth import AuthBase
@@ -20,7 +20,6 @@ from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.core.exc import BanyanError
-
 
 JsonListOrObj = Union[List, Dict]
 
@@ -125,7 +124,7 @@ class BanyanApiClient:
         self._access_token = content['Message']
         return self._access_token
 
-    def _request(self, method: str, url: str, params: Dict[str, str] = None, data: Any = None,
+    def _request(self, method: str, url: str, params: Dict[str, Any] = None, data: Any = None,
                  headers: Dict[str, str] = None, cookies: Dict[str, str] = None,
                  files=None, auth=None, timeout=None, allow_redirects=True, proxies=None,
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
@@ -147,7 +146,7 @@ class BanyanApiClient:
                 raise BanyanError(f'{response.status_code} Client Error: {response.reason} for url: {response.url}')
         return response
 
-    def api_request(self, method: str, uri: str, params: Dict[str, str] = None, data: Any = None,
+    def api_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
                     json: str = None, headers: Dict[str, str] = None, accept: str = None) -> JsonListOrObj:
         """
         Sends an API request to Banyan and parses the response. All responses are assumed to be in JSON format.
@@ -184,7 +183,7 @@ class BanyanApiClient:
             headers['Content-Type'] = self.JSON_TYPE
         return self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json).json()
 
-    def paged_request(self, method: str, uri: str, params: Dict[str, str] = None, data: Any = None,
+    def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
                       json: str = None, headers: Dict[str, str] = None, accept: str = None) -> JsonListOrObj:
         skip = 0
         limit = 1000
@@ -203,7 +202,6 @@ class BanyanApiClient:
                     all_results.extend(results[key])
                     logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
                     skip += limit
-        return all_results
 
     @property
     def access_token(self) -> str:

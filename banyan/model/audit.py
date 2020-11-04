@@ -91,10 +91,12 @@ class AuditEvent(Resource):
     def object_new(self) -> Resource:
         return self._extract_obj(self.changes_new) if self.changes_new else None
 
+    # noinspection PyUnusedLocal
+    # pylint: disable=W0613,R0201
     @pre_load
     def _remove_empty_dates(self, data, many, **kwargs):
         if "changes_new" in data and data["changes_new"] is not None:
             data["changes_new"] = json.dumps(data["changes_new"])
         if "changes_old" in data and data["changes_old"] is not None:
-                data["changes_old"] = json.dumps(data["changes_old"])
+            data["changes_old"] = json.dumps(data["changes_old"])
         return data

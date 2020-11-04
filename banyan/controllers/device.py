@@ -99,7 +99,7 @@ class DeviceController(Controller):
              {
                  'choices': TrustLevel.choices(),
                  'required': True,
-                 'help': f'Maximum trust level for this device.'
+                 'help': 'Maximum trust level for this device.'
              }
              ),
             (['--reason'],

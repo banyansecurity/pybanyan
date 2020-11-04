@@ -101,25 +101,25 @@ def main():
         try:
             app.run()
 
-        except AssertionError as e:
-            print('AssertionError > %s' % e.args[0])
+        except AssertionError as ex:
+            print('AssertionError > %s' % ex.args[0])
             app.exit_code = 1
 
             if app.debug is True:
                 import traceback
                 traceback.print_exc()
 
-        except BanyanError as e:
-            print('BanyanError > %s' % e.args[0])
+        except BanyanError as ex:
+            print('BanyanError > %s' % ex.args[0])
             app.exit_code = 1
 
             if app.debug is True:
                 import traceback
                 traceback.print_exc()
 
-        except CaughtSignal as e:
+        except CaughtSignal as ex:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
-            print('\n%s' % e)
+            print('\n%s' % ex)
             app.exit_code = 0
 
 

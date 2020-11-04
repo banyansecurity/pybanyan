@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## NEXT
+ * replaced string cconstants with enums in roles/templates
+ * clean up PEP8/pyflakes/pylint issues
+
 ## 0.0.8
  * fix for reporting users or devices with no last_login value
 

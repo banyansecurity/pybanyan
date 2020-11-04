@@ -1,6 +1,7 @@
 import unittest
+from typing import List
 
-from banyan.model.audit import *
+from banyan.model.audit import AuditEvent, AuditAction, AuditEventType
 from banyan.model.service import ServiceInfo
 from tests.parsing import load_testdata
 
@@ -13,7 +14,7 @@ class AuditEventParserTest(unittest.TestCase):
         self.assertEqual(AuditAction.CREATE, e.action)
         self.assertEqual(AuditEventType.REGISTERED_SERVICE, e.event_type)
         self.assertIsNone(e.changes_old)
-        o = e.object_new # type: ServiceInfo
+        o = e.object_new  # type: ServiceInfo
         self.assertEqual(o.cluster_name, "us-west1")
         self.assertEqual(o.service_name, "test-api")
         self.assertIn("bnndemos.com", o.oidc_client.trust_cb)

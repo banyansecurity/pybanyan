@@ -1,7 +1,6 @@
 import sys
-import logging
-from typing import List
 from datetime import datetime
+from typing import List
 
 from banyan.api.base import ServiceBase, Resource
 from banyan.model import BanyanApiObject

@@ -16,6 +16,7 @@ API_VERSION = "rbac.banyanops.com/v1"
 
 class BanyanEnum(StrEnum):
 
+    # noinspection PyTypeChecker
     @classmethod
     def choices(cls):
         return [m.value for m in cls]

@@ -1,6 +1,7 @@
 from typing import List
 
 from banyan.api.base import ServiceBase
+from banyan.model import Resource
 from banyan.model.netagent import Netagent
 
 

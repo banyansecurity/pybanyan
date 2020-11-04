@@ -274,6 +274,7 @@ class EventV2(Resource):
     def id(self) -> str:
         return str(self.event_id)
 
+    # noinspection PyUnusedLocal
     @pre_load
     def _remove_empty_fields(self, data, many, **kwargs):
         if data["user_principal"]["device"]["id"] == "":

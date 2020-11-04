@@ -26,6 +26,7 @@ class Netagent(Resource):
     TAG_SITE_NAME = "com.banyanops.hosttag.site_name"
     TAG_DOMAIN_NAMES = "com.banyanops.hosttag.site_domain_names"
     TAG_FQDN = "com.banyanops.hosttag.site_address"
+
     hostname: str = field(metadata={"data_key": "Hostname"})
     version: VersionInfo = field(metadata={"marshmallow_field": VersionField(data_key="Version")})
     visibility: bool = field(metadata={"data_key": "Visibility"})
