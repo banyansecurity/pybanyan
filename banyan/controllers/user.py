@@ -24,9 +24,9 @@ class UserController(Controller):
         results = list()
         headers = ['Name', 'Email', 'Last Login', 'Login Count', 'Trust Score', 'Last TS Update']
         for user in users:
-            new_row = [user.name, user.email, user.last_login.strftime(Base.TABLE_DATE_FORMAT),
+            new_row = [user.name, user.email, user.last_login.strftime(Base.TABLE_DATE_FORMAT) if user.last_login else 'None',
                        user.login_count, user.trust_data.level,
-                       user.trust_data.updated_at.strftime(Base.TABLE_DATE_FORMAT)]
+                       user.trust_data.updated_at.strftime(Base.TABLE_DATE_FORMAT) if user.trust_data.updated_at else 'None']
             results.append(new_row)
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
