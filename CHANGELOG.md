@@ -1,7 +1,8 @@
 # PyBanyan Change History
 
-## NEXT
- * replaced string cconstants with enums in roles/templates
+## 0.0.9
+ * added support for new Kubernetes service type
+ * replaced string constants with enums in roles/templates
  * clean up PEP8/pyflakes/pylint issues
 
 ## 0.0.8
