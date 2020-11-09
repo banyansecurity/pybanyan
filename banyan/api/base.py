@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Iterable, Any
 
 from banyan.core.exc import BanyanError
 from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
@@ -67,6 +67,14 @@ class ServiceBase(ABC):
     def _ensure_does_not_exist(self, name: str) -> None:
         if self.exists(name):
             raise BanyanError(f'{self.Meta.obj_name} name already exists: {name}')
+
+    @staticmethod
+    def args_to_html_params(args: Iterable) -> Dict[str, Any]:
+        params = dict()
+        for arg, key, val in args:
+            if arg:
+                params[key] = val
+        return params
 
     def find(self, obj: ResourceOrName):
         if isinstance(obj, Resource):

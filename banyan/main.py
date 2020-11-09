@@ -5,6 +5,7 @@ from cement.core.exc import CaughtSignal
 
 from banyan.api import BanyanApiClient
 from banyan.controllers.admin import AdminController
+from banyan.controllers.audit import AuditController
 from banyan.controllers.base import Base
 from banyan.controllers.device import DeviceController
 from banyan.controllers.event import EventV2Controller
@@ -85,7 +86,8 @@ class MyApp(App):
             UserController,
             DeviceController,
             AdminController,
-            EventV2Controller
+            EventV2Controller,
+            AuditController
         ]
 
 

@@ -12,7 +12,7 @@ class EventV2Controller(Controller):
         label = 'event'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'report on security and audit events'
+        help = 'report on security events'
 
     @property
     def _client(self) -> EventV2API:
