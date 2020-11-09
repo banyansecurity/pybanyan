@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from typing import List
 
@@ -30,7 +29,7 @@ class EventV2API(ServiceBase):
              event_type: str = None, subtype: str = None, action: str = None,
              email_address: str = None, device_id: str = None, device_serial: str = None,
              container_id: str = None, service_name: str = None, event_id: str = None) -> list:
-        args = [
+        params = ServiceBase.args_to_html_params([
             (before_dt, 'before', lambda: int(before_dt.timestamp() * 1000)),
             (after_dt, 'after', lambda: int(after_dt.timestamp() * 1000)),
             (order, 'order', order),
@@ -43,13 +42,7 @@ class EventV2API(ServiceBase):
             (container_id, 'workload_container_id', container_id),
             (service_name, 'service_name', service_name),
             (event_id, 'id', event_id),
-        ]
-        params = dict()
-        for arg, key, val in args:
-            if arg:
-                params[key] = val
-
-        print(params, file=sys.stderr)
+        ])
         response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
         response_json = response_json['data']
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)

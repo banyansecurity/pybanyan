@@ -11,6 +11,7 @@ import requests
 from requests.auth import AuthBase
 
 from banyan.api.attachment import AttachmentAPI
+from banyan.api.audit import AuditAPI
 from banyan.api.device import DeviceAPI
 from banyan.api.event_v2 import EventV2API
 from banyan.api.netagent import NetagentAPI
@@ -95,6 +96,7 @@ class BanyanApiClient:
         self._users = UserAPI(self)
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
+        self._audit = AuditAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -301,6 +303,10 @@ class BanyanApiClient:
     @property
     def events(self) -> EventV2API:
         return self._events
+
+    @property
+    def audit(self) -> AuditAPI:
+        return self._audit
 
 
 if __name__ == '__main__':

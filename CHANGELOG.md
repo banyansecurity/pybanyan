@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.0.10
+ * added support for retrieving audit logs via `banyan audit` command
+
 ## 0.0.9
  * added support for new Kubernetes service type
  * replaced string constants with enums in roles/templates
