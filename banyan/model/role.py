@@ -59,6 +59,7 @@ class Spec:
 class Role(BanyanApiObject):
     class Meta:
         unknown = EXCLUDE
+        ordered = True
 
     KIND = "BanyanRole"
     metadata: Metadata

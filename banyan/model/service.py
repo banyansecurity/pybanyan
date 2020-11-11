@@ -237,6 +237,7 @@ class Spec:
 class Service(BanyanApiObject):
     class Meta:
         unknown = EXCLUDE
+        ordered = True
 
     metadata: Metadata
     spec: Spec

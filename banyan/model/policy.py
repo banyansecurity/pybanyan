@@ -131,6 +131,7 @@ class Spec:
 class Policy(BanyanApiObject):
     class Meta:
         unknown = EXCLUDE
+        ordered = True
 
     metadata: Metadata
     spec: Spec
