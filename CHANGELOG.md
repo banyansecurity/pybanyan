@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.0.11
+ * added support for exporting roles, policies, and services via `banyan export` command
+ * added support for testing services from an Access Tier via `banyan service test` command
+
 ## 0.0.10
  * added support for retrieving audit logs via `banyan audit` command
 
