@@ -5,6 +5,7 @@ from cement import Controller, ex
 from banyan.api.service import ServiceAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
+from banyan.lib.service import DEFAULT_TIMEOUT, DEFAULT_DNS_SERVER, ServiceTest
 
 
 class ServiceController(Controller):
@@ -156,6 +157,32 @@ class ServiceController(Controller):
     def detach_policy(self):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
 
-    @ex(help='run sanity checks on a service')
+    @ex(help='run sanity checks on a service',
+        arguments=[
+            (['service_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to attach a policy to.',
+             }),
+            (['--timeout'],
+             {
+                 'type': float,
+                 'help': f'Length of time to wait for backend service to respond, in seconds. (default: {DEFAULT_TIMEOUT})',
+                 'default': DEFAULT_TIMEOUT
+             }),
+            (['--external-dns'],
+             {
+                 'help': f'Public DNS server to query for service resolution. (default: {DEFAULT_DNS_SERVER})',
+                 'default': DEFAULT_DNS_SERVER
+             }),
+            (['--wildcard'],
+             {
+                 'help': 'Hostname to substitute for wildcard in service spec (e.g. *.bnndemos.com).'
+             })
+        ])
     def test(self):
-        pass
+        info: ServiceInfo = self._client[self.app.pargs.service_name]
+        harness = ServiceTest(info.service, self.app.client,
+                              self.app.pargs.timeout, self.app.pargs.external_dns,
+                              self.app.pargs.wildcard)
+        harness.run()

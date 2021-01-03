@@ -35,3 +35,6 @@ class ServiceAPI(ServiceBase):
     def detach(self, service: ServiceInfoOrName, policy: PolicyInfoOrName) -> str:
         from banyan.api.policy import PolicyAPI
         return PolicyAPI(self._client).detach(policy, service)
+
+    def test(self, service: ServiceInfoOrName) -> None:
+        pass
