@@ -9,6 +9,7 @@ from banyan.controllers.audit import AuditController
 from banyan.controllers.base import Base
 from banyan.controllers.device import DeviceController
 from banyan.controllers.event import EventV2Controller
+from banyan.controllers.export import ExportController
 from banyan.controllers.netagent import NetagentController
 from banyan.controllers.policy import PolicyController
 from banyan.controllers.role import RoleController
@@ -87,7 +88,8 @@ class MyApp(App):
             DeviceController,
             AdminController,
             EventV2Controller,
-            AuditController
+            AuditController,
+            ExportController
         ]
 
 
