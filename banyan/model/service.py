@@ -22,6 +22,7 @@ class ServiceAppType(BanyanEnum):
     RDP = "RDP"
     K8S = "K8S"
     GENERIC = "GENERIC"
+    CUSTOM = "CUSTOM"
 
 
 @dataclass
