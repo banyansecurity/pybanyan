@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.12.0
+ * changed versioning scheme
+ * added CUSTOM service type
+
 ## 0.0.11
  * added support for exporting roles, policies, and services via `banyan export` command
  * added support for testing services from an Access Tier via `banyan service test` command
