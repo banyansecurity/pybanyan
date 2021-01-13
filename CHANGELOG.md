@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.12.1
+ * added new dependencies to setup.py
+
 ## 0.12.0
  * changed versioning scheme
  * added CUSTOM service type

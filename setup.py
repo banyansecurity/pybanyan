@@ -37,7 +37,10 @@ setup(
         'tabulate',
         'pyOpenSSL',
         'requests',
-        'aenum'
+        'aenum',
+        'colorama',
+        'boto3',
+        'ec2_metadata'
     ],
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
