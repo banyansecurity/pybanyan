@@ -207,7 +207,7 @@ class BackendTarget:
     name: str
     name_delimiter: Optional[str]
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
-    tls: Optional[bool] = True
+    tls: Optional[bool] = False
     tls_insecure: Optional[bool] = False
     client_certificate: Optional[bool] = False
 
