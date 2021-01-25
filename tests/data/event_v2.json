@@ -26,7 +26,7 @@
             "friendly_name": "",
             "mac_address": "",
             "serial_number": "C02C40NTMD6M",
-            "registration_status": "FALSE",
+            "unregistered": false,
             "compromised_status": "",
             "compliance_status": "",
             "oem_info": "",

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, ClassVar, Type, Optional, Union
 from uuid import UUID
 
-from marshmallow import fields, Schema, validate, pre_load, EXCLUDE
+from marshmallow import Schema, validate, pre_load, EXCLUDE
 from marshmallow.fields import String
 from marshmallow_dataclass import dataclass
 
@@ -29,7 +29,7 @@ class EventDevice:
     friendly_name: str
     mac_address: str
     serial_number: str
-    registration_status: bool = field(metadata={'marshmallow_field': fields.String()})
+    unregistered: bool
     compromised_status: str
     compliance_status: str
     oem_info: str
@@ -39,7 +39,7 @@ class EventDevice:
     architecture: str
     udid: str
     source: str
-    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField()})
+    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
 
 
 @dataclass
