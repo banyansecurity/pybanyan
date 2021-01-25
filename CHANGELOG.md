@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.13.0
+ * updated events model to latest v2 API
+
 ## 0.12.1
  * added new dependencies to setup.py
 

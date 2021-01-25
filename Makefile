@@ -1,7 +1,7 @@
 .PHONY: clean virtualenv test docker dist dist-upload
 
 clean:
-	find . -name '*.py[co]' -delete
+	-find . -name '*.py[co]' -delete
 
 virtualenv:
 	virtualenv --prompt '|> banyan <| ' env
@@ -26,7 +26,7 @@ tag:
 	git tag -f `python -c 'from banyan.core.version import get_version; print(get_version())'`
 
 dist: clean
-	rm -rf dist/*
+	-rm -rf dist/*
 	python setup.py sdist
 	python setup.py bdist_wheel
 
