@@ -23,3 +23,6 @@ class EventV2ParserTest(unittest.TestCase):
     def test_parse_many(self):
         e: List[EventV2] = EventV2.Schema().loads(load_testdata("tests/data/events_v2.json"), many=True)
         self._test_specific_event(e[0])
+
+    def test_parse_more(self):
+        e: List[EventV2] = EventV2.Schema().loads(load_testdata("tests/data/more_events_v2.json"), many=True)

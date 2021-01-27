@@ -19,6 +19,15 @@ class EventUser:
     groups: List[str] = field(default_factory=list)
     roles: List[str] = field(default_factory=list)
 
+    # noinspection PyUnusedLocal
+    @pre_load
+    def _remove_nulls(self, data, many, **kwargs):
+        if "roles" in data and data["roles"] is None:
+            del data["roles"]
+        if "groups" in data and data["groups"] is None:
+            del data["groups"]
+        return data
+
 
 @dataclass
 class EventDevice:
@@ -41,6 +50,13 @@ class EventDevice:
     source: str
     last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
 
+    # noinspection PyUnusedLocal
+    @pre_load
+    def _remove_nulls(self, data, many, **kwargs):
+        if "id" in data and not data["id"]:
+            del data["id"]
+        return data
+
 
 @dataclass
 class EventClient:
@@ -57,7 +73,7 @@ class EventUserPrincipal:
         unknown = EXCLUDE
 
     user: EventUser
-    device: EventDevice
+    device: Optional[EventDevice]
     client: Optional[EventClient]
 
 
@@ -105,7 +121,7 @@ class EventRoleInfo:
     role_name: str = field(metadata={"data_key": "name"})
     version: int
     bound_by: str
-    bound_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
+    bound_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField()})
 
 
 @dataclass
@@ -193,7 +209,7 @@ class EventLinkDestination:
     container_name: str
     service_id: str
     service_name: str
-    service_version: Optional[int] = field(metadata={"marshmallow_field": String(data_key="serivce_version")})
+    service_version: Optional[int] = field(metadata={"marshmallow_field": String()})
     host_name: str
     ip: str
     port: Optional[str]
@@ -230,12 +246,12 @@ class EventV2Type(BanyanEnum):
     ACCESS = "Access"
     IDENTITY = "Identity"
     REGISTRATION = "Registration"
-    TRUSTSCORING = "TrustScoring"
+    TRUST_SCORING = "TrustScoring"
 
 
 class EventV2Subtype(BanyanEnum):
     DEVICE = "Device"
-    USERPRINCIPAL = "UserPrincipal"
+    USER_PRINCIPAL = "UserPrincipal"
     CONNECTION = "Connection"
     RESOURCE = "Resource"
 
@@ -274,31 +290,22 @@ class EventV2(Resource):
     def id(self) -> str:
         return str(self.event_id)
 
-    # noinspection PyUnusedLocal
-    @pre_load
-    def _remove_empty_fields(self, data, many, **kwargs):
-        if data["user_principal"]["device"]["id"] == "":
-            del data["user_principal"]["device"]["id"]
-        if data["user_principal"]["user"]["roles"] is None:
-            data["user_principal"]["user"]["roles"] = list()
-        return data
-
 
 @dataclass
 class EventV2TypeCount(Resource):
     class Meta:
         unknown = EXCLUDE
 
-        StatsEndTime: datetime
-        DeltaTime: int
-        NumEventTypeAccessAuth: int
-        NumEventTypeAccessUnauth: int
-        NumEventTypeIdentityDeny: int
-        NumEventTypeService: int
-        NumEventTypeIdentityGrant: int
-        NumEventTypeLink: int
-        NumEventTypePolicy: int
-        NumEventTypeRole: int
+        end_date: datetime = field(metadata={"data_key": "StatsEndTime"})
+        delta_time: int = field(metadata={"data_key": "DeltaTime"})
+        access_auth: int = field(metadata={"data_key": "NumEventTypeAccessAuth"})
+        access_unauth: int = field(metadata={"data_key": "NumEventTypeAccessUnauth"})
+        identity_grant: int = field(metadata={"data_key": "NumEventTypeIdentityGrant"})
+        identity_deny: int = field(metadata={"data_key": "NumEventTypeIdentityDeny"})
+        service: int = field(metadata={"data_key": "NumEventTypeService"})
+        link: int = field(metadata={"data_key": "NumEventTypeLink"})
+        policy: int = field(metadata={"data_key": "NumEventTypePolicy"})
+        role: int = field(metadata={"data_key": "NumEventTypeRole"})
 
 
 EventOrID = Union[EventV2, str]

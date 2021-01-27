@@ -5,7 +5,7 @@ from ipaddress import IPv4Interface
 from typing import ClassVar, Type, Union
 
 from aenum import StrEnum
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_dump
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
@@ -27,7 +27,10 @@ class TimestampField(fields.DateTime):
         if not value:
             return None
         elif isinstance(value, int):
-            return datetime.fromtimestamp(value)
+            try:
+                return datetime.fromtimestamp(value)
+            except Exception as ex:
+                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -45,7 +48,10 @@ class NanoTimestampField(fields.DateTime):
         if not value:
             return None
         elif isinstance(value, int):
-            return datetime.fromtimestamp(value / 1000000000)
+            try:
+                return datetime.fromtimestamp(value / 1000000000)
+            except Exception as ex:
+                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -65,7 +71,7 @@ class MilliTimestampField(fields.DateTime):
         elif isinstance(value, int):
             try:
                 return datetime.fromtimestamp(value / 1000)
-            except ValueError as ex:
+            except Exception as ex:
                 raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
@@ -84,7 +90,10 @@ class IPv4InterfaceField(fields.Field):
         if not value:
             return None
         elif isinstance(value, str):
-            return IPv4Interface(value)
+            try:
+                return IPv4Interface(value)
+            except Exception as ex:
+                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -104,7 +113,10 @@ class VersionField(fields.Field):
         elif isinstance(value, str):
             if '_' in value:
                 value = value.split('_')[0]
-            return VersionInfo.parse(value)
+            try:
+                return VersionInfo.parse(value)
+            except Exception as ex:
+                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -145,6 +157,17 @@ class Resource(ABC):
     @property
     def id(self) -> str:
         raise BanyanError('not implemented')
+
+    # noinspection PyUnusedLocal
+    @post_dump
+    def _remove_nulls(self, data, many, **kwargs):
+        new_data = dict()
+        for key, val in data.items():
+            if isinstance(val, dict):
+                new_data[key] = self._remove_nulls(val, False, **kwargs)
+            elif val is not None:
+                new_data[key] = val
+        return new_data
 
 
 ResourceOrName = Union[Resource, str]
