@@ -1,0 +1,566 @@
+[
+  {
+    "id": "5e401496-c3f3-421c-b32d-fd280b83dcc9",
+    "external_id": "Y1VHTmdxZGRmaWhTeVFvZFBpVUN2UkJHd2VGVGgyVzRHcmQyVjZteUEwSFp2NEErYnNENlhIMmpmRUxaN2R1Zw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "ERROR",
+    "action": "Deny",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "FAILED - Your TrustScore is low. Please navigate to your Banyan App for remediation instructions.",
+    "result": "ERROR",
+    "created_at": 1611757952386,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [
+          "Everyone",
+          "Employees"
+        ],
+        "roles": [
+          "PersonalDevices",
+          "Everyone"
+        ]
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51929",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51929"
+      }
+    },
+    "role": [
+      {
+        "id": "52fb56ae-1633-4205-b22f-355e7a23c0c1",
+        "name": "PersonalDevices",
+        "version": "1",
+        "bound_by": "Trustprovider",
+        "bound_at": 1611757952358847200
+      },
+      {
+        "id": "746c6bab-13dd-4f43-a535-1b4a880223c8",
+        "name": "Everyone",
+        "version": "1",
+        "bound_by": "Trustprovider",
+        "bound_at": 1611757952358848000
+      }
+    ],
+    "trustscore": {
+      "id": "PF106APV",
+      "type": "Device",
+      "timestamp": 1608678846494380000,
+      "score": 0
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    },
+    "policy": {
+      "id": "5c826a53-1f83-4ffb-ade4-345994d3119b",
+      "name": "federated-saas",
+      "version": "2",
+      "attached_by": "",
+      "attached_at": 0,
+      "enabled": true
+    }
+  },
+  {
+    "id": "fe60956a-0840-49ea-916e-d813e7d3cb57",
+    "external_id": "Y1VHTmdxZGRmaWhTeVFvZFBpVUN2UkJHd2VGVGgyVzRHcmQyVjZteUEwSFp2NEErYnNENlhIMmpmRUxaN2R1Zw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "IDP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "FAILED - Your TrustScore is low. Please navigate to your Banyan App for remediation instructions.",
+    "result": "DEBUG",
+    "created_at": 1611757952357,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [
+          "Everyone",
+          "Employees"
+        ],
+        "roles": [
+          "PersonalDevices",
+          "Everyone"
+        ]
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51929",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51929"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "50dc99f7-ea2f-407d-81c6-f0165d0cc83f",
+    "external_id": "Y1VHTmdxZGRmaWhTeVFvZFBpVUN2UkJHd2VGVGgyVzRHcmQyVjZteUEwSFp2NEErYnNENlhIMmpmRUxaN2R1Zw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "IDP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - IdP login successful",
+    "result": "DEBUG",
+    "created_at": 1611757952292,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51929",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51929"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "4d39ccc4-84a4-4abc-a248-719b3124397b",
+    "external_id": "Y1VHTmdxZGRmaWhTeVFvZFBpVUN2UkJHd2VGVGgyVzRHcmQyVjZteUEwSFp2NEErYnNENlhIMmpmRUxaN2R1Zw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "MDM",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - device ownership and compliance check",
+    "result": "DEBUG",
+    "created_at": 1611757948970,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51929",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51929"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "d3d3ddc4-3a5e-43b6-a680-bcff03688384",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "OCSP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - certificate is not revoked",
+    "result": "DEBUG",
+    "created_at": 1611757948933,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "",
+        "platform": "",
+        "ownership": "",
+        "architecture": "",
+        "udid": "",
+        "source": "",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "",
+        "last_user_agent": "",
+        "unregistered": false
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "4e61858f-4357-492d-848e-59857c72fa0a",
+    "external_id": "WHJ6RTBpUVVEd1dlclgxQnlrWUEzYlY1TFlaS1VJSnQvV0RWTDUzdlZEWHp0NEk4WHFMQ2Vnb3cxM3RteVZPMw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "ERROR",
+    "action": "Deny",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "FAILED - Your TrustScore is low. Please navigate to your Banyan App for remediation instructions.",
+    "result": "ERROR",
+    "created_at": 1611757866738,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [
+          "Everyone",
+          "Employees"
+        ],
+        "roles": [
+          "PersonalDevices",
+          "Everyone"
+        ]
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51815",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51815"
+      }
+    },
+    "role": [
+      {
+        "id": "52fb56ae-1633-4205-b22f-355e7a23c0c1",
+        "name": "PersonalDevices",
+        "version": "1",
+        "bound_by": "Trustprovider",
+        "bound_at": 1611757866704041700
+      },
+      {
+        "id": "746c6bab-13dd-4f43-a535-1b4a880223c8",
+        "name": "Everyone",
+        "version": "1",
+        "bound_by": "Trustprovider",
+        "bound_at": 1611757866704042500
+      }
+    ],
+    "trustscore": {
+      "id": "PF106APV",
+      "type": "Device",
+      "timestamp": 1608678846494380000,
+      "score": 0
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    },
+    "policy": {
+      "id": "5c826a53-1f83-4ffb-ade4-345994d3119b",
+      "name": "federated-saas",
+      "version": "2",
+      "attached_by": "",
+      "attached_at": 0,
+      "enabled": true
+    }
+  },
+  {
+    "id": "886578bd-390b-490b-858e-49c924f1792e",
+    "external_id": "WHJ6RTBpUVVEd1dlclgxQnlrWUEzYlY1TFlaS1VJSnQvV0RWTDUzdlZEWHp0NEk4WHFMQ2Vnb3cxM3RteVZPMw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "IDP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "FAILED - Your TrustScore is low. Please navigate to your Banyan App for remediation instructions.",
+    "result": "DEBUG",
+    "created_at": 1611757866703,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [
+          "Everyone",
+          "Employees"
+        ],
+        "roles": [
+          "PersonalDevices",
+          "Everyone"
+        ]
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51815",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51815"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "090c26be-9d22-4e45-8998-0630bd522ac5",
+    "external_id": "WHJ6RTBpUVVEd1dlclgxQnlrWUEzYlY1TFlaS1VJSnQvV0RWTDUzdlZEWHp0NEk4WHFMQ2Vnb3cxM3RteVZPMw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "IDP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - IdP login successful",
+    "result": "DEBUG",
+    "created_at": 1611757866648,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51815",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51815"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "dede2d41-3207-4d75-ae6e-c9cd47e6a03d",
+    "external_id": "WHJ6RTBpUVVEd1dlclgxQnlrWUEzYlY1TFlaS1VJSnQvV0RWTDUzdlZEWHp0NEk4WHFMQ2Vnb3cxM3RteVZPMw",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "MDM",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - device ownership and compliance check",
+    "result": "DEBUG",
+    "created_at": 1611757862880,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "80Y7",
+        "platform": "Windows",
+        "ownership": "Employee Owned",
+        "architecture": "amd64",
+        "udid": "",
+        "source": "BNN",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "71.92.225.225:51815",
+        "last_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "unregistered": false
+      },
+      "client": {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36 Edg/86.0.622.69",
+        "ip_address": "71.92.225.225:51815"
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  },
+  {
+    "id": "2aa82a95-7ba7-40a2-992d-9ec35755f62a",
+    "org_id": "968338de-358b-4e34-91ee-2515926d384e",
+    "org_name": "banyan-security",
+    "severity": "DEBUG",
+    "action": "OCSP",
+    "type": "Identity",
+    "sub_type": "UserPrincipal",
+    "message": "SUCCESS - certificate is not revoked",
+    "result": "DEBUG",
+    "created_at": 1611757862840,
+    "user_principal": {
+      "user": {
+        "email": "tom.kais@banyansecurity.io",
+        "groups": [],
+        "roles": []
+      },
+      "device": {
+        "id": "",
+        "friendly_name": "",
+        "mac_address": "",
+        "serial_number": "PF106APV",
+        "compromised_status": "",
+        "compliance_status": "",
+        "oem_info": "",
+        "model": "",
+        "platform": "",
+        "ownership": "",
+        "architecture": "",
+        "udid": "",
+        "source": "",
+        "last_mdm_data_synced_at": 0,
+        "last_ip_address": "",
+        "last_user_agent": "",
+        "unregistered": false
+      }
+    },
+    "service": {
+      "id": "",
+      "name": "",
+      "type": "",
+      "version": ""
+    }
+  }
+]
