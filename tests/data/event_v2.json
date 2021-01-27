@@ -127,7 +127,7 @@
             "container_name": "",
             "service_id": "dsrini-edge-plain-web-service.shaobo.bnn",
             "service_name": "dsrini-edge-plain-web-service.shaobo.bnn",
-            "serivce_version": "",
+            "service_version": "",
             "host_name": "",
             "ip": "10.128.0.25:80",
             "port": ""

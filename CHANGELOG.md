@@ -1,5 +1,10 @@
 # PyBanyan Change History
 
+## 0.14.0
+ * more updates to events model 
+ * added filter to remove null fields in JSON output
+ * Pythonified field names in EventV2TypeCount
+
 ## 0.13.0
  * updated events model to latest v2 API
 
