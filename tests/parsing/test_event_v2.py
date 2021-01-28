@@ -5,6 +5,7 @@ from banyan.model.event_v2 import EventV2, EventV2Severity
 from tests.parsing import load_testdata
 
 
+# noinspection PyMethodMayBeStatic
 class EventV2ParserTest(unittest.TestCase):
     EVENT_ID = "26b10ef2-d31d-4ac1-bafa-7ee25da01722"
 
@@ -26,3 +27,12 @@ class EventV2ParserTest(unittest.TestCase):
 
     def test_parse_more(self):
         e: List[EventV2] = EventV2.Schema().loads(load_testdata("tests/data/more_events_v2.json"), many=True)
+        self.assertEqual(292, len(e))
+
+    def test_parse_no_user(self):
+        e: EventV2 = EventV2.Schema().loads(load_testdata("tests/data/event_v2_no_user.json"))
+        self.assertIsNone(e.user_principal.user)
+
+    def test_parse_null_user(self):
+        e: EventV2 = EventV2.Schema().loads(load_testdata("tests/data/event_v2_null_user.json"))
+        self.assertIsNone(e.user_principal.user)

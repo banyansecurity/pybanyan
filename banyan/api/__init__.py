@@ -198,7 +198,7 @@ class BanyanApiClient:
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
                 logging.debug(f'Looking for {key} in {uri}')
-                if key in uri:
+                if key in uri or key == 'data':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])

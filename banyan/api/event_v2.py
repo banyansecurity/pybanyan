@@ -14,7 +14,7 @@ class EventV2API(ServiceBase):
         list_uri = '/events'
         uri_param = 'EventID'
         obj_name = 'event'
-        supports_paging = False
+        supports_paging = True
 
     def create(self, obj: BanyanApiObject) -> str:
         raise NotImplementedError('The Banyan API does not support this operation')
@@ -43,8 +43,7 @@ class EventV2API(ServiceBase):
             (service_name, 'service_name', service_name),
             (event_id, 'id', event_id),
         ])
-        response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
-        response_json = response_json['data']
+        response_json = self._client.paged_request('GET', self.Meta.list_uri, params=params)
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data

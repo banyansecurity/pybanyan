@@ -29,8 +29,8 @@ class TimestampField(fields.DateTime):
         elif isinstance(value, int):
             try:
                 return datetime.fromtimestamp(value)
-            except Exception as ex:
-                raise ValueError(f'{ex.args[0]}, value = {value}, attr = {attr}')
+            except OSError:
+                return None
         else:
             return super()._deserialize(value, attr, data, **kwargs)
 
@@ -59,7 +59,10 @@ class NanoTimestampField(fields.DateTime):
         if not value:
             return 0
         elif isinstance(value, datetime):
-            return int(value.timestamp() * 1000000000)
+            try:
+                return int(value.timestamp() * 1000000000)
+            except OSError:
+                return 0
         else:
             return super()._serialize(value, attr, obj, **kwargs)
 

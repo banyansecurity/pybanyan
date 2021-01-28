@@ -7,7 +7,7 @@ from marshmallow import Schema, validate, pre_load, EXCLUDE
 from marshmallow.fields import String
 from marshmallow_dataclass import dataclass
 
-from banyan.model import Resource, NanoTimestampField, MilliTimestampField, BanyanEnum
+from banyan.model import Resource, NanoTimestampField, MilliTimestampField, BanyanEnum, TimestampField
 
 
 @dataclass
@@ -34,7 +34,7 @@ class EventDevice:
     class Meta:
         unknown = EXCLUDE
 
-    device_id: Optional[UUID] = field(metadata={"data_key": "id"})
+    device_id: str = field(metadata={"data_key": "id"})
     friendly_name: str
     mac_address: str
     serial_number: str
@@ -48,14 +48,8 @@ class EventDevice:
     architecture: str
     udid: str
     source: str
-    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': MilliTimestampField()})
-
-    # noinspection PyUnusedLocal
-    @pre_load
-    def _remove_nulls(self, data, many, **kwargs):
-        if "id" in data and not data["id"]:
-            del data["id"]
-        return data
+    last_mdm_data_synced_at: datetime = field(metadata={'marshmallow_field': TimestampField()})
+    last_user_agent: Optional[str]
 
 
 @dataclass
@@ -72,7 +66,7 @@ class EventUserPrincipal:
     class Meta:
         unknown = EXCLUDE
 
-    user: EventUser
+    user: Optional[EventUser]
     device: Optional[EventDevice]
     client: Optional[EventClient]
 

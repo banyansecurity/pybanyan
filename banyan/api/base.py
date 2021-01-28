@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, List, Union, Iterable, Any
+from typing import Dict, List, Union, Iterable, Any, Callable
 
 from banyan.core.exc import BanyanError
 from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
@@ -73,7 +73,7 @@ class ServiceBase(ABC):
         params = dict()
         for arg, key, val in args:
             if arg:
-                params[key] = val
+                params[key] = val() if isinstance(val, Callable) else val
         return params
 
     def find(self, obj: ResourceOrName):

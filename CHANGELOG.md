@@ -1,5 +1,11 @@
 # PyBanyan Change History
 
+## 0.15.0
+ * allow for inconsistent timestamps in event data
+ * implement paging for events v2 API
+ * fix broken callable support in API base class
+ * more parser tests for events
+
 ## 0.14.0
  * more updates to events model 
  * added filter to remove null fields in JSON output
