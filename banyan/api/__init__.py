@@ -2,12 +2,14 @@
 The `banyan.api` module contains classes and methods that do the work of actually interacting with the Banyan
 Command Center, translating JSON responses into objects from the :py:mod:`banyan.model` module.
 """
-
+import configparser
 import logging
 import os
+from pathlib import Path
 from typing import Dict, Any, List, Union
 
 import requests
+from cement import init_defaults
 from requests.auth import AuthBase
 
 from banyan.api.attachment import AttachmentAPI
@@ -81,6 +83,8 @@ class BanyanApiClient:
         self._access_token = None
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
+            self._read_config_file()
+        if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
         if self._debug:
             requests_log = logging.getLogger('requests.packages.urllib3')
@@ -97,6 +101,17 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
+
+    def _read_config_file(self):
+        conf_path = Path.home() / '.banyan.conf'
+        if conf_path.exists():
+            try:
+                cp = configparser.ConfigParser(CONFIG)
+                cp.read(conf_path)
+                self._api_url = cp.get('banyan', 'api_url')
+                self._refresh_token = cp.get('banyan', 'refresh_token')
+            except configparser.Error:
+                pass
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -309,6 +324,12 @@ class BanyanApiClient:
         return self._audit
 
 
+# configuration defaults
+CONFIG = init_defaults('banyan')
+CONFIG['banyan']['api_url'] = BanyanApiClient.DEFAULT_API_URL
+CONFIG['banyan']['refresh_token'] = None
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
@@ -316,3 +337,4 @@ if __name__ == '__main__':
                         debug=True)
     print(c.get_access_token())
     print(c.services.list())
+
