@@ -2,7 +2,7 @@ from dataclasses import field
 from ipaddress import IPv4Interface
 from typing import List, Dict, Union, Optional, ClassVar
 
-from marshmallow import validate, fields, Schema, EXCLUDE
+from marshmallow import validate, fields, Schema, EXCLUDE, pre_load
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField, BanyanEnum
@@ -100,6 +100,13 @@ class OIDCSettings:
     post_auth_redirect_path: str = field(default='')
     api_path: str = field(default='')
     trust_callbacks: Dict[str, str] = field(default_factory=dict)
+
+    # noinspection PyUnusedLocal
+    @pre_load
+    def _remove_nulls(self, data, many, **kwargs):
+        if 'trust_callbacks' in data and data['trust_callbacks'] is None:
+            del data['trust_callbacks']
+        return data
 
 
 @dataclass
