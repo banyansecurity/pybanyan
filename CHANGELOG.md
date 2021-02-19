@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.16.0
+ * Add progress callback for long paging requests
+
 ## 0.15.0
  * allow for inconsistent timestamps in event data
  * implement paging for events v2 API
