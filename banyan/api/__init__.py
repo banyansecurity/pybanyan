@@ -5,7 +5,7 @@ Command Center, translating JSON responses into objects from the :py:mod:`banyan
 
 import logging
 import os
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, Callable
 
 import requests
 from requests.auth import AuthBase
@@ -23,6 +23,7 @@ from banyan.api.user import UserAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
+ProgressCallback = Callable[[str, str, int, int], None]
 
 
 class BanyanApiClient:
@@ -76,9 +77,10 @@ class BanyanApiClient:
                  log: logging.Logger = None) -> None:
         self._debug = debug
         self._log = log
+        self._progress_callback = None
+        self._access_token = None
         self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
                                             or BanyanApiClient.DEFAULT_API_URL)
-        self._access_token = None
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
@@ -185,12 +187,22 @@ class BanyanApiClient:
             headers['Content-Type'] = self.JSON_TYPE
         return self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json).json()
 
+    @property
+    def progress_callback(self) -> ProgressCallback:
+        return self._progress_callback
+
+    @progress_callback.setter
+    def progress_callback(self, value: ProgressCallback) -> None:
+        self._progress_callback = value
+
     def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
-                      json: str = None, headers: Dict[str, str] = None, accept: str = None) -> JsonListOrObj:
+                      json: str = None, headers: Dict[str, str] = None, accept: str = None,
+                      progress_callback: ProgressCallback = None) -> JsonListOrObj:
         skip = 0
         limit = 1000
         params = params or dict()
         all_results = list()
+        callback = progress_callback or self._progress_callback
 
         while True:
             params['Skip'] = skip
@@ -203,6 +215,8 @@ class BanyanApiClient:
                         return all_results
                     all_results.extend(results[key])
                     logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
+                    if callback:
+                        callback(method, uri, len(all_results), results.get('count', -1))
                     skip += limit
 
     @property
