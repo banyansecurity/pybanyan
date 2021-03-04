@@ -198,9 +198,9 @@ class BanyanApiClient:
     def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
                       json: str = None, headers: Dict[str, str] = None, accept: str = None,
                       progress_callback: ProgressCallback = None) -> JsonListOrObj:
+        params = params or dict()
         skip = params.get('skip', 0)
         limit = params.get('limit', 1000)
-        params = params or dict()
         all_results = list()
         callback = progress_callback or self._progress_callback
 

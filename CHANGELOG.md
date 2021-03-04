@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.17.1
+ * Fix TypeError if no params are specified in API call
+
 ## 0.17.0
  * Replace event paging model with time index based queries
  
