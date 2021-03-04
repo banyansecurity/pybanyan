@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.17.2
+ * Remove accidentally committed test code
+
 ## 0.17.1
  * Fix TypeError if no params are specified in API call
 
