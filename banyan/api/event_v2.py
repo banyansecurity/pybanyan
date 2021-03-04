@@ -56,9 +56,10 @@ class EventV2API(ServiceBase):
         params['order'] = 'asc'
         all_data: List[EventV2] = list()
         event_ids: Set[UUID] = set()
+        schema = self.Meta.info_class.Schema()
         while params['after'] < params['before']:
             response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
-            data: List[EventV2] = self.Meta.info_class.Schema().load(response_json['data'], many=True)
+            data: List[EventV2] = schema.load(response_json['data'], many=True)
             data = list(filter(lambda x: x.event_id not in event_ids, data))
             if len(data) == 0:
                 break
