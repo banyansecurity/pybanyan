@@ -198,15 +198,15 @@ class BanyanApiClient:
     def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
                       json: str = None, headers: Dict[str, str] = None, accept: str = None,
                       progress_callback: ProgressCallback = None) -> JsonListOrObj:
-        skip = 0
-        limit = 1000
+        skip = params.get('skip', 0)
+        limit = params.get('limit', 1000)
         params = params or dict()
         all_results = list()
         callback = progress_callback or self._progress_callback
 
         while True:
-            params['Skip'] = skip
-            params['Limit'] = limit
+            params['skip'] = skip
+            params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
                 logging.debug(f'Looking for {key} in {uri}')
