@@ -3,6 +3,12 @@
 ## 0.17.2
  * Remove accidentally committed test code
 
+## 0.18.0 
+ * added count method to event_v2 object
+ 
+## 0.17.2
+ * Remove testing code that imported ujson module
+
 ## 0.17.1
  * Fix TypeError if no params are specified in API call
 
