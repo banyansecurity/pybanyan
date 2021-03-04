@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.17.0
+ * Replace event paging model with time index based queries
+ 
 ## 0.16.0
  * Add progress callback for long paging requests
 
