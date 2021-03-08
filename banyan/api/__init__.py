@@ -5,6 +5,7 @@ Command Center, translating JSON responses into objects from the :py:mod:`banyan
 
 import logging
 import os
+import sys
 from typing import Dict, Any, List, Union, Callable
 
 import requests
@@ -195,6 +196,17 @@ class BanyanApiClient:
     def progress_callback(self, value: ProgressCallback) -> None:
         self._progress_callback = value
 
+    def _do_progress_callback(self, method: str, uri: str, count: int, total: int) -> None:
+        if self._progress_callback:
+            try:
+                self._progress_callback(method, uri, count, total)
+            except Exception as ex:
+                err_msg = f'{ex.__class__.__name__} exception in progress callback: {ex.args[0]}'
+                if self._log:
+                    self._log.error(err_msg)
+                else:
+                    print(err_msg, file=sys.stderr)
+
     def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
                       json: str = None, headers: Dict[str, str] = None, accept: str = None,
                       progress_callback: ProgressCallback = None) -> JsonListOrObj:
@@ -215,8 +227,7 @@ class BanyanApiClient:
                         return all_results
                     all_results.extend(results[key])
                     logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
-                    if callback:
-                        callback(method, uri, len(all_results), results.get('count', -1))
+                    self._do_progress_callback(method, uri, len(all_results), results.get('count', -1))
                     skip += limit
 
     @property

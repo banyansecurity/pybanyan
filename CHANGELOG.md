@@ -1,7 +1,10 @@
 # PyBanyan Change History
 
-## 0.17.2
- * Remove accidentally committed test code
+## 0.18.2
+ * trapped errors in progress callbacks
+
+## 0.18.1
+ * add progress callbacks to new list methods in event_v2
 
 ## 0.18.0 
  * added count method to event_v2 object
