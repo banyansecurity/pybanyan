@@ -25,14 +25,14 @@ class ServiceBase(ABC):
         self._by_name: Dict[str, Resource] = dict()
         self._by_id: Dict[str, Resource] = dict()
 
-    def list(self) -> list:
+    def list(self, params: Dict[str, Any] = None) -> list:
         list_func = self._client.api_request
         try:
             if self.Meta.supports_paging:
                 list_func = self._client.paged_request
         except AttributeError:
             pass
-        response_json = list(list_func('GET', self.Meta.list_uri))
+        response_json = list(list_func('GET', self.Meta.list_uri, params=params))
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data

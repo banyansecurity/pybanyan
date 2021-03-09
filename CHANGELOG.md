@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.18.3
+ * pass params through API list() method
+ 
 ## 0.18.2
  * trapped errors in progress callbacks
 
