@@ -1,5 +1,6 @@
 import json
 import sys
+import boto3
 
 from cement import Controller
 from cement.utils.version import get_version_banner
@@ -38,6 +39,9 @@ class Base(Controller):
             (['--refresh-token'],
              {'help': 'API token used for the initial authentication to the Banyan API server. Can also be '
                       'configured via the BANYAN_REFRESH_TOKEN environment variable.'}),
+            (['-p', '--profile'],
+             {'dest': 'profile',
+              'help': "Cloud provider profile name"}),
             (['--output-format', '-o'],
              {'choices': ['table', 'json', 'yaml'],
               'help': 'desired output format (table, json, yaml)'}),
@@ -49,6 +53,12 @@ class Base(Controller):
             self.app.client.api_url = self.app.pargs.api_url
         if self.app.pargs.refresh_token:
             self.app.client.refresh_token = self.app.pargs.refresh_token
+        if self.app.pargs.profile:
+            boto_session = boto3.Session(profile_name=self.app.pargs.profile)
+            self.app.boto_session = boto_session
+            self.app.ec2.boto_session = boto_session
+            self.app.lb.boto_session = boto_session
+            self.app.rds.boto_session = boto_session
 
     def _default(self):
         """Default action if no sub-command is passed."""

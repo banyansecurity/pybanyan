@@ -111,3 +111,6 @@ venv.bak/
 temp/
 ._*
 
+banyan/cloud_resources/.DS_Store
+.DS_Store
+banyan/.DS_Store

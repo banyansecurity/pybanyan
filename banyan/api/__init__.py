@@ -22,6 +22,8 @@ from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.core.exc import BanyanError
+from banyan.api.cloud_inventory import CloudInventoryAPI
+from banyan.api.resource import ResourceAPI
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int], None]
@@ -100,6 +102,8 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
+        self._inventory = CloudInventoryAPI(self)
+        self._resource = ResourceAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -332,6 +336,20 @@ class BanyanApiClient:
     @property
     def audit(self) -> AuditAPI:
         return self._audit
+
+    @property
+    def inventory(self) -> CloudInventoryAPI:
+        """
+        Returns an instance of the :py:class:`CloudInventoryAPI` class, which can be used to manage Banyan Cloud Inventory
+        """
+        return self._inventory
+
+    @property
+    def resource(self) -> ResourceAPI:
+        """
+        Returns an instance of the :py:class:`ResourceAPI` class, which can be used to manage Banyan cloud discovery
+        """
+        return self._resource
 
 
 if __name__ == '__main__':
