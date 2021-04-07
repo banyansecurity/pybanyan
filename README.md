@@ -66,6 +66,14 @@ api_url = https://net.banyanops.com
 refresh_token = MY_API_TOKEN
 ```
 
+Before you use the CLI for AWS autosync, setup AWS credentials. Please check [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) for More details
+######~/.aws/credentials
+```
+[default]
+aws_access_key_id=id from AWS Console
+aws_secret_access_key=accesskey from AWS Console
+aws_session_token=sessiontoken from AWS Console
+```
 The CLI is invoked with the `banyan` tool. It contains a number of commands and sub-commands to help you work
 with policies, roles, services, users, and other objects in Banyan. 
 
