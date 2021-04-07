@@ -1,3 +1,4 @@
+from banyan.cloud_resources.aws.user_profile import UserProfile
 import logging
 
 from cement import App, TestApp, init_defaults
@@ -17,11 +18,20 @@ from banyan.controllers.service import ServiceController
 from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from .core.exc import BanyanError
+import boto3
+from banyan.cloud_resources.aws.ec2 import Ec2
+from banyan.cloud_resources.aws.loadbalancer import Loadbalancer
+from banyan.cloud_resources.aws.rds import Rds
+from banyan.controllers.inventory import InventoryController
+from banyan.controllers.resource import ResourceController
+
 
 # configuration defaults
 CONFIG = init_defaults('banyan')
 CONFIG['banyan']['api_url'] = BanyanApiClient.DEFAULT_API_URL
 CONFIG['banyan']['refresh_token'] = None
+CONFIG['banyan']['service'] = {'service_name':
+                               {'tag': 'com.banyanops.sevice.name', 'format': '{#service_name}-{#Id}'}}
 
 
 def extend_client(app: App) -> None:
@@ -29,6 +39,20 @@ def extend_client(app: App) -> None:
     refresh_token = app.config.get('banyan', 'refresh_token')
     client = BanyanApiClient(api_url, refresh_token, debug=app.debug)
     app.extend('client', client)
+    # todo: read profile name from config or args
+    boto_session = boto3.Session(profile_name="default")
+    app.extend('boto_session', boto_session)
+    user_profile = UserProfile(boto_session)
+    # print(user_profile)
+    app.extend('user_profile', user_profile)
+    ec2 = Ec2(app.boto_session, app.config, app.client, app.user_profile)
+    lb = Loadbalancer(app.boto_session, app.config,
+                      app.client, app.user_profile)
+    rds = Rds(app.boto_session, app.config, app.client, app.user_profile)
+
+    app.extend('ec2', ec2)
+    app.extend('lb', lb)
+    app.extend('rds', rds)
 
 
 def set_logging(app: App) -> None:
@@ -89,7 +113,9 @@ class MyApp(App):
             AdminController,
             EventV2Controller,
             AuditController,
-            ExportController
+            ExportController,
+            InventoryController,
+            ResourceController
         ]
 
 

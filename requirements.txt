@@ -16,3 +16,4 @@ aenum
 colorama
 boto3
 ec2_metadata
+python-dotenv
