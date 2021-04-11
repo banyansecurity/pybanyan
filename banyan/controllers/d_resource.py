@@ -93,10 +93,14 @@ class DiscoveredResourceController(Controller):
             (['service_name'],
             {
                 'help': 'Name of service to create.'
-            }),       
+            }),
+            (['service_domain'],
+            {
+                'help': 'Domain name (aka address) of service.'
+            }),                  
             (['service_type'],
             {
-                'help': 'Type of service to create - WEB | SSH | RDS | GENERIC_TCP.'
+                'help': 'Type of service - WEB | SSH | RDS | GENERIC_TCP.'
             }),
             (['resource_udid'],
             {

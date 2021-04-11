@@ -186,3 +186,20 @@ class ServiceController(Controller):
                               self.app.pargs.timeout, self.app.pargs.external_dns,
                               self.app.pargs.wildcard)
         harness.run()
+
+    @ex(help='create an Okta bookmark application from a web service',
+        arguments=[
+            (['service_name'],
+            {
+                'help': 'Name of service to add to Okta.'
+            }),
+        ])
+    def add_to_okta(self):
+        try:
+            from banyan.ext.okta.application import OktaApplicationController
+        except Exception as ex:
+            raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
+
+        okta = OktaApplicationController()
+        okta.list()
+        return

@@ -1,6 +1,5 @@
 from typing import List, ClassVar, Type, Optional, Union
 from dataclasses import dataclass
-import sys
 
 try:
     import boto3
@@ -49,11 +48,11 @@ class Ec2Controller:
         reservations = response['Reservations']
         for reservation in reservations:
             for inst in reservation['Instances']:
-                res = Ec2Model(session.region_name,
-                                 inst.get('InstanceId'),
-                                 inst.get('PublicIpAddress'),
-                                 inst.get('PrivateIpAddress'),
-                                 inst.get('Tags')
+                res = Ec2Model( session.region_name,
+                                inst.get('InstanceId'),
+                                inst.get('PublicIpAddress'),
+                                inst.get('PrivateIpAddress'),
+                                inst.get('Tags')
                 )
                 for tag in res.tags:
                     if tag['Key'] == 'Name':
@@ -65,7 +64,7 @@ class Ec2Controller:
         for instance in instances:
             allvars = vars(instance)
             allvars['tags'] = len(allvars['tags'])
-            results.append(vars(instance))
+            results.append(allvars)
       
         print(tabulate(results, headers="keys"))
 
