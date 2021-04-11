@@ -21,7 +21,7 @@ class DiscoveredResourceController(Controller):
         arguments=[
             (['--tag-name'], 
             {
-                'help': 'Banyan UDID of the discovered resource to display.'
+                'help': 'Filter discovered resource by Tag Name.'
             }),
         ])
     def list(self):
@@ -36,7 +36,7 @@ class DiscoveredResourceController(Controller):
 
     @ex(help='show details & tags of a discovered_resource', 
         arguments=[
-            (['--resource_udid'], 
+            (['resource_udid'],
             {
                 'help': 'Banyan UDID of the discovered resource to display.'
             }),
@@ -62,14 +62,19 @@ class DiscoveredResourceController(Controller):
 
     @ex(help='sync discovered_resources with AWS',
         arguments=[
-            (['--resource_types'],
+            (['resource_type'],
             {
-                'help': 'Only supports EC2'
+                'help': 'Type of AWS Resource - EC2 | RDS | LB | ALL.'
             }),
             (['--tag_name'],
             {
-                'help': 'Filter resources by AWS Tag'
+                'help': 'Only sync resources with specific tag name'
             }),
+            (['--tag_value'],
+            {
+                'help': 'Only sync resources with specific tag values ("*" is allowed).'
+            })
+
         ])
     def sync_aws(self):
         try:
@@ -79,16 +84,53 @@ class DiscoveredResourceController(Controller):
 
         ec2 = Ec2Controller()
         ec2.list()
+        #TODO: Call create in a loop
+        return
 
 
-    @ex(help='add a discovered_resource to a Banyan Service',
+    @ex(help='use discovered_resource to create a new service',
         arguments=[
-            (['--cloud-provider'], {
-                'help': ''
+            (['service_name'],
+            {
+                'help': 'Name of service to create.'
+            }),       
+            (['service_type'],
+            {
+                'help': 'Type of service to create - WEB | SSH | RDS | GENERIC_TCP.'
             }),
-            (['--filter'], {
-                'help': ''
-            })
+            (['resource_udid'],
+            {
+                'help': 'Banyan UDID of the discovered resource to use.'
+            }),         
+            (['--backend_port'],
+            {
+                'help': 'Specify if backend port is non-standard.'
+            }),
+            (['--backend_tls'],
+            {
+                'default': False,
+                'help': 'Specify if backend requires TLS.'
+            })            
         ])
     def publish(self):
+        #TODO: get resource, logic to create service
+        return
+
+    @ex(help='add a discovered_resource to an existing service whitelist',
+        arguments=[
+            (['service_name'],
+            {
+                'help': 'Name of service whose whitelist should be updated.'
+            }),          
+            (['tag_name'],
+            {
+                'help': 'Name of Tag of the discovered resources to use.'
+            }),
+            (['tag_value'],
+            {
+                'help': 'Value of Tag of the discovered resources to use ("*" is allowed).'
+            })
+        ])
+    def whitelist(self):
+        #TODO: get resource(s), check service if it has whitelist
         return
