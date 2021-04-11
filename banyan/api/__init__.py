@@ -21,6 +21,7 @@ from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
+from banyan.api.d_resource import DiscoveredResourceAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
@@ -100,6 +101,7 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
+        self._discovered_resources = DiscoveredResourceAPI(self) 
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -332,6 +334,10 @@ class BanyanApiClient:
     @property
     def audit(self) -> AuditAPI:
         return self._audit
+
+    @property
+    def discovered_resources(self) -> DiscoveredResourceAPI:
+        return self._discovered_resources
 
 
 if __name__ == '__main__':
