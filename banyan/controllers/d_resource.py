@@ -28,7 +28,6 @@ class DiscoveredResourceController(Controller):
         d_resources: List[DiscoveredResourceInfo] = self._client.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', '# Tags']
-        print(d_resources)
         for res in d_resources:
             new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
                     res.resource_type, res.private_ip, len(res.tags)]
@@ -50,7 +49,8 @@ class DiscoveredResourceController(Controller):
 
     @ex(help='create a new discovered_resource',
         arguments=[
-            (['resources_json'], {
+            (['resources_json'], 
+            {
                 'help': 'JSON blob describing the new discovered resource(s) to be created, or a filename '
                          'containing JSON prefixed by "@" (example: @res.json).'
             }),
@@ -60,14 +60,26 @@ class DiscoveredResourceController(Controller):
         info = self._client.create(d_resources)
         print(info)
 
-    @ex(help='create new discovered_resources from AWS',
+    @ex(help='sync discovered_resources with AWS',
         arguments=[
-            (['--filter'], {
-                'help': ''
-            })
+            (['--resource_types'],
+            {
+                'help': 'Only supports EC2'
+            }),
+            (['--tag_name'],
+            {
+                'help': 'Filter resources by AWS Tag'
+            }),
         ])
-    def create_aws(self):
-        return
+    def sync_aws(self):
+        try:
+            from banyan.ext.aws.ec2 import Ec2Controller
+        except Exception as ex:
+            raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
+
+        ec2 = Ec2Controller()
+        ec2.list()
+
 
     @ex(help='add a discovered_resource to a Banyan Service',
         arguments=[
@@ -80,16 +92,3 @@ class DiscoveredResourceController(Controller):
         ])
     def publish(self):
         return
-
-    @ex(help='add a discovered_resource to an External Catalog',
-        arguments=[
-            (['--external-catalog'], {
-                'help': ''
-            }),
-            (['--filter'], {
-                'help': ''
-            })
-        ])
-    def publish_ext(self):
-        return
-
