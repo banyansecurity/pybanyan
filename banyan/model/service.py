@@ -220,15 +220,24 @@ class BackendTarget:
 
 
 @dataclass
+class AllowPattern:
+    class Meta:
+        unknown = EXCLUDE
+
+    cidrs: Optional[List[str]] = field(default_factory=list)
+    hostnames: Optional[List[str]] = field(default_factory=list)
+
+
+@dataclass
 class Backend:
     class Meta:
         unknown = EXCLUDE
 
     target: BackendTarget
-    dns_overrides: Dict[str, str] = field(default_factory=dict)
-    whitelist: List[str] = field(default_factory=list)
+    dns_overrides: Optional[Dict[str, str]] = field(default_factory=dict)
+    allow_patterns: Optional[List[AllowPattern]] = field(default_factory=list)
+    whitelist: Optional[List[str]] = field(default_factory=list) # deprecated
     http_connect: Optional[bool] = False
-
 
 @dataclass
 class Spec:
@@ -334,7 +343,7 @@ class SimpleWebService():
         host_tag_selector = {"com.banyanops.hosttag.site_name": "*"}
         attributes = Attributes([self.domain], [frontend_address], [host_tag_selector])
         backend_target = BackendTarget(self.backend_name, '', self.backend_port, self.backend_tls)
-        backend = Backend(backend_target, {}, [])
+        backend = Backend(backend_target, {}, [], [])
         custom_tls_cert = CustomTLSCert()
         cert_settings = CertSettings(custom_tls_cert, [self.domain])
         oidc_settings = OIDCSettings(True, 'https://' + self.domain)

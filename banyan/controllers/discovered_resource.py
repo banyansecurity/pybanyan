@@ -8,7 +8,7 @@ from banyan.controllers.base import Base
 
 from banyan.api import BanyanApiClient
 from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
-from banyan.model.service import ServiceInfo, SimpleWebService
+from banyan.model.service import ServiceInfo, Service, SimpleWebService, AllowPattern
 from banyan.model.policy import PolicyInfo, SimpleWebPolicy
 
 
@@ -145,6 +145,7 @@ class DiscoveredResourceController(Controller):
             print('\n-->', info)
             sleep(0.05)
 
+
     #TODO-API: argument should be UDID not tag_name
     @ex(help='use discovered_resource to create a new service',
         arguments=[
@@ -219,7 +220,7 @@ class DiscoveredResourceController(Controller):
                                   'policy-%s' % self.app.pargs.service_name,
                                   'pybanyan publish flow'
         )
-        print('\n--> Service to create:')
+        print('\n--> Policy to create:')
         print(pol_web)
 
         print('\n--> Creating policy')
@@ -238,7 +239,7 @@ class DiscoveredResourceController(Controller):
         print('\n--> Publish flow successful.')
 
 
-    @ex(help='add a discovered_resource to an existing service',
+    @ex(help='add discovered_resources to an existing service',
         arguments=[
             (['service_name'],
             {
@@ -246,13 +247,51 @@ class DiscoveredResourceController(Controller):
             }),          
             (['tag_name'],
             {
-                'help': 'Name of Tag of the discovered resources to use.'
+                'help': 'Name of Tag of the discovered resources.'
             }),
-            (['tag_value'],
+            (['--tag_value'],
             {
-                'help': 'Value of Tag of the discovered resources to use ("*" is allowed).'
+                'help': 'Value of Tag of the discovered resources.'
             })
         ])
     def whitelist(self):
-        #TODO: get resource(s), check service if it has whitelist
-        return
+        params = {
+            'include_tags': 'true',
+            'tag_name': self.app.pargs.tag_name,
+            'tag_value': self.app.pargs.tag_value
+        }
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
+        if len(d_resources) == 0:
+            raise RuntimeError('No discovered_resource found')        
+
+        print('\n--> Discovered resources to whitelist:')
+        results = list()
+        headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', 'Public IP', '# Tags']
+        for res in d_resources:
+            new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
+                    res.resource_type, res.private_ip, res.public_ip, len(res.tags)]
+            results.append(new_res)
+        self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
+
+        self._client.services.list()
+        service_info: ServiceInfo = self._client.services[self.app.pargs.service_name]
+        if not service_info.service.spec.backend.http_connect:
+            raise RuntimeError('Service does not support whitelist by IP address')
+
+        print('\n--> Service to update whitelist to:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+        print('\n--> New whitelist:')
+        allow = AllowPattern()
+        for d_resource in d_resources:
+            allow.cidrs.append('%s/32' % d_resource.private_ip)
+        print(allow)
+        svc.spec.backend.allow_patterns = [allow]
+
+        print('\n--> Updating service:')
+        service_info = self._client.services.update(svc)
+        self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
+
+        print('\n--> Whitelist flow successful.')
