@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 try:
     import boto3
-    from tabulate import tabulate
 except ImportError as ex:
     print('ImportError > %s' % ex.args[0])
     raise
@@ -59,14 +58,6 @@ class Ec2Controller:
                         res.resource_name = tag['Value']
                         break
                 instances.append(res)
-
-        results = list()
-        for instance in instances:
-            allvars = vars(instance)
-            allvars['tags'] = len(allvars['tags'])
-            results.append(allvars)
-      
-        print(tabulate(results, headers="keys"))
 
         return instances
 

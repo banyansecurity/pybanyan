@@ -1,6 +1,7 @@
 import asyncio
 import functools
 from dataclasses import dataclass
+from typing import List, ClassVar, Type, Optional, Union
 
 try:
     from okta.client import Client as OktaClient
@@ -25,7 +26,7 @@ class OktaApplicationController:
     class Meta:
         help = "Okta Application Controller"
 
-    # https://gist.github.com/phizaz/20c36c6734878c6ec053245a477572ec
+    # no async needed -> https://gist.github.com/phizaz/20c36c6734878c6ec053245a477572ec
     def force_sync(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -63,7 +64,7 @@ class OktaApplicationController:
         results = list()
         for application in applications:
             allvars = vars(application)
-            allvars['link'] = allvars['link'][:50]
+            allvars['link'] = allvars['link'][:50] # table display
             results.append(allvars)
 
         print(tabulate(results, headers="keys"))

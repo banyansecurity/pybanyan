@@ -15,7 +15,9 @@ class DiscoveredResourceAPI(ServiceBase):
         response_json = self._client.api_request('GET', 
                                                  '/cloud_resource/inventory',
                                                  params=params)
-        data: List[DiscoveredResourceInfo] = DiscoveredResourceInfo.Schema().load(response_json["data"], many=True)
+        data: List[DiscoveredResourceInfo] = list()
+        if response_json["data"] is not None:
+            data = DiscoveredResourceInfo.Schema().load(response_json["data"], many=True)
         return data
 
     def create(self, obj: DiscoveredResource) -> str:

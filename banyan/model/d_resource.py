@@ -44,12 +44,12 @@ class DiscoveredResource(Resource):
     resource_id: str
     resource_name: str
     resource_type: str
-    parent_id: Optional[str]
-    public_dns_name: Optional[str]
-    public_ip: Optional[str]
-    private_dns_name: Optional[str]
+    public_ip: str
     private_ip: str
-    tags: Optional[List[ResourceTag]]
+    tags: list
+    public_dns_name: Optional[str] = ''
+    private_dns_name: Optional[str] = ''
+    parent_id: Optional[str] = ''
     Schema: ClassVar[Schema] = Schema
 
     @property
