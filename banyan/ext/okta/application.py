@@ -117,7 +117,6 @@ class OktaApplicationController:
         
         application_group_assignment = ApplicationGroupAssignment()
         app, resp, err = await client.create_application_group_assignment(app_id, group_id, application_group_assignment)
-        print (app, resp, err)
         return app
 
     def delete(self):

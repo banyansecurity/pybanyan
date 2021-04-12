@@ -193,6 +193,10 @@ class ServiceController(Controller):
             {
                 'help': 'Name of service to add to Okta.'
             }),
+            (['group_name'],
+            {
+                'help': 'Okta group to assign application access.'
+            }),            
         ])
     def add_to_okta(self):
         try:
@@ -200,6 +204,21 @@ class ServiceController(Controller):
         except Exception as ex:
             raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
 
+        self._client.list()
+        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
+        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+            raise RuntimeError('Service needs to be of type WEB')
+
+        print('\n--> Service to add to Okta:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+        print('\n--> Adding to Okta and assigning group.')
         okta = OktaApplicationController()
-        okta.list()
-        return
+        okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
+        print(okta_app)
+        okta_assignment = okta.assign(okta_app.id, self.app.pargs.group_name)
+        print(okta_assignment)
+
+        print('\n--> Add to Okta successful.')
