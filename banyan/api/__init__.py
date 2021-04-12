@@ -101,7 +101,7 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
-        self._discovered_resources = DiscoveredResourceAPI(self) 
+        self._discovered_resources = DiscoveredResourceAPI(self)
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:

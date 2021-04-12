@@ -45,10 +45,10 @@ class Metadata:
     class Meta:
         unknown = EXCLUDE
 
-    tags: Tags
     name: str
     description: str
     cluster: str
+    tags: Tags = field(default_factory=Tags)
 
 
 @dataclass
@@ -76,7 +76,7 @@ class CustomTLSCert:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     cert_file: str = ""
     key_file: str = ""
 
@@ -114,7 +114,7 @@ class HTTPRedirect:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     url: str = field(default='')
     status_code: int = field(default=302)
     addresses: List[str] = field(default_factory=list)
@@ -227,6 +227,7 @@ class Backend:
     target: BackendTarget
     dns_overrides: Dict[str, str] = field(default_factory=dict)
     whitelist: List[str] = field(default_factory=list)
+    http_connect: Optional[bool] = False
 
 
 @dataclass
@@ -247,6 +248,7 @@ class Service(BanyanApiObject):
         unknown = EXCLUDE
         ordered = True
 
+    KIND = "BanyanService"
     metadata: Metadata
     spec: Spec
 
