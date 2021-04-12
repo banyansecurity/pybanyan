@@ -21,7 +21,7 @@ from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
-from banyan.api.d_resource import DiscoveredResourceAPI
+from banyan.api.discovered_resource import DiscoveredResourceAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]

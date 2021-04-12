@@ -6,7 +6,7 @@ from cement import Controller, ex
 
 from banyan.api.d_resource import DiscoveredResourceAPI
 from banyan.controllers.base import Base
-from banyan.model.d_resource import DiscoveredResource, DiscoveredResourceInfo
+from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
 
 class DiscoveredResourceController(Controller):
     class Meta:

@@ -2,7 +2,7 @@ from typing import Dict, List, Any
 
 from banyan.api.base import ServiceBase
 from banyan.model import BanyanApiObject
-from banyan.model.d_resource import DiscoveredResource, DiscoveredResourceInfo
+from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
 
 class DiscoveredResourceAPI(ServiceBase):
     class Meta:
