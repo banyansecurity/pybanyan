@@ -62,4 +62,11 @@ class Base(Controller):
             arg = sys.stdin.read()
         else:
             arg = arg.encode('utf-8')
-        return json.loads(arg)
+        return json.loads(arg)       
+
+    @staticmethod
+    def wait_for_input(text: str):
+        print('\n--> %s:' % text)
+        user_input = input('press enter to continue, type "stop" to stop ...\n')
+        if 'stop' in user_input:
+            raise RuntimeError('User terminated workflow')

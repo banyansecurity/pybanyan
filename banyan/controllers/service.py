@@ -198,7 +198,7 @@ class ServiceController(Controller):
                 'help': 'Okta group to assign application access.'
             }),            
         ])
-    def add_to_okta(self):
+    def workflow_okta(self):
         try:
             from banyan.ext.okta.application import OktaApplicationController
         except Exception as ex:
@@ -209,12 +209,12 @@ class ServiceController(Controller):
         if not service_info.service.spec.http_settings.oidc_settings.enabled:
             raise RuntimeError('Service needs to be of type WEB')
 
-        print('\n--> Service to add to Okta:')
+        Base.wait_for_input('Get service to add to Okta:')
         svc = service_info.service
         service_json = Service.Schema().dump(svc)
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-        print('\n--> Adding to Okta and assigning group.')
+        Base.wait_for_input('Adding to Okta and assigning group.')
         okta = OktaApplicationController()
         okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
         print(okta_app)

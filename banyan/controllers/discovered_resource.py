@@ -104,7 +104,7 @@ class DiscoveredResourceController(Controller):
             })
 
         ])
-    def sync_aws(self):
+    def workflow_aws(self):
         try:
             from banyan.ext.aws.ec2 import Ec2Controller, Ec2Model
         except Exception as ex:
@@ -113,7 +113,7 @@ class DiscoveredResourceController(Controller):
         ec2 = Ec2Controller()
         instances = ec2.list()
 
-        print('\n--> List of AWS Resources')
+        Base.wait_for_input('Getting list of AWS Resources')
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
@@ -121,6 +121,7 @@ class DiscoveredResourceController(Controller):
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
+        Base.wait_for_input('Syncing into Discovered Resource')
         for instance in instances:
             res_tags = []
             for tag in instance.tags:
@@ -139,7 +140,6 @@ class DiscoveredResourceController(Controller):
                                      instance.private_ip,
                                      res_tags
                                      )
-            print('\n--> Syncing Discovered Resource')
             self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
             info = self._client.discovered_resources.create(res)
             print('\n-->', info)
@@ -185,8 +185,9 @@ class DiscoveredResourceController(Controller):
             })            
         ])
     def publish(self):
+        Base.wait_for_input('Getting Discovered Resource')
         params = {
-            'include_tags': 'true', 
+            'include_tags': 'true',
             'tag_name': self.app.pargs.tag_name,
             'tag_value': self.app.pargs.tag_value
         }
@@ -194,7 +195,6 @@ class DiscoveredResourceController(Controller):
         d_resource: DiscoveredResourceInfo = None
         if len(d_resources):
             d_resource = d_resources[0]
-            print('\n--> Discovered resource to publish:')
             print(d_resource)
         else:
             raise RuntimeError('No discovered_resource found')
@@ -212,7 +212,7 @@ class DiscoveredResourceController(Controller):
         print('\n--> Service to create:')
         print(svc_web)
 
-        print('\n--> Creating service:')
+        Base.wait_for_input('Creating service')
         service_info = self._client.services.create_simple_web(svc_web)
         self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
 
@@ -223,15 +223,15 @@ class DiscoveredResourceController(Controller):
         print('\n--> Policy to create:')
         print(pol_web)
 
-        print('\n--> Creating policy')
+        Base.wait_for_input('Creating policy')
         policy_info = self._client.policies.create_simple_web(pol_web)
         self.app.render(PolicyInfo.Schema().dump(policy_info), handler='json', indent=2, sort_keys=True)
 
-        print('\n--> Getting all policies and services for cache.')
+        Base.wait_for_input('Getting services and policies')
         self._client.services.list()
         self._client.policies.list()
 
-        print('\n--> Attaching policy to service:')
+        Base.wait_for_input('Attaching policy to service')
         result = self._client.policies.attach(policy_info, service_info, True)
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
         self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
@@ -255,6 +255,7 @@ class DiscoveredResourceController(Controller):
             })
         ])
     def whitelist(self):
+        Base.wait_for_input('Getting Discovered Resources')
         params = {
             'include_tags': 'true',
             'tag_name': self.app.pargs.tag_name,
@@ -273,6 +274,7 @@ class DiscoveredResourceController(Controller):
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
+        Base.wait_for_input('Getting services')
         self._client.services.list()
         service_info: ServiceInfo = self._client.services[self.app.pargs.service_name]
         if not service_info.service.spec.backend.http_connect:
@@ -290,7 +292,7 @@ class DiscoveredResourceController(Controller):
         print(allow)
         svc.spec.backend.allow_patterns = [allow]
 
-        print('\n--> Updating service:')
+        Base.wait_for_input('Updating service')
         service_info = self._client.services.update(svc)
         self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
 

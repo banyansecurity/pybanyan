@@ -170,7 +170,7 @@ class ExemptedPaths:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: Optional[bool]
     paths: Optional[List[str]]
     patterns: List[Pattern] = field(default_factory=list)
 
