@@ -65,4 +65,5 @@ class Ec2Controller:
 
 if __name__ == '__main__':
     ec2 = Ec2Controller()
-    ec2.list()
+    instances = ec2.list('Name')
+    print(instances)

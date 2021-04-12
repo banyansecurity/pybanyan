@@ -124,6 +124,5 @@ class OktaApplicationController:
 
 if __name__ == '__main__':
     okta = OktaApplicationController()
-    okta.list()
-    #okta.create_bookmark('testme', 'https://foo')
-    #okta.assign('1234', 'Everyone')
+    apps = okta.list()
+    print(apps)

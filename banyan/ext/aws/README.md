@@ -1,11 +1,30 @@
 # AWS
 
-Before you use the CLI for AWS autosync, setup AWS credentials. Please check [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) for More details
+Ensure you have the [AWS SDK for Python](https://github.com/boto/boto3) installed and configured.
 
-######~/.aws/credentials
+## Configuration
+
+Set up credentials (in ~/.aws/credentials):
+```ini
+[default]
+aws_access_key_id = YOUR_KEY
+aws_secret_access_key = YOUR_SECRET
+```
+
+Set up a default region (in ~/.aws/config):
 ```
 [default]
-aws_access_key_id=id from AWS Console
-aws_secret_access_key=accesskey from AWS Console
-aws_session_token=sessiontoken from AWS Console
+region=us-east-1
 ```
+
+Other credentials configuration methods are available. See the AWS docs for details.
+
+## Test
+
+Confirm you are set up correctly, by running:
+
+```console
+python ec2.py
+```
+
+You should see a list of your AWS EC2 resources.

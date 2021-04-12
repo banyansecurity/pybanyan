@@ -150,6 +150,24 @@ optional arguments:
                       access).
 ```
 
+## Integrations
+
+The Banyan CLI can be integrated with external APIs to automate different types of workflows.
+
+### AWS
+
+Use the [AWS SDK for Python](https://github.com/boto/boto3) to synchronize AWS resources you have specifically tagged to be discovered by Banyan. You can then publish these AWS resources as Banyan services so your end-users can access them.
+
+Check the [AWS Integration README](ext/aws/) for setup instructions.
+
+### Okta
+
+Use the [Okta SDK for Python](https://github.com/okta/okta-sdk-python) to publich Banyan web services as bookmark applications so your end-user can access them via their Okta catalog.
+
+Check the [Okta Integration README](ext/okta/) for setup instructions.
+
+
+
 ## Development
 
 To work on the pybanyan code, follow the instructions in the [documentation][devel]. 
