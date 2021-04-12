@@ -68,7 +68,6 @@ class EventV2API(ServiceBase):
 
     # noinspection PyProtectedMember
     def _list_daterange(self, params: Dict[str, Any]) -> List[Resource]:
-        order = params.get('order', 'desc')
         params['order'] = 'asc'
         all_data: List[EventV2] = list()
         event_ids: Set[UUID] = set()

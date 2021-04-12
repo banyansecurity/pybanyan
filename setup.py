@@ -40,7 +40,8 @@ setup(
         'aenum',
         'colorama',
         'boto3',
-        'ec2_metadata'
+        'ec2_metadata',
+        'cryptography'
     ],
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"

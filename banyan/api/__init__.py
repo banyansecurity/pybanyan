@@ -80,8 +80,8 @@ class BanyanApiClient:
         self._log = log
         self._progress_callback = None
         self._access_token = None
-        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
-                                            or BanyanApiClient.DEFAULT_API_URL)
+        self._api_url = self._normalize_url(
+            api_server_url or os.getenv('BANYAN_API_URL') or BanyanApiClient.DEFAULT_API_URL)
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
@@ -196,10 +196,10 @@ class BanyanApiClient:
     def progress_callback(self, value: ProgressCallback) -> None:
         self._progress_callback = value
 
-    def _do_progress_callback(self, method: str, uri: str, count: int, total: int) -> None:
-        if self._progress_callback:
+    def _do_progress_callback(self, callback: Callable, method: str, uri: str, count: int, total: int) -> None:
+        if callback:
             try:
-                self._progress_callback(method, uri, count, total)
+                callback(method, uri, count, total)
             except Exception as ex:
                 err_msg = f'{ex.__class__.__name__} exception in progress callback: {ex.args[0]}'
                 if self._log:
@@ -227,7 +227,7 @@ class BanyanApiClient:
                         return all_results
                     all_results.extend(results[key])
                     logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
-                    self._do_progress_callback(method, uri, len(all_results), results.get('count', -1))
+                    self._do_progress_callback(callback, method, uri, len(all_results), results.get('count', -1))
                     skip += limit
 
     @property

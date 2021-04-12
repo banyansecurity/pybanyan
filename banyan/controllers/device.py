@@ -1,5 +1,3 @@
-from typing import List
-
 from cement import Controller, ex
 
 from banyan.api import DeviceAPI
@@ -20,7 +18,7 @@ class DeviceController(Controller):
 
     @ex(help='list devices')
     def list(self):
-        devices: List[Device] = self._client.list()
+        devices = self._client.list()
         results = list()
         headers = ['Device Name', 'Serial Number', 'Platform', 'Ownership', 'Trust Score', 'Banned', 'Last Login']
         for device in devices:

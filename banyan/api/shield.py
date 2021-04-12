@@ -1,5 +1,5 @@
 from datetime import timezone, datetime
-from typing import List
+from typing import List, Dict, Any
 
 from banyan.api.base import ServiceBase
 from banyan.model.shield import Shield, ShieldConfig
@@ -20,7 +20,7 @@ class ShieldAPI(ServiceBase):
         self._config: ShieldConfig = ShieldConfig()
         super().__init__(client)
 
-    def list(self) -> List[Shield]:
+    def list(self, params: Dict[str, Any] = None) -> List[Shield]:
         response_json = self._client.api_request('GET', self.Meta.list_uri)
         self._config = ShieldConfig.Schema().load(response_json)
         self._build_cache(self._config.shields)
