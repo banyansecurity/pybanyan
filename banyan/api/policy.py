@@ -1,5 +1,5 @@
 from banyan.api.base import ServiceBase
-from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo
+from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo, SimpleWebPolicy
 from banyan.model.service import ServiceInfoOrName
 
 
@@ -39,3 +39,6 @@ class PolicyAPI(ServiceBase):
                                                      'ServiceID': service.id
                                                  })
         return json_response['Message']
+
+    def create_simple_web(self, pol_web: SimpleWebPolicy) -> PolicyInfo:
+        return PolicyAPI(self._client).create(pol_web.policy)

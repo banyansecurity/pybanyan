@@ -180,4 +180,29 @@ class PolicyAttachInfo:
     Schema: ClassVar[Schema] = Schema
 
 
+@dataclass
+class SimpleWebPolicy():
+    class Meta:
+        unknown = EXCLUDE
+
+    type: str
+    name: str
+    description: str
+    Schema: ClassVar[Schema] = Schema
+
+    @property
+    def policy(self) -> Policy:
+        pol_tags = Tags(self.type)
+        pol_metadata = Metadata(self.name, self.description, pol_tags)
+        options = Options(True, 'http')
+        exception = PolicyException()
+        conditions = Conditions('')
+        l7_access = L7Access(["*"], ["*"])
+        rules = Rules(conditions,[l7_access])
+        access = Access(rules, ["ANY"])
+        pol_spec = Spec(options, exception, [access])
+        pol = Policy('rbac.banyanops.com/v1', 'BanyanPolicy', 'USER', pol_metadata, pol_spec)
+        return pol
+
+
 PolicyInfoOrName = Union[PolicyInfo, str]

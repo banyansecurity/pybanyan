@@ -6,18 +6,11 @@ from cement import Controller, ex
 
 from banyan.controllers.base import Base
 
-from banyan.api.discovered_resource import DiscoveredResourceAPI
+from banyan.api import BanyanApiClient
 from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
+from banyan.model.service import ServiceInfo, SimpleWebService
+from banyan.model.policy import PolicyInfo, SimpleWebPolicy
 
-from banyan.api.service import ServiceAPI
-from banyan.model.service import ServiceInfo, Service
-from banyan.model.service import Tags as ServiceTags, Metadata as ServiceMetadata, Spec as ServiceSpec
-from banyan.model.service import FrontendAddress, Attributes, BackendTarget, Backend, CustomTLSCert, CertSettings, OIDCSettings, HttpSettings
-
-from banyan.api.policy import PolicyAPI
-from banyan.model.policy import PolicyInfo, Policy
-from banyan.model.policy import Tags as PolicyTags, Metadata as PolicyMetadata, Spec as PolicySpec
-from banyan.model.policy import Options, PolicyException, Conditions, L7Access, Rules, Access
 
 class DiscoveredResourceController(Controller):
     class Meta:
@@ -28,8 +21,8 @@ class DiscoveredResourceController(Controller):
         help = 'manage discovered resources'
 
     @property
-    def _client(self) -> DiscoveredResourceAPI:
-        return self.app.client.discovered_resources
+    def _client(self) -> BanyanApiClient:
+        return self.app.client
 
     @ex(help='list discovered_resources',
         arguments=[
@@ -39,7 +32,7 @@ class DiscoveredResourceController(Controller):
             }),
         ])
     def list(self):
-        d_resources: List[DiscoveredResourceInfo] = self._client.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', 'Public IP', '# Tags']
         for res in d_resources:
@@ -72,7 +65,7 @@ class DiscoveredResourceController(Controller):
             'tag_name': self.app.pargs.tag_name,
             'tag_value': self.app.pargs.tag_value
         }
-        d_resources: List[DiscoveredResourceInfo] = self._client.list(params=params)
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
         d_resource: DiscoveredResourceInfo = None
         if len(d_resources):
             d_resource = d_resources[0]
@@ -91,7 +84,7 @@ class DiscoveredResourceController(Controller):
         ])
     def create(self):
         d_resource = Base.get_json_input(self.app.pargs.resources_json)
-        info = self._client.create(d_resource)
+        info = self._client.discovered_resources.create(d_resource)
         print(info)
 
 
@@ -148,7 +141,7 @@ class DiscoveredResourceController(Controller):
                                      )
             print('\n--> Syncing Discovered Resource')
             self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
-            info = self._client.create(res)
+            info = self._client.discovered_resources.create(res)
             print('\n-->', info)
             sleep(0.05)
 
@@ -196,74 +189,53 @@ class DiscoveredResourceController(Controller):
             'tag_name': self.app.pargs.tag_name,
             'tag_value': self.app.pargs.tag_value
         }
-        d_resources: List[DiscoveredResourceInfo] = self._client.list(params=params)
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
         d_resource: DiscoveredResourceInfo = None
         if len(d_resources):
             d_resource = d_resources[0]
-            print('\n--> Discovered Resource')
-            print(vars(d_resource))
+            print('\n--> Discovered resource to publish:')
+            print(d_resource)
         else:
             raise RuntimeError('No discovered_resource found')
 
-        svc_name = self.app.pargs.service_name
-        svc_domain = self.app.pargs.service_domain
-        svc_type = self.app.pargs.service_type
-        bknd_port = self.app.pargs.backend_port
-        bknd_tls = self.app.pargs.backend_tls
+        svc_web = SimpleWebService(self.app.pargs.service_type,
+                                  'WEB_USER',
+                                  self.app.pargs.service_name,
+                                  'pybanyan publish flow',
+                                  self.app.pargs.service_domain,
+                                  443,
+                                  d_resource.private_ip,
+                                  80,
+                                  self.app.pargs.backend_tls
+        )
+        print('\n--> Service to create:')
+        print(svc_web)
 
-        bknd_ip_or_name = d_resource.private_ip
-        bknd_port = 80
-        svc_port = 443
-        svc_tags = ServiceTags('https', svc_domain, True, 'WEB_USER', svc_type, 'leanpub', svc_port)
-        svc_metadata = ServiceMetadata(svc_name, 'pybanyan publish flow', 'cluster1', svc_tags)
-        frontend_address = FrontendAddress(svc_port, '')
-        host_tag_selector = {"com.banyanops.hosttag.site_name": "*"}
-        attributes = Attributes([svc_domain], [frontend_address], [host_tag_selector])
-        backend_target = BackendTarget(bknd_ip_or_name, '', bknd_port, bknd_tls)
-        backend = Backend(backend_target, {}, [])
-        custom_tls_cert = CustomTLSCert()
-        cert_settings = CertSettings(custom_tls_cert, [svc_domain])
-        oidc_settings = OIDCSettings(True, 'https://' + svc_domain)
-        http_settings = HttpSettings(True, oidc_settings, {}, {}, {})
-        svc_spec = ServiceSpec(attributes, backend, cert_settings, http_settings, {})
-        svc = Service('rbac.banyanops.com/v1', 'BanyanService', 'origin', svc_metadata, svc_spec)
+        print('\n--> Creating service:')
+        service_info = self._client.services.create_simple_web(svc_web)
+        self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
 
-        print('\n--> Service spec to create')
-        service_json = Service.Schema().dump(svc)
-        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
-
-        print('\n--> Creating service')
-        service_info = self._client.create_service(svc)
-        print(service_info)
-        service_create_json = ServiceInfo.Schema().dump(service_info)
-        self.app.render(service_create_json, handler='json', indent=2, sort_keys=True)
-
-        pol_tags = PolicyTags('USER')
-        pol_metadata = PolicyMetadata('policy-%s' % svc_name, 'pybanyan publish flow', pol_tags)
-        options = Options(True, 'http')
-        exception = PolicyException()
-        conditions = Conditions('')
-        l7_access = L7Access(["*"], ["*"])
-        rules = Rules(conditions,[l7_access])
-        access = Access(rules, ["ANY"])
-        pol_spec = PolicySpec(options, exception, [access])
-        pol = Policy('rbac.banyanops.com/v1', 'BanyanService', 'USER', pol_metadata, pol_spec)
-        print(pol)
-
-        print('\n--> Policy spec to create')
-        policy_json = Policy.Schema().dump(pol)
-        self.app.render(policy_json, handler='json', indent=2, sort_keys=True)
+        pol_web = SimpleWebPolicy('USER',
+                                  'policy-%s' % self.app.pargs.service_name,
+                                  'pybanyan publish flow'
+        )
+        print('\n--> Service to create:')
+        print(pol_web)
 
         print('\n--> Creating policy')
-        policy_info = self._client.create_policy(pol)
-        print(policy_info)
-        policy_create_json = PolicyInfo.Schema().dump(policy_info)
-        self.app.render(policy_create_json, handler='json', indent=2, sort_keys=True)
+        policy_info = self._client.policies.create_simple_web(pol_web)
+        self.app.render(PolicyInfo.Schema().dump(policy_info), handler='json', indent=2, sort_keys=True)
 
-        print('\n--> Attaching policy to service')
-        result = self._client.attach_service_policy(policy_info, service_info, True)
+        print('\n--> Getting all policies and services for cache.')
+        self._client.services.list()
+        self._client.policies.list()
+
+        print('\n--> Attaching policy to service:')
+        result = self._client.policies.attach(policy_info, service_info, True)
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
         self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
+
+        print('\n--> Publish flow successful.')
 
 
     @ex(help='add a discovered_resource to an existing service',

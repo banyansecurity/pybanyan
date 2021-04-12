@@ -4,9 +4,6 @@ from banyan.api.base import ServiceBase
 from banyan.model import BanyanApiObject
 from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
 
-from banyan.model.service import Service, ServiceInfo, ServiceInfoOrName
-from banyan.model.policy import Policy, PolicyInfo, PolicyInfoOrName, PolicyAttachInfo
-
 
 class DiscoveredResourceAPI(ServiceBase):
     class Meta:
@@ -36,15 +33,3 @@ class DiscoveredResourceAPI(ServiceBase):
 
     def delete(self, obj: BanyanApiObject) -> str:
         raise NotImplementedError('The Banyan API does not support this operation')
-
-    def create_service(self, serviceObj: Service) -> ServiceInfo:
-        from banyan.api.service import ServiceAPI
-        return ServiceAPI(self._client).create(serviceObj)
-
-    def create_policy(self, policyObj: Policy) -> PolicyInfo:
-        from banyan.api.policy import PolicyAPI
-        return PolicyAPI(self._client).create(policyObj)
-
-    def attach_service_policy(self, service: ServiceInfoOrName, policy: PolicyInfoOrName, enforcing: bool) -> PolicyAttachInfo:
-        from banyan.api.policy import PolicyAPI
-        return PolicyAPI(self._client).attach(policy, service, enforcing)
