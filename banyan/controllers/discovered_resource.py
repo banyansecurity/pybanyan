@@ -94,13 +94,14 @@ class DiscoveredResourceController(Controller):
             {
                 'help': 'Type of AWS Resource - EC2 | RDS | LB | ALL.'
             }),
-            (['--tag_name'],
+            (['tag_name'],
             {
                 'help': 'Only sync resources with specific tag name'
             }),
             (['--tag_value'],
             {
-                'help': 'Only sync resources with specific tag values ("*" is allowed).'
+                'default': "*",
+                'help': 'Only sync resources with a specific tag value.'
             })
 
         ])
@@ -110,10 +111,9 @@ class DiscoveredResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        ec2 = Ec2Controller()
-        instances = ec2.list()
-
         Base.wait_for_input('Getting list of AWS Resources')
+        ec2 = Ec2Controller()
+        instances = ec2.list(self.app.pargs.tag_name, [self.app.pargs.tag_value])
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
@@ -145,6 +145,8 @@ class DiscoveredResourceController(Controller):
             print('\n-->', info)
             sleep(0.05)
 
+        print('\n--> AWS workflow successful.')
+
 
     #TODO-API: argument should be UDID not tag_name
     @ex(help='use discovered_resource to create a new service',
@@ -156,7 +158,7 @@ class DiscoveredResourceController(Controller):
             (['service_domain'],
             {
                 'help': 'Domain name of service, ex: corp.org.com (no https://).'
-            }),                  
+            }),    
             (['service_type'],
             {
                 'help': 'Type of service - WEB | SSH | RDS | GENERIC_TCP.'
@@ -176,6 +178,7 @@ class DiscoveredResourceController(Controller):
             }),                           
             (['--backend_port'],
             {
+                'default': 80,
                 'help': 'Specify if backend port is non-standard.'
             }),
             (['--backend_tls'],
@@ -199,23 +202,6 @@ class DiscoveredResourceController(Controller):
         else:
             raise RuntimeError('No discovered_resource found')
 
-        svc_web = SimpleWebService(self.app.pargs.service_type,
-                                  'WEB_USER',
-                                  self.app.pargs.service_name,
-                                  'pybanyan publish flow',
-                                  self.app.pargs.service_domain,
-                                  443,
-                                  d_resource.private_ip,
-                                  80,
-                                  self.app.pargs.backend_tls
-        )
-        print('\n--> Service to create:')
-        print(svc_web)
-
-        Base.wait_for_input('Creating service')
-        service_info = self._client.services.create_simple_web(svc_web)
-        self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
-
         pol_web = SimpleWebPolicy('USER',
                                   'policy-%s' % self.app.pargs.service_name,
                                   'pybanyan publish flow'
@@ -226,6 +212,23 @@ class DiscoveredResourceController(Controller):
         Base.wait_for_input('Creating policy')
         policy_info = self._client.policies.create_simple_web(pol_web)
         self.app.render(PolicyInfo.Schema().dump(policy_info), handler='json', indent=2, sort_keys=True)
+
+        svc_web = SimpleWebService(self.app.pargs.service_type,
+                                  'WEB_USER',
+                                  self.app.pargs.service_name,
+                                  'pybanyan publish flow',
+                                  self.app.pargs.service_domain,
+                                  443,
+                                  d_resource.private_ip,
+                                  self.app.pargs.backend_port,
+                                  self.app.pargs.backend_tls
+        )
+        print('\n--> Service to create:')
+        print(svc_web)
+
+        Base.wait_for_input('Creating service')
+        service_info = self._client.services.create_simple_web(svc_web)
+        self.app.render(ServiceInfo.Schema().dump(service_info), handler='json', indent=2, sort_keys=True)
 
         Base.wait_for_input('Getting services and policies')
         self._client.services.list()

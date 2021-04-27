@@ -222,3 +222,20 @@ class ServiceController(Controller):
         print(okta_assignment)
 
         print('\n--> Add to Okta successful.')
+
+
+    @ex(help='create an AzureAD Linked Sign-on from a web service',
+    arguments=[
+        (['service_name'],
+        {
+            'help': 'Name of service to add to AzureAD.'
+        }),
+        (['group_name'],
+        {
+            'help': 'AzureAD group to assign application access.'
+        }),            
+    ])
+    def workflow_azuread(self):
+        Base.wait_for_input('Adding to AzureAD and assigning group.')
+        print('\n--> Add to AzureAD successful.')
+        

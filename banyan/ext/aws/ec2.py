@@ -27,7 +27,7 @@ class Ec2Controller:
         help = "AWS EC2 Controller"
 
     #TODO: support more filters - region, vpc, owner
-    def list(self, tag_name: str = None):
+    def list(self, tag_name: str = None, tag_values: list = ['*']):
         try:
             session = boto3.session.Session()
             client = session.client(Ec2Model.resource_type)
@@ -39,7 +39,7 @@ class Ec2Controller:
         if tag_name is not None:
             filters.append({
                 'Name': 'tag:%s' % tag_name,
-                'Values': ['*']
+                'Values': tag_values
             })
         response = client.describe_instances(Filters=filters, MaxResults=100)
        
@@ -65,5 +65,5 @@ class Ec2Controller:
 
 if __name__ == '__main__':
     ec2 = Ec2Controller()
-    instances = ec2.list('Name')
-    print(instances)
+    my_instances = ec2.list('banyan:discovery', ['true'])
+    print(my_instances)
