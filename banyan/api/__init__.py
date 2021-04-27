@@ -80,6 +80,7 @@ class BanyanApiClient:
         self._log = log
         self._progress_callback = None
         self._access_token = None
+        self._insecure_tls = False
         self._api_url = self._normalize_url(
             api_server_url or os.getenv('BANYAN_API_URL') or BanyanApiClient.DEFAULT_API_URL)
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
@@ -135,6 +136,8 @@ class BanyanApiClient:
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
         if '://' not in url:
             url = self._api_url + url
+        if self._insecure_tls and not verify:
+            verify = False
         response = self._http.request(method, url, params, data, headers, cookies, files, auth or self._http.auth,
                                       timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)
         # logging.debug(response.content)
@@ -266,6 +269,14 @@ class BanyanApiClient:
         self._access_token = None
 
     @property
+    def insecure_tls(self) -> bool:
+        return self._insecure_tls
+
+    @insecure_tls.setter
+    def insecure_tls(self, value: bool) -> None:
+        self._insecure_tls = value
+
+    @property
     def services(self) -> ServiceAPI:
         """
         Returns an instance of the :py:class:`ServiceAPI` class, which can be used to manage Banyan services.
@@ -337,7 +348,7 @@ class BanyanApiClient:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com', refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'),
-                        debug=True)
+    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com',
+                        refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
     print(c.get_access_token())
     print(c.services.list())
