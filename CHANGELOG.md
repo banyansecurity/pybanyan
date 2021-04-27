@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.19.0
+ * add `-k` CLI flag to skip TLS verification (needed for `gcstage.banyanops.com`)
+
 ## 0.18.3
  * pass params through API list() method
  
