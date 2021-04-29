@@ -4,8 +4,9 @@ from cement import Controller, ex
 
 from banyan.api.service import ServiceAPI
 from banyan.controllers.base import Base
-from banyan.lib.service import DEFAULT_TIMEOUT, DEFAULT_DNS_SERVER, ServiceTest
 from banyan.model.service import ServiceInfo, Service
+from banyan.lib.service import DEFAULT_TIMEOUT, DEFAULT_DNS_SERVER, ServiceTest
+from banyan.lib.cloud import has_cloud
 
 
 class ServiceController(Controller):
@@ -158,6 +159,7 @@ class ServiceController(Controller):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
 
     @ex(help='run sanity checks on a service',
+        hide=not has_cloud,
         arguments=[
             (['service_name'],
              {
