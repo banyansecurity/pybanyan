@@ -1,20 +1,23 @@
 # PyBanyan Change History
 
+## 0.20.0
+ * send partial API results in progress callbacks
+
 ## 0.19.0
  * add `-k` CLI flag to skip TLS verification (needed for `gcstage.banyanops.com`)
 
 ## 0.18.3
  * pass params through API list() method
- 
+
 ## 0.18.2
  * trapped errors in progress callbacks
 
 ## 0.18.1
  * add progress callbacks to new list methods in event_v2
 
-## 0.18.0 
+## 0.18.0
  * added count method to event_v2 object
- 
+
 ## 0.17.2
  * Remove testing code that imported ujson module
 
@@ -23,7 +26,7 @@
 
 ## 0.17.0
  * Replace event paging model with time index based queries
- 
+
 ## 0.16.0
  * Add progress callback for long paging requests
 
@@ -34,7 +37,7 @@
  * more parser tests for events
 
 ## 0.14.0
- * more updates to events model 
+ * more updates to events model
  * added filter to remove null fields in JSON output
  * Pythonified field names in EventV2TypeCount
 
@@ -70,8 +73,8 @@
  * added support for listing security events
  * fixed resource leak warnings in unit tests
  * make pybanyan more resilient to unexpected fields in API responses
- * use paging only on endpoints 
- 
+ * use paging only on endpoints
+
 ## 0.0.5
  * support both USER_WEB and WEB_USER style templates in services
  * turn off strict schema validation in Marshmallow (by excluding unknown fields)
