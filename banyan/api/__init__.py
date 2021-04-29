@@ -84,8 +84,8 @@ class BanyanApiClient:
         self._progress_callback = None
         self._access_token = None
         self._insecure_tls = False
-        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
-                                            or BanyanApiClient.DEFAULT_API_URL)
+        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL') or
+                                            BanyanApiClient.DEFAULT_API_URL)
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             self._read_config_file()
@@ -218,11 +218,11 @@ class BanyanApiClient:
     def progress_callback(self, value: ProgressCallback) -> None:
         self._progress_callback = value
 
-    def _do_progress_callback(self, method: str, uri: str, count: int, total: int,
+    def _do_progress_callback(self, callback_func: ProgressCallback, method: str, uri: str, count: int, total: int,
                               partial_results: List[JsonListOrObj]) -> None:
-        if self._progress_callback:
+        if callback_func:
             try:
-                self._progress_callback(method, uri, count, total, partial_results)
+                callback_func(method, uri, count, total, partial_results)
             except Exception as ex:
                 err_msg = f'{ex.__class__.__name__} exception in progress callback: {ex.args[0]}'
                 if self._log:
@@ -244,13 +244,15 @@ class BanyanApiClient:
             params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
-                logging.debug(f'Looking for {key} in {uri}')
+                logging.debug('Looking for %s in %s', key, uri)
                 if key in uri or key == 'data':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
-                    logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
-                    self._do_progress_callback(method, uri, len(all_results), results.get('count', -1), results[key])
+                    logging.debug('Found %s, result count = %d, total count = %d',
+                                  key, len(results[key]), len(all_results))
+                    self._do_progress_callback(callback, method, uri, len(all_results),
+                                               results.get('count', -1), results[key])
                     skip += limit
 
     @property
