@@ -72,8 +72,10 @@ class EventV2API(ServiceBase):
         all_data: List[EventV2] = list()
         event_ids: Set[UUID] = set()
         count = self._count(params)
+        if count == 10001:
+            count = -1
         schema = self.Meta.info_class.Schema()
-        self._client._do_progress_callback('GET', self.Meta.list_uri, 0, count)
+        self._client._do_progress_callback('GET', self.Meta.list_uri, 0, count, all_data)
         while params['after'] < params['before']:
             response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
             data: List[EventV2] = schema.load(response_json['data'], many=True)
@@ -83,7 +85,7 @@ class EventV2API(ServiceBase):
             all_data.extend(data)
             event_ids.update([x.event_id for x in data])
             params['after'] = int(data[-1].created_at.timestamp() * 1000)
-            self._client._do_progress_callback('GET', self.Meta.list_uri, len(all_data), count)
+            self._client._do_progress_callback('GET', self.Meta.list_uri, len(all_data), count, data)
         self._build_cache(all_data)
         return all_data
 
