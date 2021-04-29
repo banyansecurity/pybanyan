@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.21.0
+ * use `banyan.conf` if environment variables `BANYAN_REFRESH_TOKEN` and `BANYAN_API_URL` are not set
+
 ## 0.20.0
  * send partial API results in progress callbacks
 

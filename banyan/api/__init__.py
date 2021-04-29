@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Union, Callable
 
+import urllib3
 import requests
 from cement import init_defaults
 from requests.auth import AuthBase
@@ -153,9 +154,12 @@ class BanyanApiClient:
             url = self._api_url + url
         if self._insecure_tls and not verify:
             verify = False
+            urllib3.disable_warnings()
+        else:
+            urllib3.warnings.resetwarnings()
+
         response = self._http.request(method, url, params, data, headers, cookies, files, auth or self._http.auth,
                                       timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)
-        # logging.debug(response.content)
         if response.status_code >= 400:
             try:
                 content = response.json()
@@ -374,4 +378,3 @@ if __name__ == '__main__':
                         refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
     print(c.get_access_token())
     print(c.services.list())
-
