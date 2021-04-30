@@ -190,3 +190,56 @@ class ServiceController(Controller):
                               self.app.pargs.timeout, self.app.pargs.external_dns,
                               self.app.pargs.wildcard)
         harness.run()
+
+    @ex(help='create an Okta bookmark application from a web service',
+        arguments=[
+            (['service_name'],
+            {
+                'help': 'Name of service to add to Okta.'
+            }),
+            (['group_name'],
+            {
+                'help': 'Okta group to assign application access.'
+            }),            
+        ])
+    def workflow_okta(self):
+        try:
+            from banyan.ext.okta.application import OktaApplicationController
+        except Exception as ex:
+            raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
+
+        self._client.list()
+        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
+        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+            raise RuntimeError('Service needs to be of type WEB')
+
+        Base.wait_for_input('Get service to add to Okta:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+        Base.wait_for_input('Adding to Okta and assigning group.')
+        okta = OktaApplicationController()
+        okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
+        print(okta_app)
+        okta_assignment = okta.assign(okta_app.id, self.app.pargs.group_name)
+        print(okta_assignment)
+
+        print('\n--> Add to Okta successful.')
+
+
+    @ex(help='create an AzureAD Linked Sign-on from a web service',
+    arguments=[
+        (['service_name'],
+        {
+            'help': 'Name of service to add to AzureAD.'
+        }),
+        (['group_name'],
+        {
+            'help': 'AzureAD group to assign application access.'
+        }),            
+    ])
+    def workflow_azuread(self):
+        Base.wait_for_input('Adding to AzureAD and assigning group.')
+        print('\n--> Add to AzureAD successful.')
+        

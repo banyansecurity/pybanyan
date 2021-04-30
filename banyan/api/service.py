@@ -1,7 +1,6 @@
 from banyan.api.base import ServiceBase
 from banyan.model.policy import PolicyInfoOrName, PolicyAttachInfo
-from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName
-
+from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName, SimpleWebService
 
 class ServiceAPI(ServiceBase):
     class Meta:
@@ -38,3 +37,6 @@ class ServiceAPI(ServiceBase):
 
     def test(self, service: ServiceInfoOrName) -> None:
         pass
+
+    def create_simple_web(self, svc_web: SimpleWebService) -> ServiceInfo:
+        return ServiceAPI(self._client).create(svc_web.service)
