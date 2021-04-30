@@ -35,3 +35,7 @@ test-upload: dist tag
 
 dist-upload: dist tag
 	twine upload dist/*
+
+complain::
+	pylint banyan/
+	flake8 banyan/

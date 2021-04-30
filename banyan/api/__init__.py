@@ -5,8 +5,9 @@ Command Center, translating JSON responses into objects from the :py:mod:`banyan
 import configparser
 import logging
 import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, Callable
 
 import requests
 from cement import init_defaults
@@ -25,6 +26,7 @@ from banyan.api.user import UserAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
+ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
 
 
 class BanyanApiClient:
@@ -78,9 +80,11 @@ class BanyanApiClient:
                  log: logging.Logger = None) -> None:
         self._debug = debug
         self._log = log
+        self._progress_callback = None
+        self._access_token = None
+        self._insecure_tls = False
         self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
                                             or BanyanApiClient.DEFAULT_API_URL)
-        self._access_token = None
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             self._read_config_file()
@@ -147,6 +151,8 @@ class BanyanApiClient:
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
         if '://' not in url:
             url = self._api_url + url
+        if self._insecure_tls and not verify:
+            verify = False
         response = self._http.request(method, url, params, data, headers, cookies, files, auth or self._http.auth,
                                       timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)
         # logging.debug(response.content)
@@ -200,16 +206,38 @@ class BanyanApiClient:
             headers['Content-Type'] = self.JSON_TYPE
         return self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json).json()
 
+    @property
+    def progress_callback(self) -> ProgressCallback:
+        return self._progress_callback
+
+    @progress_callback.setter
+    def progress_callback(self, value: ProgressCallback) -> None:
+        self._progress_callback = value
+
+    def _do_progress_callback(self, method: str, uri: str, count: int, total: int,
+                              partial_results: List[JsonListOrObj]) -> None:
+        if self._progress_callback:
+            try:
+                self._progress_callback(method, uri, count, total, partial_results)
+            except Exception as ex:
+                err_msg = f'{ex.__class__.__name__} exception in progress callback: {ex.args[0]}'
+                if self._log:
+                    self._log.error(err_msg)
+                else:
+                    print(err_msg, file=sys.stderr)
+
     def paged_request(self, method: str, uri: str, params: Dict[str, Any] = None, data: Any = None,
-                      json: str = None, headers: Dict[str, str] = None, accept: str = None) -> JsonListOrObj:
-        skip = 0
-        limit = 1000
+                      json: str = None, headers: Dict[str, str] = None, accept: str = None,
+                      progress_callback: ProgressCallback = None) -> JsonListOrObj:
         params = params or dict()
+        skip = params.get('skip', 0)
+        limit = params.get('limit', 1000)
         all_results = list()
+        callback = progress_callback or self._progress_callback
 
         while True:
-            params['Skip'] = skip
-            params['Limit'] = limit
+            params['skip'] = skip
+            params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
                 logging.debug(f'Looking for {key} in {uri}')
@@ -218,6 +246,7 @@ class BanyanApiClient:
                         return all_results
                     all_results.extend(results[key])
                     logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
+                    self._do_progress_callback(method, uri, len(all_results), results.get('count', -1), results[key])
                     skip += limit
 
     @property
@@ -254,6 +283,14 @@ class BanyanApiClient:
     def api_url(self, value: str) -> None:
         self._api_url = self._normalize_url(value)
         self._access_token = None
+
+    @property
+    def insecure_tls(self) -> bool:
+        return self._insecure_tls
+
+    @insecure_tls.setter
+    def insecure_tls(self, value: bool) -> None:
+        self._insecure_tls = value
 
     @property
     def services(self) -> ServiceAPI:
@@ -333,8 +370,8 @@ CONFIG['banyan']['refresh_token'] = None
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com', refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'),
-                        debug=True)
+    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com',
+                        refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
     print(c.get_access_token())
     print(c.services.list())
 

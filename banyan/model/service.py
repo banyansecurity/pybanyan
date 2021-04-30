@@ -211,7 +211,7 @@ class BackendTarget:
     class Meta:
         unknown = EXCLUDE
 
-    name: str
+    name: Optional[str]
     name_delimiter: Optional[str]
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     tls: Optional[bool] = False

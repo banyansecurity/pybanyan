@@ -1,9 +1,7 @@
 import os
 import re
 import socket
-import textwrap
 import urllib.parse
-from collections import namedtuple
 from dataclasses import dataclass, field
 from typing import Optional, List
 
@@ -13,11 +11,11 @@ import requests.exceptions
 from colorama import Style, Fore
 
 from banyan.api import BanyanApiClient
-from banyan.model.service import Service, BackendTarget
-from banyan.model.netagent import Netagent
+from banyan.lib.certs import CertPair
 from banyan.lib.cloud import get_cloud_vendor
 from banyan.lib.cloud.aws import AwsCloud
-from banyan.lib.certs import CertPair
+from banyan.model.netagent import Netagent
+from banyan.model.service import Service, BackendTarget
 
 DEFAULT_TIMEOUT = 0.5
 DEFAULT_DNS_SERVER = '8.8.8.8'
@@ -207,7 +205,7 @@ class ServiceTest:
                                            f'the certificate ({cert.get_names()})')
             except FileNotFoundError:
                 result.passed = False
-                result.details = f'One of the filenames configured for the custom certificate could not be found.'
+                result.details = 'One of the filenames configured for the custom certificate could not be found.'
                 if not os.path.exists(custom_tls.cert_file):
                     result.info.append(f'Certificate file {custom_tls.cert_file} is missing')
                 if not os.path.exists(custom_tls.key_file):
