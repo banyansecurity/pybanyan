@@ -198,7 +198,7 @@ class ServiceController(Controller):
                 'help': 'Okta group to assign application access.'
             }),            
         ])
-    def workflow_okta(self):
+    def bookmark_okta(self):
         try:
             from banyan.ext.okta.application import OktaApplicationController
         except Exception as ex:
@@ -221,7 +221,7 @@ class ServiceController(Controller):
         okta_assignment = okta.assign(okta_app.id, self.app.pargs.group_name)
         print(okta_assignment)
 
-        print('\n--> Add to Okta successful.')
+        print('\n--> Bookmark to Okta successful.')
 
 
     @ex(help='create an AzureAD Linked Sign-on from a web service',
@@ -235,7 +235,26 @@ class ServiceController(Controller):
             'help': 'AzureAD group to assign application access.'
         }),            
     ])
-    def workflow_azuread(self):
+    def bookmark_azuread(self):
+        try:
+            from banyan.ext.azuread.application import AzureADApplicationController
+        except Exception as ex:
+            raise NotImplementedError("AzureAD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
+
+        self._client.list()
+        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
+        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+            raise RuntimeError('Service needs to be of type WEB')
+
+        Base.wait_for_input('Get service to add to AzureAD:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
         Base.wait_for_input('Adding to AzureAD and assigning group.')
-        print('\n--> Add to AzureAD successful.')
+        aad = AzureADApplicationController()
+        aad_app = aad.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
+        print(aad_app)
+
+        print('\n--> Bookmark to AzureAD successful.')
         
