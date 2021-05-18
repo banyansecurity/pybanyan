@@ -13,13 +13,13 @@ class Ec2Model:
         help = "AWS EC2 Model"
 
     region: str
-    resource_id: str
+    id: str
     public_ip: str
     private_ip: str
     tags: List
     cloud_provider: str = 'AWS'
-    resource_type: str = 'ec2'
-    resource_name: str = ''
+    type: str = 'ec2'
+    name: str = ''
 
 
 class Ec2Controller:
@@ -30,7 +30,7 @@ class Ec2Controller:
     def list(self, tag_name: str = None, tag_values: list = ['*']):
         try:
             session = boto3.session.Session()
-            client = session.client(Ec2Model.resource_type)
+            client = session.client(Ec2Model.type)
         except Exception as ex:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
             raise
@@ -47,11 +47,12 @@ class Ec2Controller:
         reservations = response['Reservations']
         for reservation in reservations:
             for inst in reservation['Instances']:
-                res = Ec2Model( session.region_name,
-                                inst.get('InstanceId'),
-                                inst.get('PublicIpAddress'),
-                                inst.get('PrivateIpAddress'),
-                                inst.get('Tags')
+                res = Ec2Model(
+                    session.region_name,
+                    inst.get('InstanceId'),
+                    inst.get('PublicIpAddress'),
+                    inst.get('PrivateIpAddress'),
+                    inst.get('Tags')
                 )
                 for tag in res.tags:
                     if tag['Key'] == 'Name':

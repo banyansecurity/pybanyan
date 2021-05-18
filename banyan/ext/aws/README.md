@@ -2,6 +2,10 @@
 
 Ensure you have the [AWS SDK for Python](https://github.com/boto/boto3) installed and configured.
 
+```bash
+pip install -r requirements.txt
+```
+
 ## Configuration
 
 Set up credentials (in ~/.aws/credentials):
@@ -23,7 +27,7 @@ Other credentials configuration methods are available. See the AWS docs for deta
 
 Confirm you are set up correctly, by running:
 
-```console
+```bash
 python ec2.py
 ```
 
