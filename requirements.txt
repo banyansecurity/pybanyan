@@ -14,5 +14,3 @@ pyOpenSSL
 requests
 aenum
 colorama
-boto3
-ec2_metadata

@@ -38,9 +38,7 @@ setup(
         'pyOpenSSL',
         'requests',
         'aenum',
-        'colorama',
-        'boto3',
-        'ec2_metadata'
+        'colorama'
     ],
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
