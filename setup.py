@@ -27,7 +27,7 @@ setup(
         'marshmallow',
         'marshmallow_dataclass',
         'python-dateutil',
-        'cement==3.0.4',
+        'cement~=3.0',
         'jinja2',
         'pyyaml',
         'colorlog',
@@ -38,8 +38,13 @@ setup(
         'pyOpenSSL',
         'requests',
         'aenum',
-        'colorama'
+        'colorama',
+        'cryptography'
     ],
+    extras_require={
+        'aws': ['boto3', 'ec2_metadata']
+
+    },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
     ]},

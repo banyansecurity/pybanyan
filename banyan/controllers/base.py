@@ -29,7 +29,7 @@ class Base(Controller):
         # controller level arguments. ex: 'banyan --version'
         arguments = [
             # add a version banner
-            (['-v', '--version'],
+            (['--version', '-v'],
              {'action': 'version',
               'version': VERSION_BANNER}),
             (['--api-url'],
@@ -38,6 +38,9 @@ class Base(Controller):
             (['--refresh-token'],
              {'help': 'API token used for the initial authentication to the Banyan API server. Can also be '
                       'configured via the BANYAN_REFRESH_TOKEN environment variable.'}),
+            (['--insecure-tls', '-k'],
+             {'action': 'store_true',
+             'help': 'Allow connections to API servers with invalid TLS certificates.'}),
             (['--output-format', '-o'],
              {'choices': ['table', 'json', 'yaml'],
               'help': 'desired output format (table, json, yaml)'}),
@@ -45,6 +48,7 @@ class Base(Controller):
 
     def _post_argument_parsing(self):
         super()._post_argument_parsing()
+        self.app.client.insecure_tls = self.app.pargs.insecure_tls
         if self.app.pargs.api_url:
             self.app.client.api_url = self.app.pargs.api_url
         if self.app.pargs.refresh_token:

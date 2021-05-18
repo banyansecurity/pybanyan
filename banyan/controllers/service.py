@@ -6,6 +6,7 @@ from banyan.api.service import ServiceAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
 from banyan.lib.service import DEFAULT_TIMEOUT, DEFAULT_DNS_SERVER, ServiceTest
+from banyan.lib.cloud import has_cloud
 
 
 class ServiceController(Controller):
@@ -57,7 +58,7 @@ class ServiceController(Controller):
         ])
     def create(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
-        service = Service.Schema().load(spec)
+        service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
@@ -71,7 +72,7 @@ class ServiceController(Controller):
         ])
     def update(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
-        service = Service.Schema().load(spec)
+        service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.update(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
@@ -158,6 +159,7 @@ class ServiceController(Controller):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
 
     @ex(help='run sanity checks on a service',
+        hide=not has_cloud,
         arguments=[
             (['service_name'],
              {
@@ -167,12 +169,14 @@ class ServiceController(Controller):
             (['--timeout'],
              {
                  'type': float,
-                 'help': f'Length of time to wait for backend service to respond, in seconds. (default: {DEFAULT_TIMEOUT})',
+                 'help': 'Length of time to wait for backend service to respond, in seconds. '
+                         f'(default: {DEFAULT_TIMEOUT})',
                  'default': DEFAULT_TIMEOUT
              }),
             (['--external-dns'],
              {
-                 'help': f'Public DNS server to query for service resolution. (default: {DEFAULT_DNS_SERVER})',
+                 'help': 'Public DNS server to query for service resolution. '
+                         f'(default: {DEFAULT_DNS_SERVER})',
                  'default': DEFAULT_DNS_SERVER
              }),
             (['--wildcard'],
@@ -181,7 +185,7 @@ class ServiceController(Controller):
              })
         ])
     def test(self):
-        info: ServiceInfo = self._client[self.app.pargs.service_name]
+        info = self._client[self.app.pargs.service_name]
         harness = ServiceTest(info.service, self.app.client,
                               self.app.pargs.timeout, self.app.pargs.external_dns,
                               self.app.pargs.wildcard)

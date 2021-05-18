@@ -1,8 +1,13 @@
-import boto3
-from ec2_metadata import ec2_metadata
+from banyan.lib.cloud import CloudVendor
+
+try:
+    import boto3
+    from ec2_metadata import ec2_metadata
+except ImportError:
+    pass
 
 
-class AwsCloud:
+class AwsCloud(CloudVendor):
     def __init__(self):
         self._elb = boto3.client('elbv2')
         self._instance_id = ec2_metadata.instance_id

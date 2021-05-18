@@ -1,11 +1,8 @@
-from datetime import datetime
-from typing import List
 import os
 
 from cement import Controller, ex
 
 from banyan.api import BanyanApiClient
-from banyan.model.service import ServiceInfo
 
 
 class ExportController(Controller):
@@ -89,6 +86,7 @@ class ExportController(Controller):
         os.makedirs(path, exist_ok=True)
         return os.path.abspath(path)
 
-    def _mkfile(self, path: str, fname: str) -> str:
+    @staticmethod
+    def _mkfile(path: str, fname: str) -> str:
         fname = fname.replace(' ', '_')
         return os.path.join(path, fname)

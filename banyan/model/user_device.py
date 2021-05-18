@@ -102,8 +102,8 @@ class Device(Resource):
     last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='LastLogin')})
     login_count: int = field(metadata={'data_key': 'LoginCount'})
     ownership: str = field(metadata={'data_key': 'Ownership',
-                                     'validate': validate.OneOf(DeviceOwnership.choices() +
-                                                                ['UNKNOWN', 'Undefined', ''])})
+                                     'validate': validate.OneOf(
+                                         DeviceOwnership.choices() + ['UNKNOWN', 'Undefined', ''])})
     platform: str = field(metadata={'data_key': 'Platform'})
     model: str = field(metadata={'data_key': 'Model'})
     architecture: str = field(metadata={'data_key': 'Architecture'})

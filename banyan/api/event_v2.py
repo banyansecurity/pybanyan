@@ -44,7 +44,7 @@ class EventV2API(ServiceBase):
     def list2(self, before_dt: datetime = None, after_dt: datetime = None, order: str = None,
               event_type: str = None, subtype: str = None, action: str = None,
               email_address: str = None, device_id: str = None, device_serial: str = None,
-              container_id: str = None, service_name: str = None, event_id: str = None) -> list:
+              container_id: str = None, service_name: str = None, event_id: str = None) -> List[Resource]:
         params = self._make_params(before_dt, after_dt, order, event_type, subtype, action, email_address,
                                    device_id, device_serial, container_id, service_name, event_id)
         return self._list_paged(params)
@@ -68,13 +68,16 @@ class EventV2API(ServiceBase):
 
     # noinspection PyProtectedMember
     def _list_daterange(self, params: Dict[str, Any]) -> List[Resource]:
-        order = params.get('order', 'desc')
         params['order'] = 'asc'
         all_data: List[EventV2] = list()
         event_ids: Set[UUID] = set()
         count = self._count(params)
+        if count == 10001:
+            count = -1
         schema = self.Meta.info_class.Schema()
-        self._client._do_progress_callback('GET', self.Meta.list_uri, 0, count)
+        callback = self._client.progress_callback
+        if callback:
+            callback('GET', self.Meta.list_uri, 0, count, all_data)
         while params['after'] < params['before']:
             response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
             data: List[EventV2] = schema.load(response_json['data'], many=True)
@@ -84,7 +87,8 @@ class EventV2API(ServiceBase):
             all_data.extend(data)
             event_ids.update([x.event_id for x in data])
             params['after'] = int(data[-1].created_at.timestamp() * 1000)
-            self._client._do_progress_callback('GET', self.Meta.list_uri, len(all_data), count)
+            if callback:
+                callback('GET', self.Meta.list_uri, len(all_data), count, data)
         self._build_cache(all_data)
         return all_data
 

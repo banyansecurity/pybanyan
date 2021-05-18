@@ -2,7 +2,7 @@ dnspython
 marshmallow
 marshmallow_dataclass
 python-dateutil
-cement==3.0.4
+cement~=3.0
 jinja2
 pyyaml
 colorlog
@@ -14,3 +14,4 @@ pyOpenSSL
 requests
 aenum
 colorama
+cryptography

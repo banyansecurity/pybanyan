@@ -109,5 +109,6 @@ venv.bak/
 *.code-workspace
 
 temp/
+tmp/
 ._*
 

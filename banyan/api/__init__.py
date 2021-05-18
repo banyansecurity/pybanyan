@@ -2,13 +2,16 @@
 The `banyan.api` module contains classes and methods that do the work of actually interacting with the Banyan
 Command Center, translating JSON responses into objects from the :py:mod:`banyan.model` module.
 """
-
+import configparser
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Dict, Any, List, Union, Callable
 
+import urllib3
 import requests
+from cement import init_defaults
 from requests.auth import AuthBase
 
 from banyan.api.attachment import AttachmentAPI
@@ -25,7 +28,7 @@ from banyan.api.discovered_resource import DiscoveredResourceAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
-ProgressCallback = Callable[[str, str, int, int], None]
+ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
 
 
 class BanyanApiClient:
@@ -81,9 +84,12 @@ class BanyanApiClient:
         self._log = log
         self._progress_callback = None
         self._access_token = None
-        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL')
-                                            or BanyanApiClient.DEFAULT_API_URL)
+        self._insecure_tls = False
+        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL') or
+                                            BanyanApiClient.DEFAULT_API_URL)
         self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
+        if not self._refresh_token:
+            self._read_config_file()
         if not self._refresh_token:
             raise BanyanError("Refresh token must be set")
         if self._debug:
@@ -102,6 +108,17 @@ class BanyanApiClient:
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
         self._discovered_resources = DiscoveredResourceAPI(self)
+
+    def _read_config_file(self):
+        conf_path = Path.home() / '.banyan.conf'
+        if conf_path.exists():
+            try:
+                cp = configparser.ConfigParser(CONFIG)
+                cp.read(conf_path)
+                self._api_url = cp.get('banyan', 'api_url')
+                self._refresh_token = cp.get('banyan', 'refresh_token')
+            except configparser.Error:
+                pass
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
@@ -137,9 +154,14 @@ class BanyanApiClient:
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
         if '://' not in url:
             url = self._api_url + url
+        if self._insecure_tls and not verify:
+            verify = False
+            urllib3.disable_warnings()
+        else:
+            urllib3.warnings.resetwarnings()
+
         response = self._http.request(method, url, params, data, headers, cookies, files, auth or self._http.auth,
                                       timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)
-        # logging.debug(response.content)
         if response.status_code >= 400:
             try:
                 content = response.json()
@@ -198,10 +220,11 @@ class BanyanApiClient:
     def progress_callback(self, value: ProgressCallback) -> None:
         self._progress_callback = value
 
-    def _do_progress_callback(self, method: str, uri: str, count: int, total: int) -> None:
-        if self._progress_callback:
+    def _do_progress_callback(self, callback_func: ProgressCallback, method: str, uri: str, count: int, total: int,
+                              partial_results: List[JsonListOrObj]) -> None:
+        if callback_func:
             try:
-                self._progress_callback(method, uri, count, total)
+                callback_func(method, uri, count, total, partial_results)
             except Exception as ex:
                 err_msg = f'{ex.__class__.__name__} exception in progress callback: {ex.args[0]}'
                 if self._log:
@@ -223,13 +246,15 @@ class BanyanApiClient:
             params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
-                logging.debug(f'Looking for {key} in {uri}')
+                logging.debug('Looking for %s in %s', key, uri)
                 if key in uri or key == 'data':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
-                    logging.debug(f'Found {key}, result count = {len(results[key])}, total count = {len(all_results)}')
-                    self._do_progress_callback(method, uri, len(all_results), results.get('count', -1))
+                    logging.debug('Found %s, result count = %d, total count = %d',
+                                  key, len(results[key]), len(all_results))
+                    self._do_progress_callback(callback, method, uri, len(all_results),
+                                               results.get('count', -1), results[key])
                     skip += limit
 
     @property
@@ -266,6 +291,14 @@ class BanyanApiClient:
     def api_url(self, value: str) -> None:
         self._api_url = self._normalize_url(value)
         self._access_token = None
+
+    @property
+    def insecure_tls(self) -> bool:
+        return self._insecure_tls
+
+    @insecure_tls.setter
+    def insecure_tls(self, value: bool) -> None:
+        self._insecure_tls = value
 
     @property
     def services(self) -> ServiceAPI:
@@ -340,10 +373,16 @@ class BanyanApiClient:
         return self._discovered_resources
 
 
+# configuration defaults
+CONFIG = init_defaults('banyan')
+CONFIG['banyan']['api_url'] = BanyanApiClient.DEFAULT_API_URL
+CONFIG['banyan']['refresh_token'] = None
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com', refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'),
-                        debug=True)
+    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com',
+                        refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
     print(c.get_access_token())
     print(c.services.list())

@@ -1,9 +1,7 @@
 import os
 import re
 import socket
-import textwrap
 import urllib.parse
-from collections import namedtuple
 from dataclasses import dataclass, field
 from typing import Optional, List
 
@@ -13,11 +11,14 @@ import requests.exceptions
 from colorama import Style, Fore
 
 from banyan.api import BanyanApiClient
-from banyan.model.service import Service, BackendTarget
-from banyan.model.netagent import Netagent
-from banyan.lib.cloud import get_cloud_vendor
-from banyan.lib.cloud.aws import AwsCloud
 from banyan.lib.certs import CertPair
+from banyan.lib.cloud import CloudVendor, get_cloud_vendor, has_aws
+from banyan.model.netagent import Netagent
+from banyan.model.service import Service, BackendTarget
+
+if has_aws:
+    from banyan.lib.cloud.aws import AwsCloud
+
 
 DEFAULT_TIMEOUT = 0.5
 DEFAULT_DNS_SERVER = '8.8.8.8'
@@ -56,8 +57,8 @@ class ServiceTest:
                 return agent
         raise RuntimeError(f'Unable to find a netagent with hostname {self._my_hostname}')
 
-    def _get_cloud(self) -> AwsCloud:
-        if self._vendor == 'aws':
+    def _get_cloud(self) -> CloudVendor:
+        if self._vendor == 'aws' and has_aws:
             return AwsCloud()
         else:
             raise RuntimeError(f'Cloud vendor "{self._vendor} is not supported')
@@ -207,7 +208,7 @@ class ServiceTest:
                                            f'the certificate ({cert.get_names()})')
             except FileNotFoundError:
                 result.passed = False
-                result.details = f'One of the filenames configured for the custom certificate could not be found.'
+                result.details = 'One of the filenames configured for the custom certificate could not be found.'
                 if not os.path.exists(custom_tls.cert_file):
                     result.info.append(f'Certificate file {custom_tls.cert_file} is missing')
                 if not os.path.exists(custom_tls.key_file):
