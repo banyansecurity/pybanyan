@@ -37,6 +37,7 @@ class OktaApplicationController:
 
         return wrapper
 
+
     @force_sync
     async def list(self):
         try:
@@ -68,7 +69,8 @@ class OktaApplicationController:
             results.append(allvars)
 
         print(tabulate(results, headers="keys"))
-        return applications
+        return results
+
 
     @force_sync
     async def create_bookmark(self, label: str, url: str):
@@ -97,6 +99,7 @@ class OktaApplicationController:
         app, resp, err = await client.create_application(bookmark_app_model)
         return app
 
+
     @force_sync
     async def assign(self, app_id: str, group_name: str):
         try:
@@ -119,8 +122,10 @@ class OktaApplicationController:
         app, resp, err = await client.create_application_group_assignment(app_id, group_id, application_group_assignment)
         return app
 
+
     def delete(self):
         raise NotImplementedError('We do not support this operation. Use the Okta console.')
+
 
 if __name__ == '__main__':
     okta = OktaApplicationController()
