@@ -1,5 +1,8 @@
 # PyBanyan Change History
 
+## 0.23.0
+ * add support for Kubernetes audit events
+
 ## 0.22.0
  * make AWS library dependencies optional
 

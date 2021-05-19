@@ -241,6 +241,7 @@ class EventV2Type(BanyanEnum):
     IDENTITY = "Identity"
     REGISTRATION = "Registration"
     TRUST_SCORING = "TrustScoring"
+    AUDIT = "Audit"
 
 
 class EventV2Subtype(BanyanEnum):
@@ -248,6 +249,7 @@ class EventV2Subtype(BanyanEnum):
     USER_PRINCIPAL = "UserPrincipal"
     CONNECTION = "Connection"
     RESOURCE = "Resource"
+    KUBERNETES = "Kubernetes"
 
 
 @dataclass
