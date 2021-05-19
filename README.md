@@ -152,20 +152,22 @@ optional arguments:
 
 ## Integrations
 
-The Banyan CLI can be integrated with external APIs to automate different types of workflows.
+You can automate different types of workflows by integrating with external APIs. We provide pre-built integrations for 2 types of workflows:
 
-### AWS
+### 1. Autodiscover resources in your IaaS and publish as Banyan services
 
-Use the [AWS SDK for Python](https://github.com/boto/boto3) to synchronize AWS resources you have specifically tagged to be discovered by Banyan. You can then publish these AWS resources as Banyan services so your end-users can access them.
+You can autodiscover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory. You can then publish these resources as Banyan services so your end-users can access them. Check out the provider-specific link for setup instructions.
 
-Check the [AWS Integration README](banyan/ext/aws/) for setup instructions.
+- [AWS](banyan/ext/aws/)
+- [Azure](banyan/ext/azure/)
+- [VMware vSphere](banyan/ext/vmware/)
 
-### Okta
+### 2. Bookmark Banyan services into your SSO catalog
 
-Use the [Okta SDK for Python](https://github.com/okta/okta-sdk-python) to publich Banyan web services as bookmark applications so your end-user can access them via their Okta catalog.
+You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
 
-Check the [Okta Integration README](banyan/ext/okta/) for setup instructions.
-
+- [Okta](banyan/ext/okta/)
+- [AzureAD](banyan/ext/azuread/)
 
 
 ## Development
