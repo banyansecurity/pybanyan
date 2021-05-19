@@ -203,6 +203,59 @@ class DiscoveredResourceController(Controller):
         print('\n--> Sync with Azure successful.')
 
 
+    @ex(help='sync discovered_resources with VMWare vSphere',
+        arguments=[
+            (['resource_type'],
+            {
+                'help': 'Type of VMWare Resource - VM | ALL.'
+            }),
+            (['tag_name'],
+            {
+                'help': 'Only sync resources with specific category:tag'
+            })
+        ])
+    def sync_vmware(self):
+        try:
+            from banyan.ext.vmware.vm import VmController, VmModel
+        except Exception as ex:
+            raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
+
+        Base.wait_for_input('Getting list of VMware Resources')
+        vm = VmController()
+        instances = vm.list()
+        results = list()
+        for instance in instances:
+            allvars = vars(copy.copy(instance))
+            allvars['tags'] = len(allvars['tags'])
+            results.append(allvars)
+        self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        Base.wait_for_input('Syncing into Discovered Resource')
+        for instance in instances:
+            res_tags = []
+            for key in instance.tags:
+                res_tag = {
+                    'name': key,
+                    'value': instance.tags[key]
+                }
+                res_tags.append(res_tag)            
+            res = DiscoveredResource(
+                instance.cloud_provider,
+                instance.datacenter,
+                instance.id,
+                instance.name,
+                instance.type,
+                instance.public_ip,
+                instance.private_ip,
+                res_tags
+            )
+            self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
+            info = self._client.discovered_resources.create(res)
+            print('\n-->', info)
+            sleep(0.05)
+
+        print('\n--> Sync with VMware successful.')
+
     #TODO-API: argument should be UDID not tag_name
     @ex(help='use discovered_resource to create a new service',
         arguments=[
