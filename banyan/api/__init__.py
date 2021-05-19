@@ -107,6 +107,15 @@ class BanyanApiClient:
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
 
+    def __del__(self):
+        if self._http:
+            try:
+                self._http.close()
+            except Exception:
+                pass
+            finally:
+                self._http = None
+
     def _read_config_file(self):
         conf_path = Path.home() / '.banyan.conf'
         if conf_path.exists():
