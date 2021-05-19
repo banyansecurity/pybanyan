@@ -109,6 +109,15 @@ class BanyanApiClient:
         self._audit = AuditAPI(self)
         self._discovered_resources = DiscoveredResourceAPI(self)
 
+    def __del__(self):
+        if self._http:
+            try:
+                self._http.close()
+            except Exception:
+                pass
+            finally:
+                self._http = None
+
     def _read_config_file(self):
         conf_path = Path.home() / '.banyan.conf'
         if conf_path.exists():
