@@ -338,7 +338,7 @@ class SimpleWebService():
     @property
     def service(self) -> Service:
         svc_tags = Tags('https', self.domain, True, self.subtype, self.type, 'leanpub', self.port)
-        svc_metadata = Metadata(self.name, self.description, 'cluster1', svc_tags)
+        svc_metadata = Metadata(self.name, self.description, 'edge1', svc_tags)
         frontend_address = FrontendAddress(self.port, '')
         host_tag_selector = {"com.banyanops.hosttag.site_name": "*"}
         attributes = Attributes([self.domain], [frontend_address], [host_tag_selector])

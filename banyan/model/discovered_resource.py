@@ -47,6 +47,7 @@ class DiscoveredResource(Resource):
     public_ip: str
     private_ip: str
     tags: list
+    status: str = 'discovered'
     public_dns_name: Optional[str] = ''
     private_dns_name: Optional[str] = ''
     parent_id: Optional[str] = ''
@@ -76,6 +77,7 @@ class DiscoveredResourceInfo(Resource):
     created_at: int
     updated_at: int
     tags: Optional[List[ResourceTag]]
+    status: str
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property
