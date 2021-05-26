@@ -1,6 +1,7 @@
 from banyan.api.base import ServiceBase
 from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo
 from banyan.model.service import ServiceInfoOrName
+from typing import List
 
 
 class PolicyAPI(ServiceBase):
@@ -36,3 +37,8 @@ class PolicyAPI(ServiceBase):
                                                      'ServiceID': service.id
                                                  })
         return json_response['Message']
+
+    def attachments(self, policy: PolicyInfoOrName) -> List[PolicyAttachInfo]:
+        policy = self.find(policy)
+        json_response = self._client.api_request('GET', 'security_attach_policies', params={'PolicyID': policy.id})
+        return PolicyAttachInfo.Schema().load(json_response, many=True)
