@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.25.0
+
+ * Handle invalid values for netagent LastActivityAt timestamp
+
 ## 0.24.0
 
 * Export policy attachments when exporting services

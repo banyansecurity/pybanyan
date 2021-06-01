@@ -208,7 +208,9 @@ class BanyanApiClient:
         headers['Accept'] = accept or self.JSON_TYPE
         if data:
             headers['Content-Type'] = self.JSON_TYPE
-        return self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json).json()
+
+        with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json) as request:
+            return request.json()
 
     @property
     def progress_callback(self) -> ProgressCallback:

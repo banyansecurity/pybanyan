@@ -1,3 +1,5 @@
+import iso8601
+
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Interface
@@ -47,6 +49,11 @@ class Netagent(Resource):
     def _remove_empty_dates(self, data, many, **kwargs):
         if "LastActivityAt" in data and data["LastActivityAt"] == "":
             del data["LastActivityAt"]
+        else:
+            try:
+                iso8601.parse_date(data["LastActivityAt"])
+            except iso8601.ParseError:
+                del data["LastActivityAt"]
         return data
 
     @property
