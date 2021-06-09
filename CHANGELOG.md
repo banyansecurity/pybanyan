@@ -1,5 +1,11 @@
 # PyBanyan Change History
 
+
+## 0.26.0
+
+ * add `source_cidrs` list to `exempted_paths` struct in service model
+ * add `is_deleted` flag to users and devices
+
 ## 0.25.0
 
  * Handle invalid values for netagent LastActivityAt timestamp
