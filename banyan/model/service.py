@@ -163,6 +163,7 @@ class Pattern:
     methods: List[str] = field(default_factory=list)
     mandatory_headers: List[str] = field(default_factory=list)
     paths: List[str] = field(default_factory=list)
+    source_cidrs: List[str] = field(default_factory=list)
 
 
 @dataclass
