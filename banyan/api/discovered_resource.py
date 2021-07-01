@@ -10,11 +10,11 @@ class DiscoveredResourceAPI(ServiceBase):
         data_class = DiscoveredResource
         info_class = DiscoveredResourceInfo
         api_v2 = True
-        list_uri = '/cloud_resource/inventory'
+        list_uri = '/cloud_resource'
 
     def list(self, params: Dict[str, Any] = None) -> list:
         response_json = self._client.api_request('GET', 
-                                                 '/cloud_resource/inventory',
+                                                 '/cloud_resource',
                                                  params=params)
         data: List[DiscoveredResourceInfo] = list()
         if response_json["data"] is not None:
@@ -23,7 +23,7 @@ class DiscoveredResourceAPI(ServiceBase):
 
     def create(self, obj: DiscoveredResource) -> str:
         response_json = self._client.api_request('POST',
-                                                 '/cloud_resource/inventory',
+                                                 '/cloud_resource',
                                                  headers={'content-type': 'application/json'},
                                                  json=DiscoveredResource.Schema().dump(obj))
         return response_json["data"]
