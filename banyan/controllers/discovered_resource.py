@@ -269,7 +269,7 @@ class DiscoveredResourceController(Controller):
 
         print('\n--> Sync with VMware successful.')
 
-    #TODO-API: argument should be UDID not tag_name
+
     @ex(help='use discovered_resource to create a new service',
         arguments=[
             (['service_name'],
@@ -284,18 +284,9 @@ class DiscoveredResourceController(Controller):
             {
                 'help': 'Type of service - WEB | SSH | RDS | GENERIC_TCP.'
             }),
-            (['tag_name'],
+            (['resource_uuid'],
             {
-                'help': 'Tag name of discovered resource.'
-            }),
-            (['--tag_value'],
-            {
-                'help': 'Tag value of discovered resource.',
-                'default': ''
-            }),
-            (['--resource_uuid'],
-            {
-                'help': 'Banyan UDID of the discovered resource to use.'
+                'help': 'Banyan UUID of the discovered resource to use.'
             }),                           
             (['--backend_port'],
             {
@@ -310,16 +301,12 @@ class DiscoveredResourceController(Controller):
         ])
     def publish(self):
         Base.wait_for_input('Getting Discovered Resource')
-        params = {
-            'include_tags': 'true',
-            'tag_name': self.app.pargs.tag_name,
-            'tag_value': self.app.pargs.tag_value
-        }
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
-        d_resource: DiscoveredResourceInfo = None
-        if len(d_resources):
-            d_resource = d_resources[0]
-            print(d_resource)
+        id: UUID = self.app.pargs.resource_uuid
+        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.get(id)
+
+        if d_resource:
+            dr_json = DiscoveredResource.Schema().dump(d_resource)
+            self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
         else:
             raise RuntimeError('No discovered_resource found')
 
@@ -363,7 +350,7 @@ class DiscoveredResourceController(Controller):
         print('\n--> Publish flow successful.')
 
 
-    @ex(help='add discovered_resources to an existing service',
+    @ex(help='add discovered_resources by tag to an existing service',
         arguments=[
             (['service_name'],
             {
