@@ -46,7 +46,7 @@ class DiscoveredResource(Resource):
     resource_type: str
     public_ip: str
     private_ip: str
-    tags: list
+    tags: Optional[List[ResourceTag]]
     status: str = 'discovered'
     public_dns_name: Optional[str] = ''
     private_dns_name: Optional[str] = ''

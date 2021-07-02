@@ -1,4 +1,6 @@
 from typing import List
+from uuid import UUID
+
 import copy
 from time import sleep
 
@@ -34,44 +36,26 @@ class DiscoveredResourceController(Controller):
     def list(self):
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
         results = list()
-        headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', 'Public IP', '# Tags']
+        headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', '# Tags', 'Status']
         for res in d_resources:
             new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
-                    res.resource_type, res.private_ip, res.public_ip, len(res.tags)]
+                    res.resource_type, res.private_ip, len(res.tags), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
 
-    #TODO-API: argument should be UDID not tag_name
     @ex(help='show details & tags of a discovered_resource', 
         arguments=[
-            (['tag_name'],
+            (['resource_uuid'],
             {
-                'help': 'Filter discovered resource by Tag Name.'
-            }),
-            (['--tag_value'],
-            {
-                'help': 'Filter discovered resource by Tag Value.',
-                'default': ''
-            }),
-            (['--resource_uuid'],
-            {
-                'help': 'Filter discovered resource by Banyan UUID.'
+                'help': 'Get discovered resource by Banyan UUID.'
             }),            
         ])
     def get(self):
-        params = {
-            'include_tags': 'true', 
-            'tag_name': self.app.pargs.tag_name,
-            'tag_value': self.app.pargs.tag_value
-        }
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
-        d_resource: DiscoveredResourceInfo = None
-        if len(d_resources):
-            d_resource = d_resources[0]
-            print(vars(d_resource))
-        else:
-            print('No discovered_resource found.')
+        id: UUID = self.app.pargs.resource_uuid
+        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.get(id)
+        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
     @ex(help='create a new discovered_resource',
@@ -86,6 +70,35 @@ class DiscoveredResourceController(Controller):
         d_resource = Base.get_json_input(self.app.pargs.resources_json)
         info = self._client.discovered_resources.create(d_resource)
         print(info)
+
+
+    @ex(help='update status for a given discovered_resource record', 
+        arguments=[
+            (['resource_uuid'],
+            {
+                'help': 'Banyan UUID of discovered resource to update.'
+            }),
+            (['status'],
+            {
+                'help': 'Status - Discovered | Ignored | Published'
+            }),                       
+        ])
+    def update(self):
+        id: UUID = self.app.pargs.resource_uuid
+        status: str = self.app.pargs.status
+        self.app.print(self._client.discovered_resources.update_status(id, status))
+
+
+    @ex(help='delete a given discovered_resource record', 
+        arguments=[
+            (['resource_uuid'],
+            {
+                'help': 'Banyan UUID of discovered resource to delete.'
+            }),            
+        ])
+    def delete(self):
+        id: UUID = self.app.pargs.resource_uuid
+        self.app.print(self._client.discovered_resources.delete(id))
 
 
     @ex(help='sync discovered_resources with AWS IaaS',

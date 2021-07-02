@@ -1,4 +1,7 @@
 from typing import Dict, List, Any
+from uuid import UUID
+
+import json
 
 from banyan.api.base import ServiceBase
 from banyan.model import BanyanApiObject
@@ -21,6 +24,13 @@ class DiscoveredResourceAPI(ServiceBase):
             data = DiscoveredResourceInfo.Schema().load(response_json["data"], many=True)
         return data
 
+    def get(self, id: UUID, params: Dict[str, Any] = None) -> DiscoveredResourceInfo:
+        response_json = self._client.api_request('GET', 
+                                                 '/cloud_resource/%s' % str(id),
+                                                 params=params)
+        data = DiscoveredResourceInfo.Schema().load(response_json["data"])
+        return data
+
     def create(self, obj: DiscoveredResource) -> str:
         response_json = self._client.api_request('POST',
                                                  '/cloud_resource',
@@ -28,8 +38,25 @@ class DiscoveredResourceAPI(ServiceBase):
                                                  json=DiscoveredResource.Schema().dump(obj))
         return response_json["data"]
 
-    def update(self, obj: BanyanApiObject) -> str:
-        raise NotImplementedError('The Banyan API does not support this operation')
+    def update(self, obj: DiscoveredResource) -> str:
+        response_json = self._client.api_request('PUT',
+                                                 '/cloud_resource',
+                                                 headers={'content-type': 'application/json'},
+                                                 json=DiscoveredResource.Schema().dump(obj))
+        return response_json["data"]
 
-    def delete(self, obj: BanyanApiObject) -> str:
-        raise NotImplementedError('The Banyan API does not support this operation')
+    def update_status(self, id: UUID, status: str) -> str:
+        obj = {
+            "status": status
+        }
+        print(json.dumps(obj))
+        response_json = self._client.api_request('PATCH',
+                                                 '/cloud_resource/%s' % str(id),
+                                                 headers={'content-type': 'application/json'},
+                                                 json=json.dumps(obj))
+        return response_json["data"]
+
+    def delete(self, id: UUID) -> str:
+        response_json = self._client.api_request('DELETE', 
+                                                 '/cloud_resource/%s' % str(id))
+        return response_json["data"]
