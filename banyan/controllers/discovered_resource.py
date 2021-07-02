@@ -68,8 +68,9 @@ class DiscoveredResourceController(Controller):
         ])
     def create(self):
         d_resource = Base.get_json_input(self.app.pargs.resources_json)
-        info = self._client.discovered_resources.create(d_resource)
-        print(info)
+        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.create(d_resource)
+        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
     @ex(help='update status for a given discovered_resource record', 
@@ -86,7 +87,9 @@ class DiscoveredResourceController(Controller):
     def update(self):
         id: UUID = self.app.pargs.resource_uuid
         status: str = self.app.pargs.status
-        self.app.print(self._client.discovered_resources.update_status(id, status))
+        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.update_status(id, status)
+        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
     @ex(help='delete a given discovered_resource record', 
@@ -98,8 +101,8 @@ class DiscoveredResourceController(Controller):
         ])
     def delete(self):
         id: UUID = self.app.pargs.resource_uuid
-        self.app.print(self._client.discovered_resources.delete(id))
-
+        info = self._client.discovered_resources.delete(id)
+        self.app.print(info)
 
     @ex(help='sync discovered_resources with AWS IaaS',
         arguments=[

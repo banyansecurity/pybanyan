@@ -49,11 +49,10 @@ class DiscoveredResourceAPI(ServiceBase):
         obj = {
             "status": status
         }
-        print(json.dumps(obj))
         response_json = self._client.api_request('PATCH',
                                                  '/cloud_resource/%s' % str(id),
                                                  headers={'content-type': 'application/json'},
-                                                 json=json.dumps(obj))
+                                                 json=obj)
         return response_json["data"]
 
     def delete(self, id: UUID) -> str:
