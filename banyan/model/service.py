@@ -45,10 +45,10 @@ class Metadata:
     class Meta:
         unknown = EXCLUDE
 
-    tags: Tags
     name: str
     description: str
     cluster: str
+    tags: Tags = field(default_factory=Tags)
 
 
 @dataclass
@@ -76,7 +76,7 @@ class CustomTLSCert:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     cert_file: str = ""
     key_file: str = ""
 
@@ -114,7 +114,7 @@ class HTTPRedirect:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     url: str = field(default='')
     status_code: int = field(default=302)
     addresses: List[str] = field(default_factory=list)
@@ -171,7 +171,7 @@ class ExemptedPaths:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: Optional[bool]
     paths: Optional[List[str]]
     patterns: List[Pattern] = field(default_factory=list)
 
@@ -221,14 +221,24 @@ class BackendTarget:
 
 
 @dataclass
+class AllowPattern:
+    class Meta:
+        unknown = EXCLUDE
+
+    cidrs: Optional[List[str]] = field(default_factory=list)
+    hostnames: Optional[List[str]] = field(default_factory=list)
+
+
+@dataclass
 class Backend:
     class Meta:
         unknown = EXCLUDE
 
     target: BackendTarget
-    dns_overrides: Dict[str, str] = field(default_factory=dict)
-    whitelist: List[str] = field(default_factory=list)
-
+    dns_overrides: Optional[Dict[str, str]] = field(default_factory=dict)
+    allow_patterns: Optional[List[AllowPattern]] = field(default_factory=list)
+    whitelist: Optional[List[str]] = field(default_factory=list) # deprecated
+    http_connect: Optional[bool] = False
 
 @dataclass
 class Spec:
@@ -248,6 +258,7 @@ class Service(BanyanApiObject):
         unknown = EXCLUDE
         ordered = True
 
+    KIND = "BanyanService"
     metadata: Metadata
     spec: Spec
 
@@ -307,6 +318,40 @@ class ServiceInfo(InfoBase):
     @property
     def id(self) -> str:
         return self.service_id
+
+
+@dataclass
+class SimpleWebService():
+    class Meta:
+        unknown = EXCLUDE
+
+    type: str
+    subtype: str
+    name: str
+    description: str
+    domain: str
+    port: int
+    backend_name: str
+    backend_port: int
+    backend_tls: bool
+    Schema: ClassVar[Schema] = Schema
+
+    @property
+    def service(self) -> Service:
+        svc_tags = Tags('https', self.domain, True, self.subtype, self.type, 'leanpub', self.port)
+        svc_metadata = Metadata(self.name, self.description, 'edge1', svc_tags)
+        frontend_address = FrontendAddress(self.port, '')
+        host_tag_selector = {"com.banyanops.hosttag.site_name": "*"}
+        attributes = Attributes([self.domain], [frontend_address], [host_tag_selector])
+        backend_target = BackendTarget(self.backend_name, '', self.backend_port, self.backend_tls)
+        backend = Backend(backend_target, {}, [], [])
+        custom_tls_cert = CustomTLSCert()
+        cert_settings = CertSettings(custom_tls_cert, [self.domain])
+        oidc_settings = OIDCSettings(True, 'https://' + self.domain)
+        http_settings = HttpSettings(True, oidc_settings, {}, {}, {})
+        svc_spec = Spec(attributes, backend, cert_settings, http_settings, {})
+        svc = Service('rbac.banyanops.com/v1', 'BanyanService', 'origin', svc_metadata, svc_spec)
+        return svc
 
 
 ServiceInfoOrName = Union[ServiceInfo, str]

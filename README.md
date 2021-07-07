@@ -150,6 +150,26 @@ optional arguments:
                       access).
 ```
 
+## Integrations
+
+You can automate different types of workflows by integrating with external APIs. We provide pre-built integrations for 2 types of workflows:
+
+### 1. Autodiscover resources in your IaaS and publish as Banyan services
+
+You can autodiscover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory. You can then publish these resources as Banyan services so your end-users can access them. Check out the provider-specific link for setup instructions.
+
+- [AWS](banyan/ext/aws/)
+- [Azure](banyan/ext/azure/)
+- [VMware vSphere](banyan/ext/vmware/)
+
+### 2. Bookmark Banyan services into your SSO catalog
+
+You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
+
+- [Okta](banyan/ext/okta/)
+- [AzureAD](banyan/ext/azuread/)
+
+
 ## Development
 
 To work on the pybanyan code, follow the instructions in the [documentation][devel]. 

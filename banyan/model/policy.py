@@ -33,7 +33,6 @@ class Metadata:
     description: str
     tags: Tags = field(default_factory=Tags)
 
-
 @dataclass
 class Options:
     class Meta:
@@ -41,7 +40,6 @@ class Options:
 
     disable_tls_client_authentication: bool
     l7_protocol: Optional[str]
-    mixed_users_and_workloads: Optional[bool]
 
 
 @dataclass
@@ -74,20 +72,17 @@ class L7Access:
         unknown = EXCLUDE
 
     RESOURCE_ALL = "*"
-    action: Optional[str] = field(metadata={"validate": validate.OneOf(L7Action.choices() + [""])})
     resources: List[str] = field(default_factory=list)
     actions: List[str] = field(default_factory=list)
-
 
 @dataclass
 class Conditions:
     class Meta:
         unknown = EXCLUDE
 
-    start_time: Optional[datetime]
-    end_time: Optional[datetime]
-    trust_level: Optional[str] = field(metadata={"missing": TrustLevel.ALWAYS_ALLOW,
-                                                 "validate": validate.OneOf(TrustLevel.choices() + [""])})
+    trust_level: Optional[str] = field(metadata={"validate": validate.OneOf(TrustLevel.choices() + [""])})
+    start_time: Optional[str] = ''
+    end_time: Optional[str] = ''
 
     # noinspection PyUnusedLocal
     @pre_load
@@ -133,10 +128,9 @@ class Policy(BanyanApiObject):
         unknown = EXCLUDE
         ordered = True
 
+    KIND = "BanyanPolicy"
     metadata: Metadata
     spec: Spec
-    type: str
-    KIND = "BanyanPolicy"
 
     def __post_init__(self):
         self.kind = self.KIND
@@ -188,6 +182,31 @@ class PolicyAttachInfo:
                                             metadata={'marshmallow_field': NanoTimestampField(data_key='DetachedAt')})
     detached_by: Optional[str] = field(default=None, metadata={'data_key': 'DetachedBy'})
     Schema: ClassVar[Schema] = Schema
+
+
+@dataclass
+class SimpleWebPolicy():
+    class Meta:
+        unknown = EXCLUDE
+
+    type: str
+    name: str
+    description: str
+    Schema: ClassVar[Schema] = Schema
+
+    @property
+    def policy(self) -> Policy:
+        pol_tags = Tags(self.type)
+        pol_metadata = Metadata(self.name, self.description, pol_tags)
+        options = Options(True, 'http')
+        exception = PolicyException()
+        conditions = Conditions('')
+        l7_access = L7Access(["*"], ["*"])
+        rules = Rules(conditions,[l7_access])
+        access = Access(rules, ["ANY"])
+        pol_spec = Spec(options, exception, [access])
+        pol = Policy('rbac.banyanops.com/v1', 'BanyanPolicy', 'USER', pol_metadata, pol_spec)
+        return pol
 
 
 PolicyInfoOrName = Union[PolicyInfo, str]
