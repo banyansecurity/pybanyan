@@ -78,7 +78,7 @@ class VmController:
             vm_model = vsphere_client.vcenter.VM.get(vm.vm)
             guest_model = vsphere_client.vcenter.vm.guest.Identity.get(vm.vm)
 
-            # vm tags are a different system w categort & tag
+            # vm tags are a different system w category & tag
             tags_obj = {}
             dynamic_id = DynamicID(type='VirtualMachine', id=vm.vm)
             tag_list = vsphere_client.tagging.TagAssociation.list_attached_tags(dynamic_id)

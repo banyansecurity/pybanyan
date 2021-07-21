@@ -104,6 +104,22 @@ class DiscoveredResourceController(Controller):
         info = self._client.discovered_resources.delete(id)
         self.app.print(info)
 
+
+    @ex(help='test AWS configuration')
+    def test_aws(self):
+        try:
+            from banyan.ext.aws.ec2 import Ec2Controller, Ec2Model
+        except Exception as ex:
+            raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
+
+        ec2 = Ec2Controller()
+        instances = ec2.list()
+        if len(instances):
+            print('--> AWS configuration test passed. Found %d resources.' % len(instances))
+        else:
+            print('--> AWS configuration test failed. Check your AWS credentials and SDK configuration.')
+
+
     @ex(help='sync discovered_resources with AWS IaaS',
         arguments=[
             (['resource_type'],
@@ -165,6 +181,21 @@ class DiscoveredResourceController(Controller):
         print('\n--> Sync with AWS successful.')
 
 
+    @ex(help='test Azure configuration')
+    def test_azure(self):
+        try:
+            from banyan.ext.azure.vm import VmController, VmModel
+        except Exception as ex:
+            raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
+
+        vm = VmController()
+        instances = vm.list()
+        if len(instances):
+            print('--> Azure configuration test passed. Found %d resources.' % len(instances))
+        else:
+            print('--> Azure configuration test failed. Check your Azure credentials and SDK configuration.')
+
+
     @ex(help='sync discovered_resources with Azure IaaS',
         arguments=[
             (['resource_type'],
@@ -188,6 +219,7 @@ class DiscoveredResourceController(Controller):
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
+            allvars.pop('id')    # too long to display
             allvars['tags'] = len(allvars['tags'])
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
@@ -217,6 +249,20 @@ class DiscoveredResourceController(Controller):
             sleep(0.05)
 
         print('\n--> Sync with Azure successful.')
+
+    @ex(help='test VMware vSphere configuration')
+    def test_vmware(self):
+        try:
+            from banyan.ext.vmware.vm import VmController, VmModel
+        except Exception as ex:
+            raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
+
+        vm = VmController()
+        instances = vm.list()
+        if len(instances):
+            print('--> VMWare vSphere configuration test passed. Found %d resources.' % len(instances))
+        else:
+            print('--> VMWare vSphere configuration test failed. Check your VMWare vSphere credentials and SDK configuration.')
 
 
     @ex(help='sync discovered_resources with VMWare vSphere',
