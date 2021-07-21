@@ -43,7 +43,6 @@ setup(
     ],
     extras_require={
         'aws': ['boto3', 'ec2_metadata']
-
     },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"

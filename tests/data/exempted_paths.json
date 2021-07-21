@@ -1,0 +1,129 @@
+{
+    "apiVersion": "rbac.banyanops.com/v1",
+    "kind": "BanyanService",
+    "type": "origin",
+    "metadata": {
+        "cluster": "useast",
+        "tags": {
+            "service_app_type": "WEB",
+            "domain": "pipelines.bnndemos.com",
+            "user_facing": "true",
+            "protocol": "https",
+            "icon": "",
+            "port": "443",
+            "template": "CUSTOM"
+        },
+        "name": "pipelines.bnndemos.com",
+        "description": "pipelines.bnndemos.com"
+    },
+    "spec": {
+        "client_cidrs": [],
+        "cert_settings": {
+            "dns_names": [
+                "*.bnndemos.com"
+            ],
+            "custom_tls_cert": {
+                "key_file": "/etc/certs/bnndemos_com_key.pem",
+                "cert_file": "/etc/certs/bnndemos_com.pem",
+                "enabled": true
+            }
+        },
+        "http_settings": {
+            "http_health_check": {
+                "https": false,
+                "path": "",
+                "from_address": [],
+                "method": "",
+                "addresses": [],
+                "enabled": false,
+                "user_agent": ""
+            },
+            "http_redirect": null,
+            "enabled": true,
+            "exempted_paths": {
+                "patterns": [
+                    {
+                        "mandatory_headers": [],
+                        "methods": [
+                            "*"
+                        ],
+                        "hosts": [
+                            {
+                                "target": [
+                                    "https://pipelines.bnndemos.com:443"
+                                ],
+                                "origin_header": [
+                                    "*"
+                                ]
+                            }
+                        ],
+                        "paths": [
+                            "/api/*"
+                        ],
+                        "source_cidrs": [
+                            "12.34.56.0/24",
+                            "56.78.90.12"
+                        ]
+                    },
+                    {
+                        "mandatory_headers": [],
+                        "methods": [
+                            "*"
+                        ],
+                        "hosts": [
+                            {
+                                "target": [
+                                    "https://pipelines.bnndemos.com:443"
+                                ],
+                                "origin_header": [
+                                    "*"
+                                ]
+                            }
+                        ],
+                        "paths": [
+                            "/*"
+                        ]
+                    }
+                ],
+                "enabled": true,
+                "paths": []
+            },
+            "oidc_settings": {
+                "service_domain_name": "https://pipelines.bnndemos.com",
+                "trust_callbacks": {},
+                "api_path": "",
+                "enabled": true,
+                "post_auth_redirect_path": ""
+            }
+        },
+        "backend": {
+            "target": {
+                "name_delimiter": null,
+                "tls": true,
+                "name": "internal-aeb4eae3c5ef2444aae2a954c7351f7a-1897487321.us-east-1.elb.amazonaws.com",
+                "client_certificate": false,
+                "tls_insecure": true,
+                "port": "443"
+            },
+            "whitelist": [],
+            "dns_overrides": {}
+        },
+        "attributes": {
+            "frontend_addresses": [
+                {
+                    "port": "443",
+                    "cidr": ""
+                }
+            ],
+            "addresses": [],
+            "tls_sni": [
+                "pipelines.bnndemos.com"
+            ],
+            "host_tag_selector": [
+                {
+                    "com.banyanops.hosttag.site_name": "banyan-prod-070944181368"
+                }
+            ]
+        }
+    }
+}

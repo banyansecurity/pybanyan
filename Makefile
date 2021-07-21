@@ -1,5 +1,7 @@
 .PHONY: clean virtualenv test docker dist dist-upload
 
+.DEFAULT: dist
+
 clean:
 	-find . -name '*.py[co]' -delete
 

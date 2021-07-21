@@ -72,6 +72,7 @@ class User(Resource):
     trust_data: TrustDataV1 = field(metadata={'data_key': 'TrustData'})
     serial_numbers: List[str] = field(default_factory=list, metadata={'data_key': 'SerialNumbers'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles', 'allow_none': True})
+    is_deleted: bool = False
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property
@@ -116,6 +117,7 @@ class Device(Resource):
     trust_data: TrustDataV1 = field(metadata={'data_key': 'TrustData'})
     emails: List[str] = field(default_factory=list, metadata={'data_key': 'Emails'})
     roles: List[str] = field(default_factory=list, metadata={'data_key': 'Roles', 'allow_none': True})
+    is_deleted: bool = False
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property

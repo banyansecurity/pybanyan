@@ -1,6 +1,7 @@
 from banyan.api.base import ServiceBase
 from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo, SimpleWebPolicy
 from banyan.model.service import ServiceInfoOrName
+from typing import List
 
 
 class PolicyAPI(ServiceBase):
@@ -40,5 +41,12 @@ class PolicyAPI(ServiceBase):
                                                  })
         return json_response['Message']
 
+<<<<<<< HEAD
     def create_simple_web(self, pol_web: SimpleWebPolicy) -> PolicyInfo:
         return PolicyAPI(self._client).create(pol_web.policy)
+=======
+    def attachments(self, policy: PolicyInfoOrName) -> List[PolicyAttachInfo]:
+        policy = self.find(policy)
+        json_response = self._client.api_request('GET', 'security_attach_policies', params={'PolicyID': policy.id})
+        return PolicyAttachInfo.Schema().load(json_response, many=True)
+>>>>>>> master

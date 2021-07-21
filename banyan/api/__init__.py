@@ -169,8 +169,12 @@ class BanyanApiClient:
         else:
             urllib3.warnings.resetwarnings()
 
-        response = self._http.request(method, url, params, data, headers, cookies, files, auth or self._http.auth,
-                                      timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)
+        headers = headers or dict()
+        headers['Accept'] = 'application/json'
+        response = requests.request(
+            method=method, url=url, params=params, data=data, headers=headers, cookies=cookies, files=files,
+            auth=auth or self._http.auth, timeout=timeout, allow_redirects=allow_redirects, proxies=proxies,
+            hooks=hooks, stream=stream, verify=verify, cert=cert, json=json)
         if response.status_code >= 400:
             try:
                 content = response.json()
@@ -219,7 +223,9 @@ class BanyanApiClient:
         headers['Accept'] = accept or self.JSON_TYPE
         if data:
             headers['Content-Type'] = self.JSON_TYPE
-        return self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json).json()
+
+        with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json) as response:
+            return response.json()
 
     @property
     def progress_callback(self) -> ProgressCallback:

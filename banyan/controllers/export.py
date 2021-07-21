@@ -80,6 +80,10 @@ class ExportController(Controller):
         for service in all_services:
             with open(self._mkfile(service_path, f'{service.name}.service.json'), 'w') as f:
                 f.write(service.service.Schema().dumps(service.service))
+            attached = self._client.services.attached_policy(service)
+            if attached:
+                with open(self._mkfile(service_path, f'{service.name}.attach.json'), 'w') as f:
+                    f.write(attached.Schema().dumps(attached))
 
     def _mkdir(self, subdir: str) -> str:
         path = os.path.join(self.app.pargs.path, subdir)
