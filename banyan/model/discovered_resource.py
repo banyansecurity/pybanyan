@@ -14,15 +14,18 @@ class CloudProvider(BanyanEnum):
     GCP = "GCP"
     OCI = "OCI"
 
+
 class ExternalCatalog(BanyanEnum):
     OKTA = "Okta"
     AAD = "AzureAD"
+
 
 class DiscoveredResourceType(BanyanEnum):
     # CloudProvider AWS
     EC2 = "EC2"
     RDS = "RDS"
     ELB = "ELB"
+
 
 @dataclass
 class ResourceTag:
@@ -33,6 +36,7 @@ class ResourceTag:
     cloud_resource_id: str
     name: str
     value: str
+
 
 @dataclass
 class DiscoveredResource(Resource):
@@ -46,6 +50,8 @@ class DiscoveredResource(Resource):
     resource_type: str
     public_ip: str
     private_ip: str
+    ports: str = ''
+    account: str = ''
     status: str = 'discovered'
     tags: Optional[List[ResourceTag]] = field(default_factory=list)
     public_dns_name: Optional[str] = ''

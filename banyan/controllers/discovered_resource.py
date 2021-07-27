@@ -28,28 +28,28 @@ class DiscoveredResourceController(Controller):
 
     @ex(help='list discovered_resources',
         arguments=[
-            (['--tag_name'], 
-            {
+            (['--tag_name'],
+             {
                 'help': 'Filter discovered resource by Tag Name.'
             }),
         ])
     def list(self):
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(
+            params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', '# Tags', 'Status']
         for res in d_resources:
             new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
-                    res.resource_type, res.private_ip, len(res.tags), res.status]
+                       res.resource_type, res.private_ip, len(res.tags), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
-
-    @ex(help='show details & tags of a discovered_resource', 
+    @ex(help='show details & tags of a discovered_resource',
         arguments=[
             (['resource_uuid'],
-            {
+             {
                 'help': 'Get discovered resource by Banyan UUID.'
-            }),            
+            }),
         ])
     def get(self):
         id: UUID = self.app.pargs.resource_uuid
@@ -57,13 +57,12 @@ class DiscoveredResourceController(Controller):
         dr_json = DiscoveredResource.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
-
     @ex(help='create a new discovered_resource',
         arguments=[
-            (['resources_json'], 
-            {
+            (['resources_json'],
+             {
                 'help': 'JSON blob describing the new discovered resource(s) to be created, or a filename '
-                         'containing JSON prefixed by "@" (example: @res.json).'
+                'containing JSON prefixed by "@" (example: @res.json).'
             }),
         ])
     def create(self):
@@ -72,17 +71,16 @@ class DiscoveredResourceController(Controller):
         dr_json = DiscoveredResource.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
-
-    @ex(help='update status for a given discovered_resource record', 
+    @ex(help='update status for a given discovered_resource record',
         arguments=[
             (['resource_uuid'],
-            {
+             {
                 'help': 'Banyan UUID of discovered resource to update.'
             }),
             (['status'],
-            {
+             {
                 'help': 'Status - Discovered | Ignored | Published'
-            }),                       
+            }),
         ])
     def update(self):
         id: UUID = self.app.pargs.resource_uuid
@@ -91,19 +89,17 @@ class DiscoveredResourceController(Controller):
         dr_json = DiscoveredResource.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
-
-    @ex(help='delete a given discovered_resource record', 
+    @ex(help='delete a given discovered_resource record',
         arguments=[
             (['resource_uuid'],
-            {
+             {
                 'help': 'Banyan UUID of discovered resource to delete.'
-            }),            
+            }),
         ])
     def delete(self):
         id: UUID = self.app.pargs.resource_uuid
         info = self._client.discovered_resources.delete(id)
         self.app.print(info)
-
 
     @ex(help='test AWS configuration')
     def test_aws(self):
@@ -119,19 +115,18 @@ class DiscoveredResourceController(Controller):
         else:
             print('--> AWS configuration test failed. Check your AWS credentials and SDK configuration.')
 
-
     @ex(help='sync discovered_resources with AWS IaaS',
         arguments=[
             (['resource_type'],
-            {
+             {
                 'help': 'Type of AWS Resource - EC2 | RDS | LB | ALL.'
             }),
             (['tag_name'],
-            {
+             {
                 'help': 'Only sync resources with specific tag name'
             }),
             (['--tag_value'],
-            {
+             {
                 'default': "*",
                 'help': 'Only sync resources with a specific tag value.'
             })
@@ -140,12 +135,20 @@ class DiscoveredResourceController(Controller):
     def sync_aws(self):
         try:
             from banyan.ext.aws.ec2 import Ec2Controller, Ec2Model
+            from banyan.ext.aws.rds import RdsController, RdsModel
+            from banyan.ext.aws.lb import LBController, LBModel
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
         Base.wait_for_input('Getting list of AWS Resources')
-        ec2 = Ec2Controller()
-        instances = ec2.list(self.app.pargs.tag_name, [self.app.pargs.tag_value])
+        controller = None
+        if self.app.pargs.resource_type == 'ec2':
+            controller = Ec2Controller()
+        if self.app.pargs.resource_type == 'rds':
+            controller = RdsController()
+        if self.app.pargs.resource_type == 'lb':
+            controller = LBController()
+        instances = controller.list(self.app.pargs.tag_name, [self.app.pargs.tag_value])
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
@@ -170,16 +173,17 @@ class DiscoveredResourceController(Controller):
                 instance.name,
                 instance.type,
                 instance.public_ip,
-                instance.private_ip,
-                res_tags
+                instance.private_ip
             )
+            res.tags = res_tags
+            res.account = instance.account
+            res.ports = instance.ports
             self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
             info = self._client.discovered_resources.create(res)
             print('\n-->', info)
             sleep(0.05)
 
         print('\n--> Sync with AWS successful.')
-
 
     @ex(help='test Azure configuration')
     def test_azure(self):
@@ -195,15 +199,14 @@ class DiscoveredResourceController(Controller):
         else:
             print('--> Azure configuration test failed. Check your Azure credentials and SDK configuration.')
 
-
     @ex(help='sync discovered_resources with Azure IaaS',
         arguments=[
             (['resource_type'],
-            {
+             {
                 'help': 'Type of Azure Resource - VM | ALL.'
             }),
             (['tag_name'],
-            {
+             {
                 'help': 'Only sync resources with specific tag name'
             })
         ])
@@ -232,7 +235,7 @@ class DiscoveredResourceController(Controller):
                     'name': key,
                     'value': instance.tags[key]
                 }
-                res_tags.append(res_tag)            
+                res_tags.append(res_tag)
             res = DiscoveredResource(
                 instance.cloud_provider,
                 instance.location,
@@ -264,15 +267,14 @@ class DiscoveredResourceController(Controller):
         else:
             print('--> VMWare vSphere configuration test failed. Check your VMWare vSphere credentials and SDK configuration.')
 
-
     @ex(help='sync discovered_resources with VMWare vSphere',
         arguments=[
             (['resource_type'],
-            {
+             {
                 'help': 'Type of VMWare Resource - VM | ALL.'
             }),
             (['tag_name'],
-            {
+             {
                 'help': 'Only sync resources with specific category:tag'
             })
         ])
@@ -300,7 +302,7 @@ class DiscoveredResourceController(Controller):
                     'name': key,
                     'value': instance.tags[key]
                 }
-                res_tags.append(res_tag)            
+                res_tags.append(res_tag)
             res = DiscoveredResource(
                 instance.cloud_provider,
                 instance.datacenter,
@@ -318,35 +320,34 @@ class DiscoveredResourceController(Controller):
 
         print('\n--> Sync with VMware successful.')
 
-
     @ex(help='use discovered_resource to create a new service',
         arguments=[
             (['service_name'],
-            {
+             {
                 'help': 'Name of service to create.'
             }),
             (['service_domain'],
-            {
+             {
                 'help': 'Domain name of service, ex: corp.org.com (no https://).'
-            }),    
+            }),
             (['service_type'],
-            {
+             {
                 'help': 'Type of service - WEB | SSH | RDS | GENERIC_TCP.'
             }),
             (['resource_uuid'],
-            {
+             {
                 'help': 'Banyan UUID of the discovered resource to use.'
-            }),                           
+            }),
             (['--backend_port'],
-            {
+             {
                 'default': 80,
                 'help': 'Specify if backend port is non-standard.'
             }),
             (['--backend_tls'],
-            {
+             {
                 'default': False,
                 'help': 'Specify if backend requires TLS.'
-            })            
+            })
         ])
     def publish(self):
         Base.wait_for_input('Getting Discovered Resource')
@@ -362,7 +363,7 @@ class DiscoveredResourceController(Controller):
         pol_web = SimpleWebPolicy('USER',
                                   'policy-%s' % self.app.pargs.service_name,
                                   'pybanyan publish flow'
-        )
+                                  )
         print('\n--> Policy to create:')
         print(pol_web)
 
@@ -371,15 +372,15 @@ class DiscoveredResourceController(Controller):
         self.app.render(PolicyInfo.Schema().dump(policy_info), handler='json', indent=2, sort_keys=True)
 
         svc_web = SimpleWebService(self.app.pargs.service_type,
-                                  'WEB_USER',
-                                  self.app.pargs.service_name,
-                                  'pybanyan publish flow',
-                                  self.app.pargs.service_domain,
-                                  443,
-                                  d_resource.private_ip,
-                                  self.app.pargs.backend_port,
-                                  self.app.pargs.backend_tls
-        )
+                                   'WEB_USER',
+                                   self.app.pargs.service_name,
+                                   'pybanyan publish flow',
+                                   self.app.pargs.service_domain,
+                                   443,
+                                   d_resource.private_ip,
+                                   self.app.pargs.backend_port,
+                                   self.app.pargs.backend_tls
+                                   )
         print('\n--> Service to create:')
         print(svc_web)
 
@@ -398,19 +399,18 @@ class DiscoveredResourceController(Controller):
 
         print('\n--> Publish flow successful.')
 
-
     @ex(help='add discovered_resources by tag to an existing service',
         arguments=[
             (['service_name'],
-            {
+             {
                 'help': 'Name of service whose whitelist should be updated.'
-            }),          
+            }),
             (['tag_name'],
-            {
+             {
                 'help': 'Name of Tag of the discovered resources.'
             }),
             (['--tag_value'],
-            {
+             {
                 'help': 'Value of Tag of the discovered resources.'
             })
         ])
@@ -423,14 +423,14 @@ class DiscoveredResourceController(Controller):
         }
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
         if len(d_resources) == 0:
-            raise RuntimeError('No discovered_resource found')        
+            raise RuntimeError('No discovered_resource found')
 
         print('\n--> Discovered resources to whitelist:')
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', 'Public IP', '# Tags']
         for res in d_resources:
             new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
-                    res.resource_type, res.private_ip, res.public_ip, len(res.tags)]
+                       res.resource_type, res.private_ip, res.public_ip, len(res.tags)]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
