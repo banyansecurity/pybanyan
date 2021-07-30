@@ -17,6 +17,7 @@ from banyan.controllers.service import ServiceController
 from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from banyan.controllers.discovered_resource import DiscoveredResourceController
+from banyan.controllers.cloudresource_service import CloudResourceServiceController
 from .core.exc import BanyanError
 
 # configuration defaults
@@ -81,6 +82,7 @@ class MyApp(App):
         handlers = [
             Base,
             DiscoveredResourceController,
+            CloudResourceServiceController,
             ServiceController,
             RoleController,
             PolicyController,
