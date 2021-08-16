@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from typing import List, ClassVar, Type, Optional, Union
 from dataclasses import dataclass
 
