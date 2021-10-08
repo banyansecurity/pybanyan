@@ -8,32 +8,28 @@ except ImportError as ex:
     raise
 
 @dataclass
-class Ec2Model:
-    class Meta:
-        help = "AWS EC2 Model"
-
+class AwsPrivateResourceModel:
     account: str
     region: str
+    type: str
     id: str
     public_ip: str
     private_ip: str
     tags: List
     cloud_provider: str = 'AWS'
-    type: str = 'ec2'
     name: str = ''
     ports: str = ''
 
 
 class Ec2Controller:
-    class Meta:
-        help = "AWS EC2 Controller"
+    TYPE = 'ec2'
 
     #TODO: support more filters - region, vpc, owner
     def list(self, tag_name: str = None, tag_values: list = ['*'], check_security_groups: bool = False):
         try:
             session = boto3.session.Session()
             sts = session.client('sts')
-            client = session.client(Ec2Model.type)
+            client = session.client(Ec2Controller.TYPE)
         except Exception as ex:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
             raise
@@ -48,13 +44,14 @@ class Ec2Controller:
             })
         describe_instances = client.describe_instances(Filters=filters, MaxResults=100)
        
-        instances: List[Ec2Model] = list()
+        instances: List[AwsPrivateResourceModel] = list()
         reservations = describe_instances['Reservations']
         for reservation in reservations:
             for inst in reservation['Instances']:
-                res = Ec2Model(
+                res = AwsPrivateResourceModel(
                     account = caller_identity.get('Account'),
                     region = session.region_name,
+                    type = Ec2Controller.TYPE,
                     id = inst.get('InstanceId'),
                     public_ip = inst.get('PublicIpAddress'),
                     private_ip = inst.get('PrivateIpAddress'),
