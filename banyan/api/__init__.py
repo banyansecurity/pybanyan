@@ -131,7 +131,9 @@ class BanyanApiClient:
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
-        if '/api' not in url:
+        if '/v2' in url:
+            url += '/api/experimental'
+        elif '/api' not in url:
             url += '/api/v1'
         return url
 
@@ -225,7 +227,10 @@ class BanyanApiClient:
             headers['Content-Type'] = self.JSON_TYPE
 
         with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json) as response:
-            return response.json()
+            resp = response.json()
+            if '/v2/' in uri:
+                return resp['data']
+            return resp
 
     @property
     def progress_callback(self) -> ProgressCallback:
@@ -262,7 +267,7 @@ class BanyanApiClient:
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
                 logging.debug('Looking for %s in %s', key, uri)
-                if key in uri or key == 'data':
+                if key in uri or key == 'data' or key == 'result':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
