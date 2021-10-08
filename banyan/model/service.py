@@ -159,11 +159,11 @@ class Pattern:
     class Meta:
         unknown = EXCLUDE
 
-    hosts: List[Host] = field(default_factory=list)
-    methods: List[str] = field(default_factory=list)
-    mandatory_headers: List[str] = field(default_factory=list)
-    paths: List[str] = field(default_factory=list)
-    source_cidrs: List[str] = field(default_factory=list)
+    hosts: Optional[List[Host]] = field(default_factory=list)
+    methods: Optional[List[str]] = field(default_factory=list)
+    mandatory_headers: Optional[List[str]] = field(default_factory=list)
+    paths: Optional[List[str]] = field(default_factory=list)
+    source_cidrs: Optional[List[str]] = field(default_factory=list)
 
 
 @dataclass
@@ -183,8 +183,6 @@ class HttpSettings:
 
     enabled: bool
     oidc_settings: Optional[OIDCSettings]
-    http_health_check: Optional[HTTPHealthCheck]
-    http_redirect: Optional[HTTPRedirect]
     exempted_paths: Optional[ExemptedPaths]
 
 
