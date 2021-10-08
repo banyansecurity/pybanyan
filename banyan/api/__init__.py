@@ -131,9 +131,7 @@ class BanyanApiClient:
 
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
-        if '/v2' in url:
-            url += '/api/experimental'
-        elif '/api' not in url:
+        if '/api' not in url:
             url += '/api/v1'
         return url
 
@@ -165,6 +163,8 @@ class BanyanApiClient:
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
         if '://' not in url:
             url = self._api_url + url
+        if '/v2/' in url:
+            url = url.replace('/api/v1', '/api/experimental')
         if self._insecure_tls and not verify:
             verify = False
             urllib3.disable_warnings()
