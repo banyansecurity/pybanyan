@@ -62,7 +62,7 @@ class DiscoveredResourceController(Controller):
     def get(self):
         id: UUID = self.app.pargs.resource_uuid
         d_resource: DiscoveredResourceInfo = self._client.discovered_resources.get(id)
-        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        dr_json = DiscoveredResourceInfo.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
@@ -112,6 +112,49 @@ class DiscoveredResourceController(Controller):
         info = self._client.discovered_resources.delete(id)
         self.app.render(info, handler='json')
 
+    @ex(help='show discovered_resources associated with services', 
+        arguments=[
+            (['--resource_uuid'],
+            {
+                'help': 'Banyan UUID of discovered resource to list associations for.'
+            }),            
+        ])
+    def list_associations(self):
+        assocs = self._client.discovered_resources.associations(self.app.pargs.resource_uuid)
+        results = list()
+        headers = ['ID', 'Resource ID', 'Resource Name', 'Resource Type', 'Service ID', 'Service Name', 'Resource Status']
+        for res in assocs:
+            new_res = [res.id, self.trunc(res.resource_udid,9), res.resource_name, res.resource_type, 
+                       res.service_id, res.service_name, res.resource_status]
+            results.append(new_res)
+        self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
+
+    @ex(hide=True, help='associate discovered_resource with service', 
+        arguments=[
+            (['resource_uuid'],
+            {
+                'help': 'Banyan UUID of discovered resource to associate.'
+            }),
+            (['service_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service to associate a discovered resource with.',
+             }),                   
+        ])
+    def associate_with_service(self):
+        info = self._client.discovered_resources.associate(self.app.pargs.resource_uuid, self.app.pargs.service_name)
+        self.app.render(info, handler='json')
+
+    @ex(hide=True, help='dissociate discovered_resource from service', 
+        arguments=[
+            (['association_uuid'],
+            {
+                'help': 'Association UUID of discovered resource and service.'
+            }),            
+        ])
+    def dissociate_from_service(self):
+        info = self._client.discovered_resources.dissociate(self.app.pargs.association_uuid)
+        self.app.render(info, handler='json')
 
     @ex(help='test AWS configuration')
     def test_aws(self):

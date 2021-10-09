@@ -39,7 +39,6 @@ class DiscoveredResource(Resource):
     class Meta:
         unknown = EXCLUDE
 
-    resource_udid: Optional[UUID] = field(metadata={"data_key": "id"})
     cloud_provider: str
     account: str
     region: str
@@ -92,3 +91,19 @@ class DiscoveredResourceInfo(Resource):
     @property
     def id(self) -> str:
         return str(self.resource_udid)
+
+@dataclass
+class DiscoveredResourceAssociateInfo:
+    class Meta:
+        unknown = EXCLUDE
+    
+    id: str
+    resource_udid: UUID = field(metadata={"data_key": "cloud_resource_id"})
+    resource_id: str
+    resource_name: str
+    resource_type: str
+    resource_status: str = field(metadata={"data_key": "status"})
+    service_id: str
+    service_name: str
+    Schema: ClassVar[Type[Schema]] = Schema
+
