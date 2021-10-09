@@ -37,10 +37,10 @@ class Ec2Controller:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
             raise
 
-        caller_identity  = sts.get_caller_identity()
+        caller_identity = sts.get_caller_identity()
 
         filters = []
-        if tag_name is not None:
+        if tag_name:
             filters.append({
                 'Name': 'tag:%s' % tag_name,
                 'Values': tag_values
@@ -105,13 +105,10 @@ class RdsController:
             raise        
 
         caller_identity  = sts.get_caller_identity()
-
-        # RDS doesn't make tag-based filtering easy
         describe_db_instances = client.describe_db_instances(Filters=[], MaxRecords=100)
 
         instances: List[AwsResourceModel] = list()
         db_instances = describe_db_instances.get('DBInstances')
-        print(db_instances)
         for inst in db_instances:
             res = AwsResourceModel(
                     account = caller_identity.get('Account'),
@@ -120,7 +117,7 @@ class RdsController:
                     id = inst.get('DBInstanceArn'),
                     name = inst.get('DBInstanceIdentifier'),
                     public_dns_name = inst.get('Endpoint').get('Address'),
-                    ports = inst.get('Endpoint').get('Port'),
+                    ports = '%d/tcp' % inst.get('Endpoint').get('Port'),
                     tags = inst.get('TagList')
             )
 
@@ -138,10 +135,11 @@ class RdsController:
 
 
 class ElbController:
+    TYPE = 'elb'
     TYPE_V1 = 'elb'     # classic
     TYPE_V2 = 'elbv2'   # current
 
-    def list(self, tag_name: str = None, tag_values: list = ['*']):
+    def list(self, tag_name: str = None):
         try:
             session = boto3.session.Session()
             sts = session.client('sts')
@@ -151,22 +149,11 @@ class ElbController:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
             raise        
 
-        caller_identity  = sts.get_caller_identity()
-
-        filters = []
-        if tag_name is not None:
-            filters.append({
-                'Name': 'tag:%s' % tag_name,
-                'Values': tag_values
-            })
-        
+        caller_identity  = sts.get_caller_identity()        
         describe_v1_lbs = client_v1.describe_load_balancers(PageSize=100)
-        print(describe_v1_lbs)
         describe_v2_lbs = client_v2.describe_load_balancers(PageSize=100)
-        print(describe_v2_lbs)
 
         instances: List[AwsResourceModel] = list()
-
         v1_lbs = describe_v1_lbs.get('LoadBalancerDescriptions')
         for v1_lb in v1_lbs:
             res = AwsResourceModel(
@@ -254,17 +241,19 @@ class ElbController:
                         # assume tag_values == ['*']:
                         instances.append(res)
                         break
-                    
+
         return instances
 
 
 
 if __name__ == '__main__':
-    #ec2 = Ec2Controller()
-    #my_instances = ec2.list('banyan:discovery', ['true'], True)
-    #rds = RdsController()
-    #my_instances = rds.list('banyan:discovery')
+    ec2 = Ec2Controller()
+    ec2_instances = ec2.list('', ['*'], True)
+    print(ec2_instances)
+    rds = RdsController()
+    rds_instances = rds.list('')
+    print(rds_instances)
     elb = ElbController()
-    my_instances = elb.list('banyan:discovery')
+    elb_instances = elb.list('')
+    print(elb_instances)
 
-    print(my_instances)

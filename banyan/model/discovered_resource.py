@@ -39,17 +39,20 @@ class DiscoveredResource(Resource):
     class Meta:
         unknown = EXCLUDE
 
+    resource_udid: Optional[UUID] = field(metadata={"data_key": "id"})
     cloud_provider: str
+    account: str
     region: str
     resource_id: str
     resource_name: str
     resource_type: str
+    public_dns_name: str
     public_ip: str
+    private_dns_name: str
     private_ip: str
+    ports: str = ''
     status: str = 'discovered'
     tags: Optional[List[ResourceTag]] = field(default_factory=list)
-    public_dns_name: Optional[str] = ''
-    private_dns_name: Optional[str] = ''
     parent_id: Optional[str] = ''
     Schema: ClassVar[Schema] = Schema
 
@@ -65,15 +68,17 @@ class DiscoveredResourceInfo(Resource):
 
     resource_udid: UUID = field(metadata={"data_key": "id"})
     cloud_provider: str
+    account: str
     region: str
     resource_id: str
     resource_name: str
     resource_type: str
-    parent_id: Optional[str]
-    public_dns_name: Optional[str]
-    public_ip: Optional[str]
-    private_dns_name: Optional[str]
+    parent_id: str
+    public_dns_name: str
+    public_ip: str
+    private_dns_name: str
     private_ip: str
+    ports: str
     created_at: int
     updated_at: int
     status: str

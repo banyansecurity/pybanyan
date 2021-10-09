@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from uuid import UUID
 
@@ -26,6 +27,11 @@ class DiscoveredResourceController(Controller):
     def _client(self) -> BanyanApiClient:
         return self.app.client
 
+    def trunc(self, value, num_chars) -> str:
+        if not value:
+            return ''
+        return '...' + str(value)[-num_chars:]
+
     @ex(help='list discovered_resources',
         arguments=[
             (['--tag_name'], 
@@ -34,12 +40,14 @@ class DiscoveredResourceController(Controller):
             }),
         ])
     def list(self):
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name})
+        params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name}
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
         results = list()
-        headers = ['Name', 'ID', 'Cloud', 'Region', 'Type', 'Private IP', '# Tags', 'Status']
+        headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private IP', 'Public DNS Name', '# Tags', 'Status']
         for res in d_resources:
-            new_res = [res.name, res.resource_udid, res.cloud_provider, res.region,
-                    res.resource_type, res.private_ip, len(res.tags), res.status]
+            new_res = [res.name, res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
+                       res.region, res.resource_type, res.private_ip, self.trunc(res.public_dns_name,24), 
+                       len(res.tags), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
@@ -102,7 +110,7 @@ class DiscoveredResourceController(Controller):
     def delete(self):
         id: UUID = self.app.pargs.resource_uuid
         info = self._client.discovered_resources.delete(id)
-        self.app.print(info)
+        self.app.render(info, handler='json')
 
 
     @ex(help='test AWS configuration')
@@ -124,10 +132,11 @@ class DiscoveredResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of AWS Resource - EC2 | RDS | LB | ALL.'
+                'help': 'Type of AWS Resource - ec2 | rds | elb | all'
             }),
-            (['tag_name'],
+            (['--tag_name'],
             {
+                'default': "banyan:discovery",
                 'help': 'Only sync resources with specific tag name'
             }),
             (['--tag_value'],
@@ -139,15 +148,28 @@ class DiscoveredResourceController(Controller):
         ])
     def sync_aws(self):
         try:
-            from banyan.ext.aws.ec2 import Ec2Controller, Ec2Model
+            from banyan.ext.aws.main import AwsResourceModel, Ec2Controller, RdsController, ElbController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input('Getting list of AWS Resources')
-        ec2 = Ec2Controller()
-        instances = ec2.list(self.app.pargs.tag_name, [self.app.pargs.tag_value])
+        instances: List[AwsResourceModel] = list()
+        rt = self.app.pargs.resource_type.lower()
+        if rt == 'ec2' or rt == 'all':
+            Base.wait_for_input('Getting list of AWS EC2 Resources')
+            ec2 = Ec2Controller()
+            instances += ec2.list(self.app.pargs.tag_name, [self.app.pargs.tag_value], False)
+        if rt == 'rds' or rt == 'all':
+            Base.wait_for_input('Getting list of AWS RDS Resources')
+            rds = RdsController()
+            instances += rds.list(self.app.pargs.tag_name)
+        if rt == 'elb' or rt == 'all':
+            Base.wait_for_input('Getting list of AWS ELB Resources')
+            elb = ElbController()
+            instances += elb.list(self.app.pargs.tag_name) 
+        
         results = list()
         for instance in instances:
+            print(instance)
             allvars = vars(copy.copy(instance))
             allvars['tags'] = len(allvars['tags'])
             results.append(allvars)
@@ -164,14 +186,19 @@ class DiscoveredResourceController(Controller):
                 res_tags.append(res_tag)
 
             res = DiscoveredResource(
-                instance.cloud_provider,
-                instance.region,
-                instance.id,
-                instance.name,
-                instance.type,
-                instance.public_ip,
-                instance.private_ip,
-                res_tags
+                cloud_provider = AwsResourceModel.PROVIDER,
+                account = instance.account,
+                region = instance.region,
+                resource_id = instance.id,
+                resource_name = instance.name,
+                resource_type = instance.type,
+                public_dns_name = instance.public_dns_name,
+                public_ip = instance.public_ip,
+                private_dns_name = instance.private_dns_name,
+                private_ip = instance.private_ip,
+                ports = instance.ports,
+                status = 'discovered',
+                tags = res_tags
             )
             self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
             info = self._client.discovered_resources.create(res)
