@@ -81,7 +81,7 @@ class DiscoveredResourceController(Controller):
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='update status for a given discovered_resource record', 
+    @ex(hide=True, help='update status for a given discovered_resource record', 
         arguments=[
             (['resource_uuid'],
             {
@@ -92,7 +92,7 @@ class DiscoveredResourceController(Controller):
                 'help': 'Status - Discovered | Ignored | Published'
             }),                       
         ])
-    def update(self):
+    def update_status(self):
         id: UUID = self.app.pargs.resource_uuid
         status: str = self.app.pargs.status
         d_resource: DiscoveredResourceInfo = self._client.discovered_resources.update_status(id, status)
