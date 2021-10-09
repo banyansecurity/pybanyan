@@ -1,5 +1,5 @@
 from typing import List, ClassVar, Type, Optional, Union
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 try:
     import boto3
@@ -8,17 +8,20 @@ except ImportError as ex:
     raise
 
 @dataclass
-class AwsPrivateResourceModel:
+class AwsResourceModel:
     account: str
     region: str
     type: str
     id: str
-    public_ip: str
-    private_ip: str
-    tags: List
-    cloud_provider: str = 'AWS'
     name: str = ''
+    public_dns_name: str = ''
+    public_ip: str = ''
+    private_dns_name: str = ''
+    private_ip: str = ''
     ports: str = ''
+    tags: List = field(default_factory=list)
+
+    PROVIDER = 'AWS'
 
 
 class Ec2Controller:
@@ -44,11 +47,11 @@ class Ec2Controller:
             })
         describe_instances = client.describe_instances(Filters=filters, MaxResults=100)
        
-        instances: List[AwsPrivateResourceModel] = list()
-        reservations = describe_instances['Reservations']
+        instances: List[AwsResourceModel] = list()
+        reservations = describe_instances.get('Reservations')
         for reservation in reservations:
-            for inst in reservation['Instances']:
-                res = AwsPrivateResourceModel(
+            for inst in reservation.get('Instances'):
+                res = AwsResourceModel(
                     account = caller_identity.get('Account'),
                     region = session.region_name,
                     type = Ec2Controller.TYPE,
@@ -91,8 +94,56 @@ class Ec2Controller:
         return instances
 
 
+class RdsController:
+    TYPE = 'rds'
+
+    def list(self, tag_name: str = None):
+        try:
+            session = boto3.session.Session()
+            sts = session.client('sts')
+            client = session.client(RdsController.TYPE)
+        except Exception as ex:
+            print('BotoError (AWS SDK) > %s' % ex.args[0])
+            raise        
+
+        caller_identity  = sts.get_caller_identity()
+
+        # RDS doesn't make tag-based filtering easy
+        describe_db_instances = client.describe_db_instances(Filters=[], MaxRecords=100)
+
+        instances: List[AwsResourceModel] = list()
+        db_instances = describe_db_instances.get('DBInstances')
+        print(db_instances)
+        for inst in db_instances:
+            res = AwsResourceModel(
+                    account = caller_identity.get('Account'),
+                    region = session.region_name,
+                    type = RdsController.TYPE,
+                    id = inst.get('DBInstanceArn'),
+                    name = inst.get('DBInstanceIdentifier'),
+                    public_dns_name = inst.get('Endpoint').get('Address'),
+                    ports = inst.get('Endpoint').get('Port'),
+                    tags = inst.get('TagList')
+            )
+
+            # implement tag filtering ourselves, don't implement tag_values
+            if not tag_name:
+                instances.append(res)
+            else:
+                for tag in res.tags:
+                    if tag['Key'] == tag_name:
+                        # assume tag_values == ['*']:
+                        instances.append(res)
+                        break
+        
+        return instances
+
+
+
 
 if __name__ == '__main__':
-    ec2 = Ec2Controller()
-    my_instances = ec2.list('banyan:discovery', ['true'], True)
+    #ec2 = Ec2Controller()
+    #my_instances = ec2.list('banyan:discovery', ['true'], True)
+    rds = RdsController()
+    my_instances = rds.list('banyan:discovery')
     print(my_instances)
