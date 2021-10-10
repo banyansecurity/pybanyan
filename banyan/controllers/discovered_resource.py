@@ -112,6 +112,7 @@ class DiscoveredResourceController(Controller):
         info = self._client.discovered_resources.delete(id)
         self.app.render(info, handler='json')
 
+
     @ex(help='show discovered_resources associated with services', 
         arguments=[
             (['--resource_uuid'],
@@ -129,6 +130,7 @@ class DiscoveredResourceController(Controller):
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
+
     @ex(hide=True, help='associate discovered_resource with service', 
         arguments=[
             (['resource_uuid'],
@@ -145,6 +147,7 @@ class DiscoveredResourceController(Controller):
         info = self._client.discovered_resources.associate(self.app.pargs.resource_uuid, self.app.pargs.service_name)
         self.app.render(info, handler='json')
 
+
     @ex(hide=True, help='dissociate discovered_resource from service', 
         arguments=[
             (['association_uuid'],
@@ -156,15 +159,16 @@ class DiscoveredResourceController(Controller):
         info = self._client.discovered_resources.dissociate(self.app.pargs.association_uuid)
         self.app.render(info, handler='json')
 
+
     @ex(help='test AWS configuration')
     def test_aws(self):
         try:
-            from banyan.ext.aws.ec2 import Ec2Controller, Ec2Model
+            from banyan.ext.aws.main import AwsResourceModel, AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        ec2 = Ec2Controller()
-        instances = ec2.list()
+        aws = AwsController()
+        instances: List[AwsResourceModel] = aws.list_ec2()
         if len(instances):
             print('--> AWS configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -175,51 +179,60 @@ class DiscoveredResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of AWS Resource - ec2 | rds | elb | all'
+                'help': 'Type of AWS resource - ec2 | rds | elb | all'
             }),
+            (['--region_name'],
+            {
+                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc. If not specified, use default region.'
+            }),            
             (['--tag_name'],
             {
-                'default': "banyan:discovery",
-                'help': 'Only sync resources with specific tag name'
-            }),
-            (['--tag_value'],
-            {
-                'default': "*",
-                'help': 'Only sync resources with a specific tag value.'
+                'help': 'Only sync resources with specific tag name. If not specified, sync all resources.'
             })
-
         ])
     def sync_aws(self):
         try:
-            from banyan.ext.aws.main import AwsResourceModel, Ec2Controller, RdsController, ElbController
+            from banyan.ext.aws.main import AwsResourceModel, AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
         instances: List[AwsResourceModel] = list()
         rt = self.app.pargs.resource_type.lower()
+        aws = AwsController(self.app.pargs.region_name, self.app.pargs.tag_name)
         if rt == 'ec2' or rt == 'all':
             Base.wait_for_input('Getting list of AWS EC2 Resources')
-            ec2 = Ec2Controller()
-            instances += ec2.list(self.app.pargs.tag_name, [self.app.pargs.tag_value], False)
+            instances += aws.list_ec2(True)
         if rt == 'rds' or rt == 'all':
             Base.wait_for_input('Getting list of AWS RDS Resources')
-            rds = RdsController()
-            instances += rds.list(self.app.pargs.tag_name)
+            instances += aws.list_rds()
         if rt == 'elb' or rt == 'all':
             Base.wait_for_input('Getting list of AWS ELB Resources')
-            elb = ElbController()
-            instances += elb.list(self.app.pargs.tag_name) 
-        
+            instances += aws.list_elb() 
+
         results = list()
         for instance in instances:
-            print(instance)
             allvars = vars(copy.copy(instance))
             allvars['tags'] = len(allvars['tags'])
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
+        Base.wait_for_input('Looking for new AWS Resources')
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
+        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+
+        new_results = list()
+        for instance in added_instances:
+            allvars = vars(copy.copy(instance))
+            allvars['tags'] = len(allvars['tags'])
+            new_results.append(allvars)
+        self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        if len(new_results) == 0:
+            print('--> No new AWS resources to sync')
+            return
+
         Base.wait_for_input('Syncing into Discovered Resource')
-        for instance in instances:
+        for instance in added_instances:
             res_tags = []
             for tag in instance.tags:
                 res_tag = {
@@ -319,6 +332,7 @@ class DiscoveredResourceController(Controller):
             sleep(0.05)
 
         print('\n--> Sync with Azure successful.')
+
 
     @ex(help='test VMware vSphere configuration')
     def test_vmware(self):

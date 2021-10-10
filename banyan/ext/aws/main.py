@@ -23,27 +23,30 @@ class AwsResourceModel:
 
     PROVIDER = 'AWS'
 
-
-class Ec2Controller:
-    TYPE = 'ec2'
-
-    #TODO: support more filters - region, vpc, owner
-    def list(self, tag_name: str = None, tag_values: list = ['*'], check_security_groups: bool = False):
+class AwsController:
+    #TODO: support more filters - tag_values, vpc, owner
+    def __init__(self, region: str = None, tag_name: str = None):
         try:
-            session = boto3.session.Session()
-            sts = session.client('sts')
-            client = session.client(Ec2Controller.TYPE)
+            self._session = boto3.session.Session(region_name=region)
+            self._sts = self._session.client('sts')
         except Exception as ex:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
-            raise
+            raise        
+        self._provider = 'AWS'
+        self._region = self._session.region_name
+        self._account = self._sts.get_caller_identity().get('Account')
+        self._tag_name = tag_name
+        
 
-        caller_identity = sts.get_caller_identity()
+    def list_ec2(self, check_security_groups: bool = False):
+        resource_type = 'ec2'
+        client = self._session.client(resource_type)
 
         filters = []
-        if tag_name:
+        if self._tag_name:
             filters.append({
-                'Name': 'tag:%s' % tag_name,
-                'Values': tag_values
+                'Name': 'tag:%s' % self._tag_name,
+                'Values': ['*']
             })
         describe_instances = client.describe_instances(Filters=filters, MaxResults=100)
        
@@ -52,9 +55,9 @@ class Ec2Controller:
         for reservation in reservations:
             for inst in reservation.get('Instances'):
                 res = AwsResourceModel(
-                    account = caller_identity.get('Account'),
-                    region = session.region_name,
-                    type = Ec2Controller.TYPE,
+                    account = self._account,
+                    region = self._region,
+                    type = resource_type,
                     id = inst.get('InstanceId'),
                     public_ip = inst.get('PublicIpAddress'),
                     private_ip = inst.get('PrivateIpAddress'),
@@ -92,28 +95,19 @@ class Ec2Controller:
         return instances
 
 
-class RdsController:
-    TYPE = 'rds'
-
-    def list(self, tag_name: str = None):
-        try:
-            session = boto3.session.Session()
-            sts = session.client('sts')
-            client = session.client(RdsController.TYPE)
-        except Exception as ex:
-            print('BotoError (AWS SDK) > %s' % ex.args[0])
-            raise        
-
-        caller_identity  = sts.get_caller_identity()
+    def list_rds(self):
+        resource_type = 'rds'
+        client = self._session.client(resource_type)
+        
         describe_db_instances = client.describe_db_instances(Filters=[], MaxRecords=100)
 
         instances: List[AwsResourceModel] = list()
         db_instances = describe_db_instances.get('DBInstances')
         for inst in db_instances:
             res = AwsResourceModel(
-                    account = caller_identity.get('Account'),
-                    region = session.region_name,
-                    type = RdsController.TYPE,
+                    account = self._account,
+                    region = self._region,
+                    type = resource_type,
                     id = inst.get('DBInstanceArn'),
                     name = inst.get('DBInstanceIdentifier'),
                     public_dns_name = inst.get('Endpoint').get('Address'),
@@ -121,35 +115,25 @@ class RdsController:
                     tags = inst.get('TagList')
             )
 
-            # implement tag filtering ourselves, don't implement tag_values
-            if not tag_name:
+            # implement tag-based filtering ourselves because RDS API doesn't
+            if not self._tag_name:
                 instances.append(res)
             else:
                 for tag in res.tags:
-                    if tag['Key'] == tag_name:
-                        # assume tag_values == ['*']:
+                    if tag['Key'] == self._tag_name:
                         instances.append(res)
                         break
         
         return instances
 
 
-class ElbController:
-    TYPE = 'elb'
-    TYPE_V1 = 'elb'     # classic
-    TYPE_V2 = 'elbv2'   # current
-
-    def list(self, tag_name: str = None):
-        try:
-            session = boto3.session.Session()
-            sts = session.client('sts')
-            client_v1 = session.client(ElbController.TYPE_V1)
-            client_v2 = session.client(ElbController.TYPE_V2)
-        except Exception as ex:
-            print('BotoError (AWS SDK) > %s' % ex.args[0])
-            raise        
-
-        caller_identity  = sts.get_caller_identity()        
+    def list_elb(self):
+        resource_type = 'elb'
+        resource_type_v1 = 'elb'    # classic
+        resource_type_v2 = 'elbv2'  # current
+        client_v1 = self._session.client(resource_type_v1)
+        client_v2 = self._session.client(resource_type_v2)
+        
         describe_v1_lbs = client_v1.describe_load_balancers(PageSize=100)
         describe_v2_lbs = client_v2.describe_load_balancers(PageSize=100)
 
@@ -157,9 +141,9 @@ class ElbController:
         v1_lbs = describe_v1_lbs.get('LoadBalancerDescriptions')
         for v1_lb in v1_lbs:
             res = AwsResourceModel(
-                    account = caller_identity.get('Account'),
-                    region = session.region_name,
-                    type = ElbController.TYPE_V1,
+                    account = self._account,
+                    region = self._region,
+                    type = resource_type_v1,
                     id = v1_lb.get('LoadBalancerName'),
                     name = v1_lb.get('LoadBalancerName'),
                     public_dns_name = v1_lb.get('DNSName')  # public DNS, resolves to public or private IP
@@ -188,22 +172,21 @@ class ElbController:
                 "Value": v1_lb.get('Scheme')
             })
 
-            # implement tag filtering ourselves, don't implement tag_values
-            if not tag_name:
+            # implement tag-based filtering ourselves because ELB API doesn't
+            if not self._tag_name:
                 instances.append(res)
             else:
                 for tag in res.tags:
-                    if tag['Key'] == tag_name:
-                        # assume tag_values == ['*']:
+                    if tag['Key'] == self._tag_name:
                         instances.append(res)
                         break
 
         v2_lbs = describe_v2_lbs.get('LoadBalancers')
         for v2_lb in v2_lbs:
             res = AwsResourceModel(
-                    account = caller_identity.get('Account'),
-                    region = session.region_name,
-                    type = ElbController.TYPE_V2,
+                    account = self._account,
+                    region = self._region,
+                    type = resource_type_v2,
                     id = v2_lb.get('LoadBalancerArn'),
                     name = v2_lb.get('LoadBalancerName'),
                     public_dns_name = v2_lb.get('DNSName')  # public DNS, resolves to public or private IP
@@ -232,13 +215,12 @@ class ElbController:
                 "Value": v2_lb.get('Scheme')
             })
 
-            # implement tag filtering ourselves, don't implement tag_values
-            if not tag_name:
+            # implement tag-based filtering ourselves because ELB API doesn't
+            if not self._tag_name:
                 instances.append(res)
             else:
                 for tag in res.tags:
-                    if tag['Key'] == tag_name:
-                        # assume tag_values == ['*']:
+                    if tag['Key'] == self._tag_name:
                         instances.append(res)
                         break
 
@@ -247,13 +229,11 @@ class ElbController:
 
 
 if __name__ == '__main__':
-    ec2 = Ec2Controller()
-    ec2_instances = ec2.list('', ['*'], True)
+    aws = AwsController('us-east-1', 'banyan:discovery')
+    ec2_instances = aws.list_ec2(False)
     print(ec2_instances)
-    rds = RdsController()
-    rds_instances = rds.list('')
+    rds_instances = aws.list_rds()
     print(rds_instances)
-    elb = ElbController()
-    elb_instances = elb.list('')
+    elb_instances = aws.list_elb()
     print(elb_instances)
 

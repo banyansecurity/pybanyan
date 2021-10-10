@@ -74,3 +74,17 @@ class Base(Controller):
         user_input = input('press enter to continue, type "stop" to stop ...\n')
         if 'stop' in user_input:
             raise RuntimeError('User terminated workflow')
+
+    @staticmethod
+    def rows_added(list1: list, key1: str, list2: list, key2: str):
+        added = list()
+        for l1 in list1:
+            exists = False
+            for l2 in list2:
+                if getattr(l1, key1) == getattr(l2, key2):
+                    exists = True
+                    break
+            if not exists:
+                added.append(l1)
+        
+        return added
