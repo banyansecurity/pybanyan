@@ -13,9 +13,10 @@ except ImportError as ex:
 
 @dataclass
 class AzureResourceModel:
-    subscription: str   # Azure Subscription is within an Account 
+    subscription: str            # Azure Subscription is within an Account 
     resource_group: str          # Azure Resource Group
     location: str
+    type: str
     id: str
     name: str = ''
     public_dns_name: str = ''
@@ -42,6 +43,7 @@ class AzureController:
 
 
     def list_vm(self):
+        resource_type = 'vm'
         compute_client =  ComputeManagementClient(self._credential, self._subscription)
         network_client = NetworkManagementClient(self._credential, self._subscription)
 
@@ -53,25 +55,25 @@ class AzureController:
 
         instances: List[AzureResourceModel] = list()
         for vm in list(vm_list):
-            print(json.dumps(vm.as_dict(), indent=4))
+            #print(json.dumps(vm.as_dict(), indent=4))
             vm_reference = vm.id.split('/')
             vm_rg = vm_reference[4]
             ni_reference = vm.network_profile.network_interfaces[0].id.split('/')
             ni_name = ni_reference[8]
 
             net_interface = network_client.network_interfaces.get(vm_rg, ni_name)
-            print(json.dumps(net_interface.as_dict(), indent=4))
-            
+            #print(json.dumps(net_interface.as_dict(), indent=4))
             private_ip = net_interface.ip_configurations[0].private_ip_address
 
             res = AzureResourceModel(
                 subscription = self._subscription,
                 resource_group = vm_rg,
                 location = vm.location,
+                type = resource_type,
                 id = vm.id,
                 name = vm.name,
                 private_ip = private_ip,
-                tags = vm.tags
+                tags = vm.tags or []
             )
 
             if self._tag_name and vm.tags and not vm.tags.get(self._tag_name):

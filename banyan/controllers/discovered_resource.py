@@ -217,6 +217,7 @@ class DiscoveredResourceController(Controller):
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
         Base.wait_for_input('Looking for new AWS Resources')
+        #TODO: List only AWS resources in specified Region (need API update)
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
         added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
 
@@ -267,12 +268,12 @@ class DiscoveredResourceController(Controller):
     @ex(help='test Azure configuration')
     def test_azure(self):
         try:
-            from banyan.ext.azure.vm import VmController, VmModel
+            from banyan.ext.azure.main import AzureController, AzureResourceModel
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
-        vm = VmController()
-        instances = vm.list()
+        azr = AzureController()
+        instances: List[AzureResourceModel] = azr.list_vm()
         if len(instances):
             print('--> Azure configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -283,22 +284,29 @@ class DiscoveredResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of Azure Resource - VM | ALL.'
+                'help': 'Type of Azure Resource - vm | all.'
             }),
-            (['tag_name'],
+            (['--location'],
             {
-                'help': 'Only sync resources with specific tag name'
+                'help': 'Location where Azure resources run - centralus, eastus, etc. If not specified, use all locations.'
+            }),            
+            (['--tag_name'],
+            {
+                'help': 'Only sync resources with specific tag name. If not specified, sync all resources.'
             })
         ])
     def sync_azure(self):
         try:
-            from banyan.ext.azure.vm import VmController, VmModel
+            from banyan.ext.azure.main import AzureController, AzureResourceModel
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input('Getting list of Azure Resources')
-        vm = VmController()
-        instances = vm.list(self.app.pargs.tag_name)
+        instances: List[AzureResourceModel] = list()
+        rt = self.app.pargs.resource_type.lower()
+        azr = AzureController(self.app.pargs.location, self.app.pargs.tag_name)
+        Base.wait_for_input('Getting list of Azure VM Resources')
+        instances = azr.list_vm()
+
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
@@ -306,6 +314,23 @@ class DiscoveredResourceController(Controller):
             allvars['tags'] = len(allvars['tags'])
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        Base.wait_for_input('Looking for new Azure Resources')
+        #TODO: List only Azure resources in specified Location (need API update)
+        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
+        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+
+        new_results = list()
+        for instance in added_instances:
+            allvars = vars(copy.copy(instance))
+            allvars.pop('id')    # too long to display
+            allvars['tags'] = len(allvars['tags'])
+            new_results.append(allvars)
+        self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        if len(new_results) == 0:
+            print('--> No new Azure resources to sync')
+            return
 
         Base.wait_for_input('Syncing into Discovered Resource')
         for instance in instances:
@@ -316,15 +341,21 @@ class DiscoveredResourceController(Controller):
                     'value': instance.tags[key]
                 }
                 res_tags.append(res_tag)            
+            
             res = DiscoveredResource(
-                instance.cloud_provider,
-                instance.location,
-                instance.id,
-                instance.name,
-                instance.type,
-                instance.public_ip,
-                instance.private_ip,
-                res_tags
+                cloud_provider = AzureResourceModel.PROVIDER,
+                account = f'{instance.resource_group}-{instance.subscription}',
+                region = instance.location,
+                resource_id = instance.id,
+                resource_name = instance.name,
+                resource_type = instance.type,
+                public_dns_name = instance.public_dns_name,
+                public_ip = instance.public_ip,
+                private_dns_name = instance.private_dns_name,
+                private_ip = instance.private_ip,
+                ports = instance.ports,
+                status = 'discovered',
+                tags = res_tags
             )
             self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
             info = self._client.discovered_resources.create(res)
