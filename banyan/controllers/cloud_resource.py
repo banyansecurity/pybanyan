@@ -443,13 +443,12 @@ class CloudResourceController(Controller):
                     'name': key,
                     'value': instance.tags[key]
                 }
-                res_tags.append(res_tag)            
+                res_tags.append(res_tag)
+                            
             res = CloudResource(
                 cloud_provider = VmwareResourceModel.PROVIDER,
                 account = VmwareResourceModel.ACCOUNT,
                 region = instance.datacenter,
-                resource_name = instance.id,
-                resource_type = instance.type,
                 resource_id = instance.id,
                 resource_name = instance.name,
                 resource_type = instance.type,
