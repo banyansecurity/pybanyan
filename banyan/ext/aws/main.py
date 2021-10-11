@@ -24,7 +24,7 @@ class AwsResourceModel:
     PROVIDER = 'AWS'
 
 class AwsController:
-    #TODO: support more filters - tag_values, vpc, owner
+    #TODO: support more filters - vpc, owner
     def __init__(self, region: str = None, tag_name: str = None):
         try:
             self._session = boto3.session.Session(region_name=region)
@@ -143,7 +143,7 @@ class AwsController:
             res = AwsResourceModel(
                     account = self._account,
                     region = self._region,
-                    type = resource_type_v1,
+                    type = resource_type,
                     id = v1_lb.get('LoadBalancerName'),
                     name = v1_lb.get('LoadBalancerName'),
                     public_dns_name = v1_lb.get('DNSName')  # public DNS, resolves to public or private IP
@@ -186,7 +186,7 @@ class AwsController:
             res = AwsResourceModel(
                     account = self._account,
                     region = self._region,
-                    type = resource_type_v2,
+                    type = resource_type,
                     id = v2_lb.get('LoadBalancerArn'),
                     name = v2_lb.get('LoadBalancerName'),
                     public_dns_name = v2_lb.get('DNSName')  # public DNS, resolves to public or private IP

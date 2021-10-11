@@ -30,7 +30,10 @@ class DiscoveredResourceController(Controller):
     def trunc(self, value, num_chars) -> str:
         if not value:
             return ''
-        return '...' + str(value)[-num_chars:]
+        elif len(value) < num_chars+3:
+            return value
+        else:
+            return '...' + str(value)[-num_chars:]
 
     @ex(help='list discovered_resources',
         arguments=[
@@ -43,10 +46,12 @@ class DiscoveredResourceController(Controller):
         params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name}
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
         results = list()
-        headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private IP', 'Public DNS Name', '# Tags', 'Status']
+        headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in d_resources:
             new_res = [res.name, res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
-                       res.region, res.resource_type, res.private_ip, self.trunc(res.public_dns_name,24), 
+                       res.region, res.resource_type, 
+                       self.trunc(res.private_ip or res.private_dns_name, 24), 
+                       self.trunc(res.public_ip or res.public_dns_name, 24), 
                        len(res.tags), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
@@ -201,7 +206,7 @@ class DiscoveredResourceController(Controller):
         aws = AwsController(self.app.pargs.region_name, self.app.pargs.tag_name)
         if rt == 'ec2' or rt == 'all':
             Base.wait_for_input('Getting list of AWS EC2 Resources')
-            instances += aws.list_ec2(True)
+            instances += aws.list_ec2()
         if rt == 'rds' or rt == 'all':
             Base.wait_for_input('Getting list of AWS RDS Resources')
             instances += aws.list_rds()
@@ -216,7 +221,7 @@ class DiscoveredResourceController(Controller):
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
-        Base.wait_for_input('Looking for new AWS Resources')
+        Base.wait_for_input('Filtering for new AWS Resources')
         #TODO: List only AWS resources in specified Region (need API update)
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
         added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
@@ -284,8 +289,12 @@ class DiscoveredResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of Azure Resource - vm | all.'
+                'help': 'Type of Azure Resource - vm | lb | all.'
             }),
+            (['--resource_group'],
+            {
+                'help': 'Azure Resource Group where resources run. If not specified, use all  resource groups.'
+            }),            
             (['--location'],
             {
                 'help': 'Location where Azure resources run - centralus, eastus, etc. If not specified, use all locations.'
@@ -303,9 +312,13 @@ class DiscoveredResourceController(Controller):
 
         instances: List[AzureResourceModel] = list()
         rt = self.app.pargs.resource_type.lower()
-        azr = AzureController(self.app.pargs.location, self.app.pargs.tag_name)
-        Base.wait_for_input('Getting list of Azure VM Resources')
-        instances = azr.list_vm()
+        azr = AzureController(self.app.pargs.resource_group, self.app.pargs.location, self.app.pargs.tag_name)
+        if rt == 'vm' or rt == 'all':
+            Base.wait_for_input('Getting list of Azure VM Resources')
+            instances += azr.list_vm()
+        if rt == 'lb' or rt == 'all':
+            Base.wait_for_input('Getting list of Azure LB Resources')
+            instances += azr.list_lb()
 
         results = list()
         for instance in instances:
@@ -315,7 +328,7 @@ class DiscoveredResourceController(Controller):
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
-        Base.wait_for_input('Looking for new Azure Resources')
+        Base.wait_for_input('Filtering for new Azure Resources')
         #TODO: List only Azure resources in specified Location (need API update)
         d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
         added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
