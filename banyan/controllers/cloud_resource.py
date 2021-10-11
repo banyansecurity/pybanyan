@@ -18,10 +18,9 @@ from banyan.model.policy import PolicyInfo, SimpleWebPolicy
 class CloudResourceController(Controller):
     class Meta:
         label = 'cloud_resource'
-        aliases = ['dr']
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage discovered resources'
+        help = 'manage cloud resources discovered from IaaS'
 
     @property
     def _client(self) -> BanyanApiClient:
