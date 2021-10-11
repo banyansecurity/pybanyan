@@ -380,12 +380,12 @@ class CloudResourceController(Controller):
     @ex(help='test VMware vSphere configuration')
     def test_vmware(self):
         try:
-            from banyan.ext.vmware.vm import VmController, VmModel
+            from banyan.ext.vmware.main import VmwareController, VmwareResourceModel
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
-        vm = VmController()
-        instances = vm.list()
+        vmw = VmwareController()
+        instances: List[VmwareResourceModel] = vmw.list_vm()
         if len(instances):
             print('--> VMWare vSphere configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -396,28 +396,44 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of VMWare Resource - VM | ALL.'
+                'help': 'Type of VMWare Resource - vm | all.'
             }),
-            (['tag_name'],
+            (['--datacenter'],
+            {
+                'help': 'Datacenter where vSphere resources run. If not specified, use all datacenters.'
+            }),              
+            (['--tag_name'],
             {
                 'help': 'Only sync resources with specific category:tag'
             })
         ])
     def sync_vmware(self):
         try:
-            from banyan.ext.vmware.vm import VmController, VmModel
+            from banyan.ext.vmware.main import VmwareController, VmwareResourceModel
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
         Base.wait_for_input('Getting list of VMware Resources')
-        vm = VmController()
-        instances = vm.list()
+        vmw = VmwareController(self.app.pargs.datacenter)
+        instances: List[VmwareResourceModel] = vmw.list_vm()
         results = list()
         for instance in instances:
             allvars = vars(copy.copy(instance))
             allvars['tags'] = len(allvars['tags'])
             results.append(allvars)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        Base.wait_for_input('Filtering for new VMware Resources')
+        #TODO: List only VMware resources in specified Datacenter (need API update)
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
+        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+
+        new_results = list()
+        for instance in added_instances:
+            allvars = vars(copy.copy(instance))
+            allvars['tags'] = len(allvars['tags'])
+            new_results.append(allvars)
+        self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
 
         Base.wait_for_input('Syncing into Discovered Resource')
         for instance in instances:
@@ -429,14 +445,21 @@ class CloudResourceController(Controller):
                 }
                 res_tags.append(res_tag)            
             res = CloudResource(
-                instance.cloud_provider,
-                instance.datacenter,
-                instance.id,
-                instance.name,
-                instance.type,
-                instance.public_ip,
-                instance.private_ip,
-                res_tags
+                cloud_provider = VmwareResourceModel.PROVIDER,
+                account = VmwareResourceModel.ACCOUNT,
+                region = instance.datacenter,
+                resource_name = instance.id,
+                resource_type = instance.type,
+                resource_id = instance.id,
+                resource_name = instance.name,
+                resource_type = instance.type,
+                public_dns_name = instance.public_dns_name,
+                public_ip = instance.public_ip,
+                private_dns_name = instance.private_dns_name,
+                private_ip = instance.private_ip,
+                ports = instance.ports,
+                status = 'discovered',
+                tags = res_tags
             )
             self.app.render(CloudResource.Schema().dump(res), handler='json')
             info = self._client.cloud_resources.create(res)

@@ -2,6 +2,10 @@
 
 Ensure you have the [VMware vSphere Automation SDK for Python](https://github.com/vmware/vsphere-automation-sdk-python) installed and configured.
 
+```bash
+pip install -r requirements.txt
+```
+
 ## Configuration
 
 Set up environment variables to connect to the vSphere API.
@@ -12,7 +16,7 @@ VSPHERE_PASSWORD="Password to use when connecting to host"
 VSPHERE_NOSSL="Set to Disable ssl host certificate verification"
 ```
 
-Other credentials configuration methods are available. See the pyVmomi docs for details.
+Other credentials configuration methods are available. See the VMware docs for details.
 
 
 ## Test
@@ -20,7 +24,7 @@ Other credentials configuration methods are available. See the pyVmomi docs for 
 Confirm you are set up correctly, by running:
 
 ```console
-python vm.py
+python main.py
 ```
 
 You should see a list of your VMs.

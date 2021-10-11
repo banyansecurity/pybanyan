@@ -26,6 +26,7 @@ class VmwareResourceModel:
     tags: List = field(default_factory=list)
 
     PROVIDER = 'VMWARE'
+    ACCOUNT = 'VPHERE'
 
 class VmwareController:
     def __init__(self, datacenter: str = None, tag_name: str = None):
@@ -78,7 +79,7 @@ class VmwareController:
                     name = vm_model.name,
                 )
 
-                # Private IP via GUest Additions
+                # Private IP via Guest Additions
                 try:
                     guest_model = vcenter_client.vm.guest.Identity.get(vm.vm)
                     res.private_ip = guest_model.ip_address
