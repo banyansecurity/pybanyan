@@ -1,13 +1,13 @@
 from typing import List, ClassVar, Type, Optional, Union
 from dataclasses import dataclass, field
-import os, re
-import ssl, requests
+import os
+import ssl, requests, urllib3
 
 try: 
     from vmware.vapi.vsphere.client import create_vsphere_client
     from com.vmware.vapi.std_client import DynamicID
-    from pyVim.connect import SmartConnect, Disconnect
-    from pyVmomi import vim, vmodl    
+    from com.vmware.vcenter_client import VM
+    from com.vmware.vcenter.vm_client import Power
 except ImportError as ex:
     print('ImportError > %s' % ex.args[0])
     raise
@@ -34,79 +34,77 @@ class VmwareController:
             username = os.environ["VSPHERE_USERNAME"]
             password = os.environ["VSPHERE_PASSWORD"]
             nossl = os.environ["VSPHERE_NOSSL"] != None
-            session = None
-            context = None
-            if nossl:
-                session = self.get_unverified_session()
-                context = self.get_unverified_context()
             
-            # new rest apis - tags
-            self._vsphere_client = create_vsphere_client(
-                server=server,
-                username=username,
-                password=password,
-                session=session)
+            session = None
+            if nossl:
+                session = requests.session()
+                session.verify = False
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-            # old soap - vms
-            self._service_instance = SmartConnect(
-                host=server,
-                user=username,
-                pwd=password,
-                sslContext=context)                
-        except Exception as ex:
+            self._vsphere_client = create_vsphere_client(server=server, username=username, password=password, session=session)
+        except :
             print('VMwareSDKError > %s' % ex.args[0])
             raise
+        self._datacenter_list = self._vsphere_client.vcenter.Datacenter.list()
         self._datacenter = datacenter
         self._tag_name = tag_name
-
-    def get_unverified_context(self):
-        context = None
-        if hasattr(ssl, '_create_unverified_context'):
-            context = ssl._create_unverified_context()
-        return context
-
-    def get_unverified_session(self):
-        session = requests.session()
-        session.verify = False
-        requests.packages.urllib3.disable_warnings()
-        return session
 
 
     def list_vm(self):
         resource_type = 'vm'
-        
-        vm_list = self._vsphere_client.vcenter.VM.list()
+        vcenter_client = self._vsphere_client.vcenter
+        tagging_client = self._vsphere_client.tagging
 
         instances: List[VmwareResourceModel] = list()
-        for vm in list(vm_list):
-            vm_model = self._vsphere_client.vcenter.VM.get(vm.vm)
-            guest_model = self._vsphere_client.vcenter.vm.guest.Identity.get(vm.vm)
 
-            res = VmwareResourceModel(
-                datacenter = '',
-                type = resource_type,
-                id = vm_model.identity.instance_uuid,
-                name = vm_model.name,
-                private_ip = guest_model.ip_address,
-                tags = tags_obj
-            )
+        # get VMs by Datacenter
+        for dc in list(self._datacenter_list):
+            if self._datacenter and self._datacenter != dc.name:
+                continue
 
-            # vm tags are a different system w category & tag
-            tags_obj = {}
-            dynamic_id = DynamicID(type='VirtualMachine', id=vm.vm)
-            tag_list = self._vsphere_client.tagging.TagAssociation.list_attached_tags(dynamic_id)
-            for tag_id in list(tag_list):
-                tag_model = self._vsphere_client.tagging.Tag.get(tag_id)
-                category_model = self._vsphere_client.tagging.Category.get(tag_model.category_id)
-                key = category_model.name + ':' + tag_model.name
-                tags_obj[key] = 'true'
+            filter_spec = VM.FilterSpec(datacenters=set([dc.datacenter]))
+            vm_list = vcenter_client.VM.list(filter_spec)
 
-            instances.append(res)
+            for vm in list(vm_list):
+                vm_model = vcenter_client.VM.get(vm.vm)
+                #print(vm_model)
+                if (vm.power_state != Power.State.POWERED_ON):
+                    continue
+
+                res = VmwareResourceModel(
+                    datacenter = dc.name,
+                    type = resource_type,
+                    id = vm_model.identity.instance_uuid,
+                    name = vm_model.name,
+                )
+
+                # Private IP via GUest Additions
+                try:
+                    guest_model = vcenter_client.vm.guest.Identity.get(vm.vm)
+                    res.private_ip = guest_model.ip_address
+                except Exception as ex:
+                    print('Guest additions issue; could not detect IP for: %s' % vm_model.name)
+
+                # VM tags are a different system w category & tag
+                tags_obj = {}
+                dynamic_id = DynamicID(type='VirtualMachine', id=vm.vm)
+                tag_list = tagging_client.TagAssociation.list_attached_tags(dynamic_id)
+                for tag_id in list(tag_list):
+                    tag_model = tagging_client.Tag.get(tag_id)
+                    category_model = tagging_client.Category.get(tag_model.category_id)
+                    key = category_model.name + ':' + tag_model.name
+                    tags_obj[key] = 'true'
+                res.tags = tags_obj
+
+                if self._tag_name and not res.tags.get(self._tag_name):
+                    continue
+
+                instances.append(res)
 
         return instances
 
 
 if __name__ == '__main__':
-    vmw = VmwareController()
+    vmw = VmwareController(None, 'banyan:discovery')
     my_vms = vmw.list_vm()
     print(my_vms)
