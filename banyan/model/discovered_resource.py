@@ -18,7 +18,7 @@ class ExternalCatalog(BanyanEnum):
     OKTA = "Okta"
     AAD = "AzureAD"
 
-class DiscoveredResourceType(BanyanEnum):
+class CloudResourceType(BanyanEnum):
     # CloudProvider AWS
     EC2 = "EC2"
     RDS = "RDS"
@@ -35,7 +35,7 @@ class ResourceTag:
     value: str
 
 @dataclass
-class DiscoveredResource(Resource):
+class CloudResource(Resource):
     class Meta:
         unknown = EXCLUDE
 
@@ -61,7 +61,7 @@ class DiscoveredResource(Resource):
 
 
 @dataclass
-class DiscoveredResourceInfo(Resource):
+class CloudResourceInfo(Resource):
     class Meta:
         unknown = EXCLUDE
 
@@ -93,7 +93,7 @@ class DiscoveredResourceInfo(Resource):
         return str(self.resource_udid)
 
 @dataclass
-class DiscoveredResourceAssociateInfo:
+class CloudResourceAssociateInfo:
     class Meta:
         unknown = EXCLUDE
     

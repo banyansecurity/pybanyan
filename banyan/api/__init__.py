@@ -24,7 +24,7 @@ from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
-from banyan.api.discovered_resource import DiscoveredResourceAPI
+from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
@@ -107,7 +107,7 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
-        self._discovered_resources = DiscoveredResourceAPI(self)
+        self._cloud_resources = CloudResourceAPI(self)
 
     def __del__(self):
         if self._http:
@@ -389,8 +389,8 @@ class BanyanApiClient:
         return self._audit
 
     @property
-    def discovered_resources(self) -> DiscoveredResourceAPI:
-        return self._discovered_resources
+    def cloud_resources(self) -> CloudResourceAPI:
+        return self._cloud_resources
 
 
 # configuration defaults

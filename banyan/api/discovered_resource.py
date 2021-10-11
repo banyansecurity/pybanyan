@@ -5,38 +5,38 @@ import json
 
 from banyan.api.base import ServiceBase
 from banyan.model import BanyanApiObject
-from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo, DiscoveredResourceAssociateInfo
+from banyan.model.cloud_resource import CloudResource, CloudResourceInfo, CloudResourceAssociateInfo
 from banyan.model.service import ServiceInfoOrName
 from banyan.api.service import ServiceAPI
 
 JsonListOrObj = Union[List, Dict]
 
-class DiscoveredResourceAPI(ServiceBase):
+class CloudResourceAPI(ServiceBase):
     class Meta:
-        data_class = DiscoveredResource
-        info_class = DiscoveredResourceInfo
+        data_class = CloudResource
+        info_class = CloudResourceInfo
         supports_paging = True
         list_uri = '/v2/cloud_resource'
 
-    def get(self, id: UUID, params: Dict[str, Any] = None) -> DiscoveredResourceInfo:
+    def get(self, id: UUID, params: Dict[str, Any] = None) -> CloudResourceInfo:
         response_json = self._client.api_request('GET', 
                                                  '/v2/cloud_resource/%s' % str(id),
                                                  params=params)
-        data = DiscoveredResourceInfo.Schema().load(response_json)
+        data = CloudResourceInfo.Schema().load(response_json)
         return data
 
-    def create(self, obj: DiscoveredResource) -> JsonListOrObj:
+    def create(self, obj: CloudResource) -> JsonListOrObj:
         response_json = self._client.api_request('POST',
                                                  '/v2/cloud_resource',
                                                  headers={'content-type': 'application/json'},
-                                                 json=DiscoveredResource.Schema().dump(obj))
+                                                 json=CloudResource.Schema().dump(obj))
         return response_json
 
-    def update(self, obj: DiscoveredResource) -> JsonListOrObj:
+    def update(self, obj: CloudResource) -> JsonListOrObj:
         response_json = self._client.api_request('PUT',
                                                  '/v2/cloud_resource',
                                                  headers={'content-type': 'application/json'},
-                                                 json=DiscoveredResource.Schema().dump(obj))
+                                                 json=CloudResource.Schema().dump(obj))
         return response_json
 
     def update_status(self, id: UUID, status: str) -> JsonListOrObj:
@@ -71,7 +71,7 @@ class DiscoveredResourceAPI(ServiceBase):
                                                  '/v2/cloud_resource_service/%s' % str(publish_id))
         return response_json
 
-    def associations(self,  id: str = None) -> List[DiscoveredResourceAssociateInfo]:
+    def associations(self,  id: str = None) -> List[CloudResourceAssociateInfo]:
         params = {}
         if id is not None:
             params = {
@@ -80,5 +80,5 @@ class DiscoveredResourceAPI(ServiceBase):
         response_json = self._client.paged_request('GET', 
                                                  '/v2/cloud_resource_service',
                                                  params=params)
-        data = DiscoveredResourceAssociateInfo.Schema().load(response_json, many=True)
+        data = CloudResourceAssociateInfo.Schema().load(response_json, many=True)
         return data        

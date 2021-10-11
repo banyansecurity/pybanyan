@@ -10,14 +10,14 @@ from cement import Controller, ex
 from banyan.controllers.base import Base
 
 from banyan.api import BanyanApiClient
-from banyan.model.discovered_resource import DiscoveredResource, DiscoveredResourceInfo
+from banyan.model.cloud_resource import CloudResource, CloudResourceInfo
 from banyan.model.service import ServiceInfo, Service, SimpleWebService, AllowPattern
 from banyan.model.policy import PolicyInfo, SimpleWebPolicy
 
 
-class DiscoveredResourceController(Controller):
+class CloudResourceController(Controller):
     class Meta:
-        label = 'discovered_resource'
+        label = 'cloud_resource'
         aliases = ['dr']
         stacked_type = 'nested'
         stacked_on = 'base'
@@ -35,7 +35,7 @@ class DiscoveredResourceController(Controller):
         else:
             return '...' + str(value)[-num_chars:]
 
-    @ex(help='list discovered_resources',
+    @ex(help='list cloud_resources',
         arguments=[
             (['--tag_name'], 
             {
@@ -44,7 +44,7 @@ class DiscoveredResourceController(Controller):
         ])
     def list(self):
         params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name}
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in d_resources:
@@ -57,7 +57,7 @@ class DiscoveredResourceController(Controller):
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
 
-    @ex(help='show details & tags of a discovered_resource', 
+    @ex(help='show details & tags of a cloud_resource', 
         arguments=[
             (['resource_uuid'],
             {
@@ -66,12 +66,12 @@ class DiscoveredResourceController(Controller):
         ])
     def get(self):
         id: UUID = self.app.pargs.resource_uuid
-        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.get(id)
-        dr_json = DiscoveredResourceInfo.Schema().dump(d_resource)
+        d_resource: CloudResourceInfo = self._client.cloud_resources.get(id)
+        dr_json = CloudResourceInfo.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='create a new discovered_resource',
+    @ex(help='create a new cloud_resource',
         arguments=[
             (['resources_json'], 
             {
@@ -81,12 +81,12 @@ class DiscoveredResourceController(Controller):
         ])
     def create(self):
         d_resource = Base.get_json_input(self.app.pargs.resources_json)
-        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.create(d_resource)
-        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        d_resource: CloudResourceInfo = self._client.cloud_resources.create(d_resource)
+        dr_json = CloudResource.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(hide=True, help='update status for a given discovered_resource record', 
+    @ex(hide=True, help='update status for a given cloud_resource record', 
         arguments=[
             (['resource_uuid'],
             {
@@ -100,12 +100,12 @@ class DiscoveredResourceController(Controller):
     def update_status(self):
         id: UUID = self.app.pargs.resource_uuid
         status: str = self.app.pargs.status
-        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.update_status(id, status)
-        dr_json = DiscoveredResource.Schema().dump(d_resource)
+        d_resource: CloudResourceInfo = self._client.cloud_resources.update_status(id, status)
+        dr_json = CloudResource.Schema().dump(d_resource)
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='delete a given discovered_resource record', 
+    @ex(help='delete a given cloud_resource record', 
         arguments=[
             (['resource_uuid'],
             {
@@ -114,11 +114,11 @@ class DiscoveredResourceController(Controller):
         ])
     def delete(self):
         id: UUID = self.app.pargs.resource_uuid
-        info = self._client.discovered_resources.delete(id)
+        info = self._client.cloud_resources.delete(id)
         self.app.render(info, handler='json')
 
 
-    @ex(help='show discovered_resources associated with services', 
+    @ex(help='show cloud_resources associated with services', 
         arguments=[
             (['--resource_uuid'],
             {
@@ -126,7 +126,7 @@ class DiscoveredResourceController(Controller):
             }),            
         ])
     def list_associations(self):
-        assocs = self._client.discovered_resources.associations(self.app.pargs.resource_uuid)
+        assocs = self._client.cloud_resources.associations(self.app.pargs.resource_uuid)
         results = list()
         headers = ['ID', 'Resource ID', 'Resource Name', 'Resource Type', 'Service ID', 'Service Name', 'Resource Status']
         for res in assocs:
@@ -136,7 +136,7 @@ class DiscoveredResourceController(Controller):
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
 
-    @ex(hide=True, help='associate discovered_resource with service', 
+    @ex(hide=True, help='associate cloud_resource with service', 
         arguments=[
             (['resource_uuid'],
             {
@@ -149,11 +149,11 @@ class DiscoveredResourceController(Controller):
              }),                   
         ])
     def associate_with_service(self):
-        info = self._client.discovered_resources.associate(self.app.pargs.resource_uuid, self.app.pargs.service_name)
+        info = self._client.cloud_resources.associate(self.app.pargs.resource_uuid, self.app.pargs.service_name)
         self.app.render(info, handler='json')
 
 
-    @ex(hide=True, help='dissociate discovered_resource from service', 
+    @ex(hide=True, help='dissociate cloud_resource from service', 
         arguments=[
             (['association_uuid'],
             {
@@ -161,7 +161,7 @@ class DiscoveredResourceController(Controller):
             }),            
         ])
     def dissociate_from_service(self):
-        info = self._client.discovered_resources.dissociate(self.app.pargs.association_uuid)
+        info = self._client.cloud_resources.dissociate(self.app.pargs.association_uuid)
         self.app.render(info, handler='json')
 
 
@@ -180,7 +180,7 @@ class DiscoveredResourceController(Controller):
             print('--> AWS configuration test failed. Check your AWS credentials and SDK configuration.')
 
 
-    @ex(help='sync discovered_resources with AWS IaaS',
+    @ex(help='sync cloud_resources with AWS IaaS',
         arguments=[
             (['resource_type'],
             {
@@ -223,7 +223,7 @@ class DiscoveredResourceController(Controller):
 
         Base.wait_for_input('Filtering for new AWS Resources')
         #TODO: List only AWS resources in specified Region (need API update)
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
 
         new_results = list()
@@ -247,7 +247,7 @@ class DiscoveredResourceController(Controller):
                 }
                 res_tags.append(res_tag)
 
-            res = DiscoveredResource(
+            res = CloudResource(
                 cloud_provider = AwsResourceModel.PROVIDER,
                 account = instance.account,
                 region = instance.region,
@@ -262,8 +262,8 @@ class DiscoveredResourceController(Controller):
                 status = 'discovered',
                 tags = res_tags
             )
-            self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
-            info = self._client.discovered_resources.create(res)
+            self.app.render(CloudResource.Schema().dump(res), handler='json')
+            info = self._client.cloud_resources.create(res)
             print('\n-->', info)
             sleep(0.05)
 
@@ -285,7 +285,7 @@ class DiscoveredResourceController(Controller):
             print('--> Azure configuration test failed. Check your Azure credentials and SDK configuration.')
 
 
-    @ex(help='sync discovered_resources with Azure IaaS',
+    @ex(help='sync cloud_resources with Azure IaaS',
         arguments=[
             (['resource_type'],
             {
@@ -330,7 +330,7 @@ class DiscoveredResourceController(Controller):
 
         Base.wait_for_input('Filtering for new Azure Resources')
         #TODO: List only Azure resources in specified Location (need API update)
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list()
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
 
         new_results = list()
@@ -355,7 +355,7 @@ class DiscoveredResourceController(Controller):
                 }
                 res_tags.append(res_tag)            
             
-            res = DiscoveredResource(
+            res = CloudResource(
                 cloud_provider = AzureResourceModel.PROVIDER,
                 account = f'{instance.resource_group}-{instance.subscription}',
                 region = instance.location,
@@ -370,8 +370,8 @@ class DiscoveredResourceController(Controller):
                 status = 'discovered',
                 tags = res_tags
             )
-            self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
-            info = self._client.discovered_resources.create(res)
+            self.app.render(CloudResource.Schema().dump(res), handler='json')
+            info = self._client.cloud_resources.create(res)
             print('\n-->', info)
             sleep(0.05)
 
@@ -393,7 +393,7 @@ class DiscoveredResourceController(Controller):
             print('--> VMWare vSphere configuration test failed. Check your VMWare vSphere credentials and SDK configuration.')
 
 
-    @ex(help='sync discovered_resources with VMWare vSphere',
+    @ex(help='sync cloud_resources with VMWare vSphere',
         arguments=[
             (['resource_type'],
             {
@@ -429,7 +429,7 @@ class DiscoveredResourceController(Controller):
                     'value': instance.tags[key]
                 }
                 res_tags.append(res_tag)            
-            res = DiscoveredResource(
+            res = CloudResource(
                 instance.cloud_provider,
                 instance.datacenter,
                 instance.id,
@@ -439,15 +439,15 @@ class DiscoveredResourceController(Controller):
                 instance.private_ip,
                 res_tags
             )
-            self.app.render(DiscoveredResource.Schema().dump(res), handler='json')
-            info = self._client.discovered_resources.create(res)
+            self.app.render(CloudResource.Schema().dump(res), handler='json')
+            info = self._client.cloud_resources.create(res)
             print('\n-->', info)
             sleep(0.05)
 
         print('\n--> Sync with VMware successful.')
 
 
-    @ex(help='use discovered_resource to create a new service',
+    @ex(help='use cloud_resource to create a new service',
         arguments=[
             (['service_name'],
             {
@@ -479,13 +479,13 @@ class DiscoveredResourceController(Controller):
     def publish(self):
         Base.wait_for_input('Getting Discovered Resource')
         id: UUID = self.app.pargs.resource_uuid
-        d_resource: DiscoveredResourceInfo = self._client.discovered_resources.get(id)
+        d_resource: CloudResourceInfo = self._client.cloud_resources.get(id)
 
         if d_resource:
-            dr_json = DiscoveredResource.Schema().dump(d_resource)
+            dr_json = CloudResource.Schema().dump(d_resource)
             self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
         else:
-            raise RuntimeError('No discovered_resource found')
+            raise RuntimeError('No cloud_resource found')
 
         pol_web = SimpleWebPolicy('USER',
                                   'policy-%s' % self.app.pargs.service_name,
@@ -527,7 +527,7 @@ class DiscoveredResourceController(Controller):
         print('\n--> Publish flow successful.')
 
 
-    @ex(help='add discovered_resources by tag to an existing service',
+    @ex(help='add cloud_resources by tag to an existing service',
         arguments=[
             (['service_name'],
             {
@@ -549,9 +549,9 @@ class DiscoveredResourceController(Controller):
             'tag_name': self.app.pargs.tag_name,
             'tag_value': self.app.pargs.tag_value
         }
-        d_resources: List[DiscoveredResourceInfo] = self._client.discovered_resources.list(params=params)
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
         if len(d_resources) == 0:
-            raise RuntimeError('No discovered_resource found')        
+            raise RuntimeError('No cloud_resource found')        
 
         print('\n--> Discovered resources to whitelist:')
         results = list()
