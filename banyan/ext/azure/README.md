@@ -23,10 +23,10 @@ Other credentials configuration methods are available. See the Azure docs for de
 Confirm you are set up correctly, by running:
 
 ```bash
-python vm.py
+python main.py
 ```
 
-You should see a list of your Azure VMs.
+You should see a list of your Azure VM and LB resources.
 
 
 

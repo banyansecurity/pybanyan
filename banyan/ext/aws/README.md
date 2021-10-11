@@ -28,7 +28,7 @@ Other credentials configuration methods are available. See the AWS docs for deta
 Confirm you are set up correctly, by running:
 
 ```bash
-python ec2.py
+python main.py
 ```
 
-You should see a list of your AWS EC2 resources.
+You should see a list of your AWS EC2, ELB and RDS resources.

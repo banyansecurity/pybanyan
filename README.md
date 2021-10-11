@@ -102,6 +102,7 @@ Commands:
     policy              manage authorization policies for users and workloads
     role                manage user and workload roles
     service             manage web and TCP services and workloads
+    cloud-resource      manage cloud resources discovered from IaaS
 ```
 
 Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, 
@@ -154,9 +155,9 @@ optional arguments:
 
 You can automate different types of workflows by integrating with external APIs. We provide pre-built integrations for 2 types of workflows:
 
-### 1. Autodiscover resources in your IaaS and publish as Banyan services
+### 1. Discover cloud resources from your IaaS provider and publish as Banyan services
 
-You can autodiscover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory. You can then publish these resources as Banyan services so your end-users can access them. Check out the provider-specific link for setup instructions.
+You can discover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory. You can then publish these resources as Banyan services so your end-users can access them. Check out the provider-specific link for setup instructions.
 
 - [AWS](banyan/ext/aws/)
 - [Azure](banyan/ext/azure/)
