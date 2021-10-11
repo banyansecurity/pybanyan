@@ -14,7 +14,7 @@ except ImportError as ex:
 @dataclass
 class AzureResourceModel:
     subscription: str            # Azure Subscription is within an Account 
-    resource_group: str          # Azure Resource Group
+    resource_group: str          # Azure Resource Group is within a Subscription
     location: str
     type: str
     id: str
