@@ -10,10 +10,10 @@ pip install -r requirements.txt
 
 Set up environment variables for your service principal
 ```bash
-AZURE_SUBSCRIPTION_ID="id of your Azure subscription"
-AZURE_TENANT_ID="id of the application's Azure Active Directory tenant"
-AZURE_CLIENT_ID="id of an Azure Active Directory application"
-AZURE_CLIENT_SECRET="one of the application's client secrets"
+export AZURE_SUBSCRIPTION_ID="id of your Azure subscription"
+export AZURE_TENANT_ID="id of the application's Azure Active Directory tenant"
+export AZURE_CLIENT_ID="id of an Azure Active Directory application"
+export AZURE_CLIENT_SECRET="one of the application's client secrets"
 ```
 
 Other credentials configuration methods are available. See the Azure docs for details.

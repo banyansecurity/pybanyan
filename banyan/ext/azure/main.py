@@ -1,4 +1,4 @@
-from typing import List, ClassVar, Type, Optional, Union
+from typing import List, Dict, ClassVar, Type, Optional, Union
 from dataclasses import dataclass, field
 import os, json
 
@@ -24,7 +24,7 @@ class AzureResourceModel:
     private_dns_name: str = ''
     private_ip: str = ''
     ports: str = ''
-    tags: List = field(default_factory=list)
+    tags: Dict = field(default_factory=dict)
 
     PROVIDER = 'AZURE'
 
