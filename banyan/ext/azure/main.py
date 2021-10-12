@@ -14,11 +14,14 @@ except ImportError as ex:
 @dataclass
 class AzureResourceModel:
     subscription: str            # Azure Subscription is within an Account 
+    
     resource_group: str          # Azure Resource Group is within a Subscription
     location: str
+    
     type: str
     id: str
     name: str = ''
+
     public_dns_name: str = ''
     public_ip: str = ''
     private_dns_name: str = ''
@@ -37,9 +40,9 @@ class AzureController:
         except Exception as ex:
             print('AzureSDKError > %s' % ex.args[0])
             raise
-        self._resource_client.resource_groups.list()
-        self._location = location
+        self._resource_group_list = self._resource_client.resource_groups.list()
         self._resource_group = resource_group
+        self._location = location
         self._tag_name = tag_name
 
 
@@ -48,6 +51,7 @@ class AzureController:
         compute_client =  ComputeManagementClient(self._credential, self._subscription)
         network_client = NetworkManagementClient(self._credential, self._subscription)
 
+        # VMs in all resource groups
         vm_list = compute_client.virtual_machines.list_all()
 
         instances: List[AzureResourceModel] = list()
@@ -61,9 +65,9 @@ class AzureController:
             ni_name = ni_reference[8]
 
             # implement filtering
-            if self._location and self._location != vm_loc:
-                continue
             if self._resource_group and self._resource_group != vm_rg:
+                continue
+            if self._location and self._location != vm_loc:
                 continue
             if self._tag_name and not vm_tags.get(self._tag_name):
                 continue

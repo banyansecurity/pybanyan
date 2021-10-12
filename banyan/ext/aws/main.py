@@ -10,10 +10,13 @@ except ImportError as ex:
 @dataclass
 class AwsResourceModel:
     account: str
+
     region: str
+
     type: str
     id: str
     name: str = ''
+    
     public_dns_name: str = ''
     public_ip: str = ''
     private_dns_name: str = ''

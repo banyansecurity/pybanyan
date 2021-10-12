@@ -11,11 +11,14 @@ except ImportError as ex:
 @dataclass
 class GcpResourceModel:
     account: str
+
     project: str
     zone: str
+
     type: str
     id: str
     name: str = ''
+
     public_dns_name: str = ''
     public_ip: str = ''
     private_dns_name: str = ''
@@ -93,9 +96,10 @@ class GcpController:
                         private_ip = private_ip,
                         labels = vm_labels
                     )
-                    print(res)
 
-        return
+                    instances.append(res)
+
+        return instances
 
 
 if __name__ == '__main__':

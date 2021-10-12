@@ -1,4 +1,4 @@
-# Azure
+# Google Cloud Platform
 
 Ensure you have the [Google Cloud Client Libraries for Python](https://cloud.google.com/compute/docs/tutorials/python-guide) installed and configured.
 
@@ -24,7 +24,3 @@ python main.py
 ```
 
 You should see a list of your GCP VM resources.
-
-
-
-export GOOGLE_APPLICATION_CREDENTIALS="~/workspace/banyan/_clouds/gcp/tdnovpn-bfc18a4833d2.json"
