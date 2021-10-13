@@ -70,6 +70,7 @@ class AzureController:
             # check network interface for address
             net_interface = network_client.network_interfaces.get(vm_rg, ni_name)
             #print(json.dumps(net_interface.as_dict(), indent=4))
+            # assume only 1 NIC
             ip_config = net_interface.ip_configurations[0]
             private_ip = ip_config.private_ip_address or ''
             public_ip = ''

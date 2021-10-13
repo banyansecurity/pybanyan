@@ -8,77 +8,95 @@ except ImportError as ex:
     print('ImportError > %s' % ex.args[0])
     raise
 
-@dataclass
-class OciResourceModel:
-    tenancy: str
-
-    compartment: str
-    region: str
-
-    type: str
-    id: str
-    name: str
-
-    public_dns_name: str = ''
-    public_ip: str = ''
-    private_dns_name: str = ''
-    private_ip: str = ''
-    ports: str = ''
-    tags: Dict = field(default_factory=dict)
-
-    PROVIDER = 'OCI'
+try:
+    from ..model import *
+except:
+    # trying to run "python main.py"
+    import sys
+    sys.path.append('..')
+    from model import *
 
 
 class OciController:
-    def __init__(self, compartment: str = None, region: str = None, tag_name: str = None):
+    def __init__(self, filter_by_compartment: str, filter_by_region: str = None, filter_by_tag_name: str = None):
         try:
             self._config = oci.config.from_file()
             self._tenancy = self._config.get('tenancy')
-            self._identity_client = oci.identity.IdentityClient(self._config)
+            identity_client = oci.identity.IdentityClient(self._config)
         except Exception as ex:
             print('OCISDKError > %s' % ex.args[0])
             raise
-        # all compartments from root, parent is in compartment_id
-        resp = self._identity_client.list_compartments(compartment_id=self._tenancy, compartment_id_in_subtree=True)
-        self._compartment_list = resp.data
-        self._compartment = compartment
-        self._region = region
-        self._tag_name = tag_name
+        self._filter_by_compartment = filter_by_compartment
+        self._filter_by_region = filter_by_region
+        self._filter_by_tag_name = filter_by_tag_name
 
-    
+        self._provider = 'OCI'
+        self._account = IaasLevel('tenant', self._tenancy, 'root')
+        try:
+            # all compartments from root, parent is in compartment_id
+            self._compartment_list = identity_client.list_compartments(compartment_id=self._tenancy, compartment_id_in_subtree=True).data
+        except Exception as ex:
+            print('OciControllerError > %s' % ex.args[0])
+            raise
+        
+
     def list_vm(self):
-        resource_type = 'vm'
+        res_type = 'vm'
         compute_client = oci.core.ComputeClient(self._config)
+        network_client = oci.core.VirtualNetworkClient(self._config)
 
-        instances: List[OciResourceModel] = list()
-
-        # get VMs by Compartment
+        instances: List[IaasResource] = list()
         for compartment_obj in self._compartment_list:
             #print(compartment_obj)
-            if self._compartment and self._compartment != compartment_obj.name:
+            cmpt_id = compartment_obj.id
+            cmpt_name = compartment_obj.name
+            if self._filter_by_compartment != 'all' and self._filter_by_compartment != cmpt_name:
                 continue
 
-            resp = compute_client.list_instances(compartment_id=compartment_obj.id)
-            vm_list = resp.data
-
+            vm_list = compute_client.list_instances(compartment_id=cmpt_id).data
             for vm in vm_list:
-                #print(vm)
+                print(vm)
+                vnic_attachments = compute_client.list_vnic_attachments(compartment_id=cmpt_id, instance_id=vm.id).data
+                # assume only 1 NIC
+                vnic = network_client.get_vnic(vnic_attachments[0].vnic_id).data
+                #print(vnic)
+                private_ip = vnic.private_ip
+                public_ip = ''
+                if vnic.public_ip:
+                    public_ip = vnic.public_ip
 
-                res = OciResourceModel(
-                    tenancy = self._tenancy,
-                    compartment = compartment_obj.name,
-                    region = vm.region,
-                    type = resource_type,
+                res_tags = dict()
+                res_tags.update(vm.freeform_tags)
+                for key, subkeyval in vm.defined_tags.items():
+                    for subkey, val in subkeyval.items():
+                        newkey = key + '-' + subkey
+                        res_tags[newkey] = val
+
+                res_inst = IaasInstance(
+                    type = res_type,
                     id =  vm.id,
-                    name = vm.display_name                    
+                    name = vm.display_name,
+                    private_ip = private_ip,
+                    public_ip = public_ip,
+                    tags = res_tags
                 )
 
+                res_parent = IaasLevel('compartment', compartment_obj.id, compartment_obj.name)
+                res_loc = IaasLocation('region', vm.region, '')
+
+                res = IaasResource(
+                    provider = self._provider,
+                    account = self._account,
+                    parent = res_parent,
+                    location = res_loc,
+                    instance = res_inst
+                )
                 instances.append(res)
 
         return instances
 
 
 if __name__ == '__main__':
-    orl = OciController()
+    orl = OciController('all')
     my_vms = orl.list_vm()
     print(my_vms)

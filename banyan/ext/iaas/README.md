@@ -6,8 +6,8 @@ Banyan uses IaaS (Infrastructure As A Service) providers' Python SDK to synchron
 | Hierarchy          	 | AWS            | Azure               | GCP           | VMware            | OCI           |
 | --------- 		 	 | --- 		 	  | -----				| ---			| ------		    | ---			|
 | **Management**         | Org, Org Unit  | Root, Mgmt Group    | Org, Folder   | -		            | -		        |
-| **Account**            | Account        | Subscription        | Project       | Account   	    | Tenant        | 
-| **Parent**             | -              | Resource Groups     | -             | Datacenters       | Containers    |
+| **Account**            | Account        | Subscription        | Project       | Vsphere   	    | Tenant        | 
+| **Parent**             | -              | Resource Groups     | -             | Datacenters       | Compartments  |
 | **Location**			 | Regions		  | Locations			| Zones			| -				    | Regions		|
 | **Tag**                | Tags           | Tags                | Labels        | Tags, Categories  | Tags          |
 | **Instance**           | EC2, RDS, etc  | VM, LB, etc         | VM, LB, etc   | VM                | VM, DB, etc   |

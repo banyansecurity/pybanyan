@@ -57,7 +57,7 @@ class VmwareController:
 
         instances: List[IaasResource] = list()
         for dc in list(self._datacenter_list):
-            if self._filter_by_datacenter != 'all' and self._datacenter != dc.name:
+            if self._filter_by_datacenter != 'all' and self._filter_by_datacenter != dc.name:
                 continue
 
             filter_spec = VM.FilterSpec(datacenters=set([dc.datacenter]))
