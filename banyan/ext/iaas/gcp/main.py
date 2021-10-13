@@ -8,55 +8,51 @@ except ImportError as ex:
     print('ImportError > %s' % ex.args[0])
     raise
 
-@dataclass
-class GcpResourceModel:
-    account: str
-
-    project: str
-    zone: str
-
-    type: str
-    id: str
-    name: str = ''
-
-    public_dns_name: str = ''
-    public_ip: str = ''
-    private_dns_name: str = ''
-    private_ip: str = ''
-    ports: str = ''
-    labels: Dict = field(default_factory=dict)  # in GCP, tags used for networking
-
-    PROVIDER = 'GCP'
-
+try:
+    from ..model import *
+except:
+    # trying to run "python main.py"
+    import sys
+    sys.path.append('..')
+    from model import *
+    
 
 class GcpController:
-    def __init__(self, project: str = None, zone: str = None, label_name: str = None):
+    def __init__(self, filter_by_project: str, filter_by_zone: str = None, filter_by_label_name: str = None):
         try:
             gcp_creds = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
             self._cloud_client = googleapiclient.discovery.build('cloudresourcemanager', 'v1')
         except Exception as ex:
             print('GoogleApiClientError > %s' % ex.args[0])
             raise
-        self._project_list = self._cloud_client.projects().list().execute()
-        self._account = self._project_list.get('projects')[0].get('parent').get('id')
-        self._project = project
-        self._zone = zone
-        self._label_name = label_name    
+        self._filter_by_project = filter_by_project
+        self._filter_by_zone = filter_by_zone
+        self._filter_by_label_name = filter_by_label_name    
+
+        self._provider = 'GCP'
+        try:
+            self._project_list = self._cloud_client.projects().list().execute()
+            account = self._project_list.get('projects')[0].get('parent')
+            self._account = IaasLevel(account.get('type'), account.get('id'), '')
+        except Exception as ex:
+            print('GcpControllerError > %s' % ex.args[0])
+            raise
+        
 
     def list_vm(self):
-        resource_type = 'vm'
+        res_type = 'vm'
         compute_client = googleapiclient.discovery.build('compute', 'v1')
 
-        instances: List[GcpResourceModel] = list()
+        instances: List[IaasResource] = list()
 
         # get VMs by Project
         for project_obj in list(self._project_list.get('projects')):
             project_id = project_obj.get('projectId')
             project_name = project_obj.get('name')
-            if self._project and self._project != project_name:
+            if self._filter_by_project != 'all' and self._filter_by_project != project_name:
                 continue
 
-            # all zones
+            # check for instances in all zones
             aggr_obj = compute_client.instances().aggregatedList(project=project_id).execute()
 
             zone_list = list()
@@ -66,14 +62,14 @@ class GcpController:
                     zone_list.append(item_key.replace('zones/', ''))
 
             for zone in zone_list:
-                if self._zone and self._zone != zone:
+                if self._filter_by_zone and self._filter_by_zone != zone:
                     continue
 
                 vm_list_obj = compute_client.instances().list(project=project_id, zone=zone, maxResults=100).execute()
                 for vm in vm_list_obj.get('items'):
                     #print(vm)
                     vm_labels = vm.get('labels') or dict()
-                    if self._label_name and not vm_labels.get(self._label_name):
+                    if self._filter_by_label_name and not vm_labels.get(self._filter_by_label_name):
                         continue
 
                     # check network interface for address
@@ -85,24 +81,31 @@ class GcpController:
                         if access_conf.get('type') == 'ONE_TO_ONE_NAT':
                             public_ip = access_conf.get('natIP')
 
-                    res = GcpResourceModel(
-                        account = self._account,
-                        project = project_name,
-                        zone = zone,
-                        type = resource_type,
+                    res_inst = IaasInstance(
+                        type = res_type,
                         id = vm.get('id'),
                         name = vm.get('name'),
                         public_ip = public_ip,
                         private_ip = private_ip,
-                        labels = vm_labels
+                        tags = vm_labels
                     )
 
+                    res_parent = IaasLevel('project', project_id, project_name)
+                    res_loc = IaasLocation('zone', zone, '')
+
+                    res = IaasResource(
+                        provider = self._provider,
+                        account = self._account,
+                        parent = res_parent,
+                        location = res_loc,
+                        instance = res_inst
+                    )                    
                     instances.append(res)
 
         return instances
 
 
 if __name__ == '__main__':
-    gcp = GcpController()
+    gcp = GcpController('all', 'us-east4-b')
     my_vms = gcp.list_vm()
     print(my_vms)
