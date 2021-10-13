@@ -250,15 +250,21 @@ class CloudResourceController(Controller):
         print('\n--> Sync with AWS successful.')
 
 
-    @ex(help='test Azure configuration')
+    @ex(help='test Azure configuration',
+        arguments=[
+            (['resource_group'],
+            {
+                'help': 'Azure Resource Group where resources run. You can say "all" but be careful!'
+            })
+        ])    
     def test_azure(self):
         try:
-            from banyan.ext.azure.main import AzureController, AzureResourceModel
+            from banyan.ext.iaas.azure.main import AzureController
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
-        azr = AzureController()
-        instances: List[AzureResourceModel] = azr.list_vm()
+        azr = AzureController(self.app.pargs.resource_group)
+        instances: List[IaasResource] = azr.list_vm()
         if len(instances):
             print('--> Azure configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -269,15 +275,15 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of Azure Resource - vm | lb | all.'
+                'help': 'Type of Azure Resource - vm | lbl. You can say "all" but be careful!'
             }),
-            (['--resource_group'],
+            (['resource_group'],
             {
-                'help': 'Azure Resource Group where resources run. If not specified, use all  resource groups.'
+                'help': 'Azure Resource Group where resources run. You can say "all" but be careful!'
             }),            
             (['--location'],
             {
-                'help': 'Location where Azure resources run - centralus, eastus, etc. If not specified, use all locations.'
+                'help': 'Location where Azure resources run - centralus, eastus, etc. If not specified, all locations are used.'
             }),            
             (['--tag_name'],
             {
@@ -286,11 +292,11 @@ class CloudResourceController(Controller):
         ])
     def sync_azure(self):
         try:
-            from banyan.ext.azure.main import AzureController, AzureResourceModel
+            from banyan.ext.iaas.azure.main import AzureController
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
-        instances: List[AzureResourceModel] = list()
+        instances: List[IaasResource] = list()
         rt = self.app.pargs.resource_type.lower()
         azr = AzureController(self.app.pargs.resource_group, self.app.pargs.location, self.app.pargs.tag_name)
         if rt == 'vm' or rt == 'all':
@@ -300,25 +306,15 @@ class CloudResourceController(Controller):
             Base.wait_for_input('Getting list of Azure LB Resources')
             instances += azr.list_lb()
 
-        results = list()
-        for instance in instances:
-            allvars = vars(copy.copy(instance))
-            allvars.pop('id')    # too long to display
-            allvars['tags'] = len(allvars['tags'])
-            results.append(allvars)
+        results = Base.tabulate_iaas_resources(instances, ['id'])
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
         Base.wait_for_input('Filtering for new Azure Resources')
-        #TODO: List only Azure resources in specified Location (need API update)
+        #TODO: List only Azure resources in specified Resource Group (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+        added_instances = Base.added_iaas_resources(instances, d_resources)
 
-        new_results = list()
-        for instance in added_instances:
-            allvars = vars(copy.copy(instance))
-            allvars.pop('id')    # too long to display
-            allvars['tags'] = len(allvars['tags'])
-            new_results.append(allvars)
+        new_results = Base.tabulate_iaas_resources(added_instances, ['id'])
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
 
         if len(new_results) == 0:
@@ -326,30 +322,8 @@ class CloudResourceController(Controller):
             return
 
         Base.wait_for_input('Syncing into Discovered Resource')
-        for instance in instances:
-            res_tags = []
-            for key in instance.tags:
-                res_tag = {
-                    'name': key,
-                    'value': instance.tags[key]
-                }
-                res_tags.append(res_tag)            
-            
-            res = CloudResource(
-                cloud_provider = AzureResourceModel.PROVIDER,
-                account = f'{instance.resource_group}-{instance.subscription}',
-                region = instance.location,
-                resource_id = instance.id,
-                resource_name = instance.name,
-                resource_type = instance.type,
-                public_dns_name = instance.public_dns_name,
-                public_ip = instance.public_ip,
-                private_dns_name = instance.private_dns_name,
-                private_ip = instance.private_ip,
-                ports = instance.ports,
-                status = 'discovered',
-                tags = res_tags
-            )
+        for instance in added_instances:
+            res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
             info = self._client.cloud_resources.create(res)
             print('\n-->', info)

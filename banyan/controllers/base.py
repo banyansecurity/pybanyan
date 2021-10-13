@@ -94,15 +94,18 @@ class Base(Controller):
         return added
 
     @staticmethod
-    def tabulate_iaas_resources(res_list: List[IaasResource]):
+    def tabulate_iaas_resources(res_list: List[IaasResource], del_keys: List):
         results = list()
         for res in res_list:
             allvars = vars(copy.copy(res.instance))
             allvars['tags'] = len(allvars['tags'])
             allvars['provider'] = res.provider
-            allvars['account'] = res.account.name
-            allvars['parent'] = res.parent.name if res.parent else ''     # not in all IaaS providers
+            allvars['account'] = res.account.id
+            allvars['parent'] = res.parent.id if res.parent else ''     # not in all IaaS providers
             allvars['location'] = res.location.name
+            # rm keys that don't print well
+            for key in del_keys:
+                allvars.pop(key)
             results.append(allvars)
         #self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
         return results

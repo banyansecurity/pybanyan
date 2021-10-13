@@ -2,19 +2,19 @@ import logging
 from typing import List
 from dataclasses import dataclass, field
 
-# test in dir
-if __name__ == '__main__' and not __package__:
-    import sys
-    sys.path.append('..')
-    from model import *
-else:
-    from ..model import *
-
 try:
     import boto3
 except ImportError as ex:
     print('ImportError > %s' % ex.args[0])
     raise
+
+try:
+    from ..model import *
+except:
+    # trying to run "python main.py"
+    import sys
+    sys.path.append('..')
+    from model import *
 
 
 class AwsController:
@@ -38,6 +38,7 @@ class AwsController:
             self._region_list = ec2_client.describe_regions().get('Regions')
         except Exception as ex:
             print('AwsControllerError > %s' % ex.args[0])
+            raise
 
 
     def list_ec2(self):
