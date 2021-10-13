@@ -49,7 +49,7 @@ class GcpController:
         for project_obj in list(self._project_list.get('projects')):
             project_id = project_obj.get('projectId')
             project_name = project_obj.get('name')
-            if self._filter_by_project != 'all' and self._filter_by_project != project_name:
+            if self._filter_by_project != 'all' and self._filter_by_project != project_id:
                 continue
 
             # check for instances in all zones

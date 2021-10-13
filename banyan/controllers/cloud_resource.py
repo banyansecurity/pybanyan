@@ -345,7 +345,7 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
-        vmw = VmwareController()
+        vmw = VmwareController(self.app.pargs.datacenter)
         instances: List[IaasResource] = vmw.list_vm()
         if len(instances):
             print('--> VMWare vSphere configuration test passed. Found %d resources.' % len(instances))
@@ -402,6 +402,150 @@ class CloudResourceController(Controller):
             sleep(0.05)
 
         print('\n--> Sync with VMware successful.')
+
+
+    @ex(help='test Google Cloud configuration',
+        arguments=[
+            (['project'],
+            {
+                'help': 'Project ID where GCP resources run. You can say "all" but be careful!'
+            })
+        ])    
+    def test_gcp(self):
+        try:
+            from banyan.ext.iaas.gcp.main import GcpController
+        except Exception as ex:
+            raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
+
+        gcp = GcpController(self.app.pargs.project)
+        instances: List[IaasResource] = gcp.list_vm()
+        if len(instances):
+            print('--> Google Cloud configuration test passed. Found %d resources.' % len(instances))
+        else:
+            print('--> Google Cloud configuration test failed. Check your Google Cloud credentials and Client Libraries for Python configuration.')
+
+
+    @ex(help='sync cloud_resources with Google Cloud',
+        arguments=[
+            (['resource_type'],
+            {
+                'help': 'Type of VMWare Resource - vm | all.'
+            }),
+            (['project'],
+            {
+                'help': 'Project ID where GCP resources run. You can say "all" but be careful!'
+            }),              
+            (['--tag_name'],
+            {
+                'help': 'Only sync resources with specific category:tag'
+            })
+        ])
+    def sync_gcp(self):
+        try:
+            from banyan.ext.iaas.gcp.main import GcpController
+        except Exception as ex:
+            raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
+
+        Base.wait_for_input('Getting list of GCP Resources')
+        gcp = GcpController(self.app.pargs.project)
+        instances: List[IaasResource] = gcp.list_vm()
+
+        results = Base.tabulate_iaas_resources(instances)
+        self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        Base.wait_for_input('Filtering for new GCP Resources')
+        #TODO: List only GCP resources in specified Project (need API update)
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
+        added_instances = Base.added_iaas_resources(instances, d_resources)
+
+        new_results = Base.tabulate_iaas_resources(added_instances)
+        self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        if len(new_results) == 0:
+            print('--> No new GCP resources to sync')
+            return
+
+        Base.wait_for_input('Syncing into Discovered Resource')
+        for instance in added_instances:
+            res = Base.convert_iaas_resource(instance)
+            self.app.render(CloudResource.Schema().dump(res), handler='json')
+            info = self._client.cloud_resources.create(res)
+            print('\n-->', info)
+            sleep(0.05)
+
+        print('\n--> Sync with Google Cloud successful.')
+
+
+    @ex(help='test Oracle Cloud configuration',
+        arguments=[
+            (['compartment'],
+            {
+                'help': 'Compartment NAME where OCI resources run. You can say "all" but be careful!'
+            })
+        ])    
+    def test_oci(self):
+        try:
+            from banyan.ext.iaas.oci.main import OciController
+        except Exception as ex:
+            raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
+
+        vmw = OciController(self.app.pargs.compartment)
+        instances: List[IaasResource] = vmw.list_vm()
+        if len(instances):
+            print('--> Oracle Cloud configuration test passed. Found %d resources.' % len(instances))
+        else:
+            print('--> Oracle Cloud configuration test failed. Check your OCI credentials and SDK configuration.')
+
+
+    @ex(help='sync cloud_resources with Oracle Cloud',
+        arguments=[
+            (['resource_type'],
+            {
+                'help': 'Type of VMWare Resource - vm | all.'
+            }),
+            (['compartment'],
+            {
+                'help': 'Compartment NAME where OCI resources run. You can say "all" but be careful!'
+            }),              
+            (['--tag_name'],
+            {
+                'help': 'Only sync resources with specific category:tag'
+            })
+        ])
+    def sync_oci(self):
+        try:
+            from banyan.ext.iaas.oci.main import OciController
+        except Exception as ex:
+            raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
+
+        Base.wait_for_input('Getting list of OCI Resources')
+        orl = OciController(self.app.pargs.compartment)
+        instances: List[IaasResource] = orl.list_vm()
+
+        results = Base.tabulate_iaas_resources(instances, ['id', 'account'])
+        self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        Base.wait_for_input('Filtering for new OCI Resources')
+        #TODO: List only OCI resources in specified Compartment (need API update)
+        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
+        added_instances = Base.added_iaas_resources(instances, d_resources)
+
+        new_results = Base.tabulate_iaas_resources(added_instances, ['id', 'account'])
+        self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        if len(new_results) == 0:
+            print('--> No new VMware resources to sync')
+            return
+
+        Base.wait_for_input('Syncing into Discovered Resource')
+        for instance in added_instances:
+            res = Base.convert_iaas_resource(instance)
+            self.app.render(CloudResource.Schema().dump(res), handler='json')
+            info = self._client.cloud_resources.create(res)
+            print('\n-->', info)
+            sleep(0.05)
+
+        print('\n--> Sync with Oracle Cloud successful.')
 
 
     @ex(help='use cloud_resource to create a new service',
@@ -484,7 +628,7 @@ class CloudResourceController(Controller):
         print('\n--> Publish flow successful.')
 
 
-    @ex(help='add cloud_resources by tag to an existing service',
+    @ex(help='add cloud_resources by tag to an existing infra service',
         arguments=[
             (['service_name'],
             {
