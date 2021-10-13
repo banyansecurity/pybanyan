@@ -24,3 +24,10 @@ python main.py
 ```
 
 You should see a list of your GCP VM resources.
+
+
+---
+
+https://github.com/alfonsof/google-cloud-python-examples/blob/master/gcloudcomputeengine/computeenginehelper.py
+https://googleapis.github.io/google-api-python-client/docs/epy/index.html
+https://googleapis.github.io/google-api-python-client/docs/dyn/compute_v1.instances.html#aggregatedList

@@ -13,6 +13,7 @@ from banyan.api import BanyanApiClient
 from banyan.model.cloud_resource import CloudResource, CloudResourceInfo
 from banyan.model.service import ServiceInfo, Service, SimpleWebService, AllowPattern
 from banyan.model.policy import PolicyInfo, SimpleWebPolicy
+from banyan.ext.iaas.model import IaasResource
 
 
 class CloudResourceController(Controller):
@@ -51,7 +52,7 @@ class CloudResourceController(Controller):
                        res.region, res.resource_type, 
                        self.trunc(res.private_ip or res.private_dns_name, 24), 
                        self.trunc(res.public_ip or res.public_dns_name, 24), 
-                       len(res.tags), res.status]
+                       len(res.tags or []), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
@@ -164,15 +165,21 @@ class CloudResourceController(Controller):
         self.app.render(info, handler='json')
 
 
-    @ex(help='test AWS configuration')
+    @ex(help='test AWS configuration',
+        arguments=[
+            (['region_name'],
+            {
+                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc.'
+            })    
+        ])
     def test_aws(self):
         try:
-            from banyan.ext.aws.main import AwsResourceModel, AwsController
+            from banyan.ext.iaas.aws.main import AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        aws = AwsController()
-        instances: List[AwsResourceModel] = aws.list_ec2()
+        aws = AwsController(self.app.pargs.region_name)
+        instances: List[IaasResource] = aws.list_ec2()
         if len(instances):
             print('--> AWS configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -183,11 +190,11 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of AWS resource - ec2 | rds | elb | all'
+                'help': 'Type of AWS resource - ec2 | rds | elb. You can say "all" but be careful!'
             }),
-            (['--region_name'],
+            (['region_name'],
             {
-                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc. If not specified, use default region.'
+                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc. You can say "all" but be careful!'
             }),            
             (['--tag_name'],
             {
@@ -196,11 +203,11 @@ class CloudResourceController(Controller):
         ])
     def sync_aws(self):
         try:
-            from banyan.ext.aws.main import AwsResourceModel, AwsController
+            from banyan.ext.iaas.aws.main import AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        instances: List[AwsResourceModel] = list()
+        instances: List[IaasResource] = list()
         rt = self.app.pargs.resource_type.lower()
         aws = AwsController(self.app.pargs.region_name, self.app.pargs.tag_name)
         if rt == 'ec2' or rt == 'all':
@@ -213,23 +220,19 @@ class CloudResourceController(Controller):
             Base.wait_for_input('Getting list of AWS ELB Resources')
             instances += aws.list_elb() 
 
-        results = list()
-        for instance in instances:
-            allvars = vars(copy.copy(instance))
-            allvars['tags'] = len(allvars['tags'])
-            results.append(allvars)
+        results = Base.tabulate_iaas_resources(instances)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+
+        if len(results) == 0:
+            print('--> No AWS resources to sync')
+            return
 
         Base.wait_for_input('Filtering for new AWS Resources')
         #TODO: List only AWS resources in specified Region (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+        added_instances = Base.added_iaas_resources(instances, d_resources)
 
-        new_results = list()
-        for instance in added_instances:
-            allvars = vars(copy.copy(instance))
-            allvars['tags'] = len(allvars['tags'])
-            new_results.append(allvars)
+        new_results = Base.tabulate_iaas_resources(added_instances)
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
 
         if len(new_results) == 0:
@@ -238,29 +241,7 @@ class CloudResourceController(Controller):
 
         Base.wait_for_input('Syncing into Discovered Resource')
         for instance in added_instances:
-            res_tags = []
-            for tag in instance.tags:
-                res_tag = {
-                    'name': tag['Key'],
-                    'value': tag['Value']
-                }
-                res_tags.append(res_tag)
-
-            res = CloudResource(
-                cloud_provider = AwsResourceModel.PROVIDER,
-                account = instance.account,
-                region = instance.region,
-                resource_id = instance.id,
-                resource_name = instance.name,
-                resource_type = instance.type,
-                public_dns_name = instance.public_dns_name,
-                public_ip = instance.public_ip,
-                private_dns_name = instance.private_dns_name,
-                private_ip = instance.private_ip,
-                ports = instance.ports,
-                status = 'discovered',
-                tags = res_tags
-            )
+            res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
             info = self._client.cloud_resources.create(res)
             print('\n-->', info)

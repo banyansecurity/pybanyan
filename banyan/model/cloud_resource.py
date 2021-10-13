@@ -7,23 +7,6 @@ from marshmallow_dataclass import dataclass
 
 from banyan.model import Resource, BanyanEnum
 
-
-class CloudProvider(BanyanEnum):
-    AWS = "AWS"
-    AZURE = "Azure"
-    GCP = "GCP"
-    OCI = "OCI"
-
-class ExternalCatalog(BanyanEnum):
-    OKTA = "Okta"
-    AAD = "AzureAD"
-
-class CloudResourceType(BanyanEnum):
-    # CloudProvider AWS
-    EC2 = "EC2"
-    RDS = "RDS"
-    ELB = "ELB"
-
 @dataclass
 class ResourceTag:
     class Meta:
@@ -41,10 +24,13 @@ class CloudResource(Resource):
 
     cloud_provider: str
     account: str
+    parent_id: str
     region: str
+
+    resource_type: str
     resource_id: str
     resource_name: str
-    resource_type: str
+
     public_dns_name: str
     public_ip: str
     private_dns_name: str
@@ -52,13 +38,12 @@ class CloudResource(Resource):
     ports: str = ''
     status: str = 'discovered'
     tags: Optional[List[ResourceTag]] = field(default_factory=list)
-    parent_id: Optional[str] = ''
+    
     Schema: ClassVar[Schema] = Schema
 
     @property
     def name(self) -> str:
         return self.resource_name
-
 
 @dataclass
 class CloudResourceInfo(Resource):
@@ -69,19 +54,22 @@ class CloudResourceInfo(Resource):
     cloud_provider: str
     account: str
     region: str
+    parent_id: str
+
+    resource_type: str
     resource_id: str
     resource_name: str
-    resource_type: str
-    parent_id: str
+
     public_dns_name: str
     public_ip: str
     private_dns_name: str
     private_ip: str
     ports: str
-    created_at: int
-    updated_at: int
     status: str
-    tags: Optional[List[ResourceTag]] = field(default_factory=list)
+    tags: Optional[List[ResourceTag]]
+
+    created_at: Optional[int]
+    updated_at: Optional[int]
     Schema: ClassVar[Type[Schema]] = Schema
 
     @property

@@ -105,8 +105,7 @@ Commands:
     cloud-resource      manage cloud resources discovered from IaaS
 ```
 
-Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, 
-create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
+Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
 
 ```console
 $ banyan service

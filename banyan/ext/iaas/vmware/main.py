@@ -14,7 +14,11 @@ except ImportError as ex:
 
 @dataclass
 class VmwareResourceModel:
+    organization: str
+
     datacenter: str
+    region: str
+
     type: str
     id: str
     name: str

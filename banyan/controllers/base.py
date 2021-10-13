@@ -1,10 +1,15 @@
 import json
 import sys
+from typing import List
+import copy
 
 from cement import Controller
 from cement.utils.version import get_version_banner
 
 from ..core.version import get_version
+
+from banyan.ext.iaas.model import IaasResource
+from banyan.model.cloud_resource import CloudResource
 
 VERSION_BANNER = """
 API library and command-line interface for Banyan Security %s
@@ -76,15 +81,57 @@ class Base(Controller):
             raise RuntimeError('User terminated workflow')
 
     @staticmethod
-    def rows_added(list1: list, key1: str, list2: list, key2: str):
-        added = list()
-        for l1 in list1:
+    def added_iaas_resources(res_list: List[IaasResource], inv_list: List[CloudResource]) -> List[IaasResource]:
+        added: List[IaasResource] = list()
+        for res in res_list:
             exists = False
-            for l2 in list2:
-                if getattr(l1, key1) == getattr(l2, key2):
+            for inv in inv_list:
+                if res.instance.id == inv.resource_id:
                     exists = True
                     break
             if not exists:
-                added.append(l1)
-        
+                added.append(res)
         return added
+
+    @staticmethod
+    def tabulate_iaas_resources(res_list: List[IaasResource]):
+        results = list()
+        for res in res_list:
+            allvars = vars(copy.copy(res.instance))
+            allvars['tags'] = len(allvars['tags'])
+            allvars['provider'] = res.provider
+            allvars['account'] = res.account.name
+            allvars['parent'] = res.parent.name if res.parent else ''     # not in all IaaS providers
+            allvars['location'] = res.location.name
+            results.append(allvars)
+        #self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+        return results
+
+    @staticmethod
+    def convert_iaas_resource(res: IaasResource) -> CloudResource:
+        res_tags = []
+        for key, val in res.instance.tags.items():
+            res_tag = {
+                'name': key,
+                'value': val
+            }
+            res_tags.append(res_tag)
+
+        cloud_res = CloudResource(
+            cloud_provider = res.provider,
+            account = res.account.id,
+            parent_id = res.parent.id if res.parent else '',     # not in all IaaS providers
+            region = res.location.name,
+
+            resource_type = res.instance.type,
+            resource_id = res.instance.id,
+            resource_name = res.instance.name,
+
+            public_dns_name = res.instance.public_dns_name,
+            public_ip = res.instance.public_ip,
+            private_dns_name = res.instance.private_dns_name,
+            private_ip = res.instance.private_ip,
+            ports = res.instance.ports,
+            tags = res_tags
+        )
+        return cloud_res
