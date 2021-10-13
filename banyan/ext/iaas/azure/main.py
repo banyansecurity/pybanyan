@@ -1,5 +1,4 @@
 from typing import List, Dict, ClassVar, Type, Optional, Union
-from dataclasses import dataclass, field
 import os, json
 
 try: 
@@ -19,8 +18,9 @@ except:
     sys.path.append('..')
     from model import *
 
+
 class AzureController:
-    def __init__(self, filter_by_resource_group: str = None, filter_by_location: str = None, filter_by_tag_name: str = None):
+    def __init__(self, filter_by_resource_group: str, filter_by_location: str = None, filter_by_tag_name: str = None):
         try:
             self._credential = DefaultAzureCredential()
             self._subscription = os.environ["AZURE_SUBSCRIPTION_ID"]
@@ -100,7 +100,6 @@ class AzureController:
                 location = res_loc,
                 instance = res_inst
             )
-
             instances.append(res)
 
         return instances
@@ -169,7 +168,7 @@ class AzureController:
 
 
 if __name__ == '__main__':
-    azr = AzureController('all')
+    azr = AzureController('all', 'banyan:discovery')
     my_vms = azr.list_vm()
     print(my_vms)
     my_lbs = azr.list_lb()

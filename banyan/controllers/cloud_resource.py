@@ -332,15 +332,21 @@ class CloudResourceController(Controller):
         print('\n--> Sync with Azure successful.')
 
 
-    @ex(help='test VMware vSphere configuration')
+    @ex(help='test VMware vSphere configuration',
+        arguments=[
+            (['datacenter'],
+            {
+                'help': 'Datacenter where vSphere resources run. You can say "all" but be careful!'
+            })
+        ])    
     def test_vmware(self):
         try:
-            from banyan.ext.vmware.main import VmwareController, VmwareResourceModel
+            from banyan.ext.iaas.vmware.main import VmwareController
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
         vmw = VmwareController()
-        instances: List[VmwareResourceModel] = vmw.list_vm()
+        instances: List[IaasResource] = vmw.list_vm()
         if len(instances):
             print('--> VMWare vSphere configuration test passed. Found %d resources.' % len(instances))
         else:
@@ -353,9 +359,9 @@ class CloudResourceController(Controller):
             {
                 'help': 'Type of VMWare Resource - vm | all.'
             }),
-            (['--datacenter'],
+            (['datacenter'],
             {
-                'help': 'Datacenter where vSphere resources run. If not specified, use all datacenters.'
+                'help': 'Datacenter where vSphere resources run. You can say "all" but be careful!'
             }),              
             (['--tag_name'],
             {
@@ -364,57 +370,32 @@ class CloudResourceController(Controller):
         ])
     def sync_vmware(self):
         try:
-            from banyan.ext.vmware.main import VmwareController, VmwareResourceModel
+            from banyan.ext.iaas.vmware.main import VmwareController
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
         Base.wait_for_input('Getting list of VMware Resources')
         vmw = VmwareController(self.app.pargs.datacenter)
-        instances: List[VmwareResourceModel] = vmw.list_vm()
-        results = list()
-        for instance in instances:
-            allvars = vars(copy.copy(instance))
-            allvars['tags'] = len(allvars['tags'])
-            results.append(allvars)
+        instances: List[IaasResource] = vmw.list_vm()
+
+        results = Base.tabulate_iaas_resources(instances)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
         Base.wait_for_input('Filtering for new VMware Resources')
         #TODO: List only VMware resources in specified Datacenter (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.rows_added(instances, 'id', d_resources, 'resource_id')
+        added_instances = Base.added_iaas_resources(instances, d_resources)
 
-        new_results = list()
-        for instance in added_instances:
-            allvars = vars(copy.copy(instance))
-            allvars['tags'] = len(allvars['tags'])
-            new_results.append(allvars)
+        new_results = Base.tabulate_iaas_resources(added_instances)
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
 
+        if len(new_results) == 0:
+            print('--> No new VMware resources to sync')
+            return
+
         Base.wait_for_input('Syncing into Discovered Resource')
-        for instance in instances:
-            res_tags = []
-            for key in instance.tags:
-                res_tag = {
-                    'name': key,
-                    'value': instance.tags[key]
-                }
-                res_tags.append(res_tag)
-                            
-            res = CloudResource(
-                cloud_provider = VmwareResourceModel.PROVIDER,
-                account = VmwareResourceModel.ACCOUNT,
-                region = instance.datacenter,
-                resource_id = instance.id,
-                resource_name = instance.name,
-                resource_type = instance.type,
-                public_dns_name = instance.public_dns_name,
-                public_ip = instance.public_ip,
-                private_dns_name = instance.private_dns_name,
-                private_ip = instance.private_ip,
-                ports = instance.ports,
-                status = 'discovered',
-                tags = res_tags
-            )
+        for instance in added_instances:
+            res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
             info = self._client.cloud_resources.create(res)
             print('\n-->', info)

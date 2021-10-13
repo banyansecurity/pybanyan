@@ -101,8 +101,9 @@ class Base(Controller):
             allvars['tags'] = len(allvars['tags'])
             allvars['provider'] = res.provider
             allvars['account'] = res.account.id
-            allvars['parent'] = res.parent.id if res.parent else ''     # not in all IaaS providers
-            allvars['location'] = res.location.name
+             # not in all IaaS providers
+            allvars['parent'] = res.parent.id if res.parent else ''
+            allvars['location'] = res.location.id if res.location else ''
             # rm keys that don't print well
             for key in del_keys:
                 allvars.pop(key)
@@ -123,8 +124,10 @@ class Base(Controller):
         cloud_res = CloudResource(
             cloud_provider = res.provider,
             account = res.account.id,
-            parent_id = res.parent.id if res.parent else '',     # not in all IaaS providers
-            region = res.location.name,
+
+            # not in all IaaS providers
+            parent_id = res.parent.id if res.parent else '',    
+            region = res.location.id if res.location else '',
 
             resource_type = res.instance.type,
             resource_id = res.instance.id,

@@ -1,6 +1,4 @@
-import logging
 from typing import List
-from dataclasses import dataclass, field
 
 try:
     import boto3
@@ -18,7 +16,7 @@ except:
 
 
 class AwsController:
-    def __init__(self, filter_by_region: str = None, filter_by_tag_name: str = None):
+    def __init__(self, filter_by_region: str, filter_by_tag_name: str = None):
         try:
             self._session = boto3.session.Session()
             sts_client = self._session.client('sts')
@@ -243,7 +241,7 @@ class AwsController:
 
 
 if __name__ == '__main__':
-    aws = AwsController('us-east-1','banyan:discovery')
+    aws = AwsController('us-east-1', 'banyan:discovery')
     ec2_instances = aws.list_ec2()
     print(ec2_instances)
     rds_instances = aws.list_rds()
