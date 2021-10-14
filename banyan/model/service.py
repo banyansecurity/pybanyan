@@ -45,10 +45,10 @@ class Metadata:
     class Meta:
         unknown = EXCLUDE
 
-    tags: Tags
     name: str
     description: str
     cluster: str
+    tags: Tags = field(default_factory=Tags)
 
 
 @dataclass
@@ -76,7 +76,7 @@ class CustomTLSCert:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     cert_file: str = ""
     key_file: str = ""
 
@@ -114,7 +114,7 @@ class HTTPRedirect:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: bool = field(default=False)
     url: str = field(default='')
     status_code: int = field(default=302)
     addresses: List[str] = field(default_factory=list)
@@ -159,11 +159,11 @@ class Pattern:
     class Meta:
         unknown = EXCLUDE
 
-    hosts: List[Host] = field(default_factory=list)
-    methods: List[str] = field(default_factory=list)
-    mandatory_headers: List[str] = field(default_factory=list)
-    paths: List[str] = field(default_factory=list)
-    source_cidrs: List[str] = field(default_factory=list)
+    hosts: Optional[List[Host]] = field(default_factory=list)
+    methods: Optional[List[str]] = field(default_factory=list)
+    mandatory_headers: Optional[List[str]] = field(default_factory=list)
+    paths: Optional[List[str]] = field(default_factory=list)
+    source_cidrs: Optional[List[str]] = field(default_factory=list)
 
 
 @dataclass
@@ -171,7 +171,7 @@ class ExemptedPaths:
     class Meta:
         unknown = EXCLUDE
 
-    enabled: bool
+    enabled: Optional[bool]
     paths: Optional[List[str]]
     patterns: List[Pattern] = field(default_factory=list)
 
@@ -183,8 +183,6 @@ class HttpSettings:
 
     enabled: bool
     oidc_settings: Optional[OIDCSettings]
-    http_health_check: Optional[HTTPHealthCheck]
-    http_redirect: Optional[HTTPRedirect]
     exempted_paths: Optional[ExemptedPaths]
 
 
@@ -221,14 +219,24 @@ class BackendTarget:
 
 
 @dataclass
+class AllowPattern:
+    class Meta:
+        unknown = EXCLUDE
+
+    cidrs: Optional[List[str]] = field(default_factory=list)
+    hostnames: Optional[List[str]] = field(default_factory=list)
+
+
+@dataclass
 class Backend:
     class Meta:
         unknown = EXCLUDE
 
     target: BackendTarget
-    dns_overrides: Dict[str, str] = field(default_factory=dict)
-    whitelist: List[str] = field(default_factory=list)
-
+    dns_overrides: Optional[Dict[str, str]] = field(default_factory=dict)
+    allow_patterns: Optional[List[AllowPattern]] = field(default_factory=list)
+    whitelist: Optional[List[str]] = field(default_factory=list) # deprecated
+    http_connect: Optional[bool] = False
 
 @dataclass
 class Spec:
@@ -248,6 +256,7 @@ class Service(BanyanApiObject):
         unknown = EXCLUDE
         ordered = True
 
+    KIND = "BanyanService"
     metadata: Metadata
     spec: Spec
 
