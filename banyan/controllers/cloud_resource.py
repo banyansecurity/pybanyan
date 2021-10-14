@@ -37,7 +37,7 @@ class CloudResourceController(Controller):
         arguments=[
             (['--tag_name'], 
             {
-                'help': 'Filter discovered resource by Tag Name.'
+                'help': 'filter discovered resource by Tag Name.'
             }),
         ])
     def list(self):
@@ -59,7 +59,7 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_uuid'],
             {
-                'help': 'Get discovered resource by Banyan UUID.'
+                'help': 'get discovered resource by Banyan UUID.'
             }),            
         ])
     def get(self):
@@ -167,7 +167,7 @@ class CloudResourceController(Controller):
         arguments=[
             (['region_name'],
             {
-                'help': 'Region where AWS EC2 resources exist - us-east-1, us-west-2, etc.'
+                'help': 'region where AWS EC2 resources exist - us-east-1, us-west-2, etc.'
             })    
         ])
     def test_aws(self):
@@ -188,15 +188,20 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of AWS resource - ec2 | rds | elb. You can say "all" but be careful!'
+                'help': 'type of AWS resource - ec2 | rds | elb. You can say "all" but be careful!'
             }),
             (['region_name'],
             {
-                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc. You can say "all" but be careful!'
+                'help': 'region where AWS resources run - us-east-1, us-west-2, etc. You can say "all" but be careful!'
             }),            
             (['--tag_name'],
             {
-                'help': 'Only sync resources with specific tag name. If not specified, sync all resources.'
+                'help': 'only sync resources with specific tag name. If not specified, sync all resources.'
+            }),
+            (['--wait_for_input', '-w'],
+            {
+                'action': 'store_true',
+                'help': 'wait for user input before proceeding to next step'
             })
         ])
     def sync_aws(self):
@@ -209,13 +214,13 @@ class CloudResourceController(Controller):
         rt = self.app.pargs.resource_type.lower()
         aws = AwsController(self.app.pargs.region_name, self.app.pargs.tag_name)
         if rt == 'ec2' or rt == 'all':
-            Base.wait_for_input('Getting list of AWS EC2 Resources')
+            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS EC2 resources')
             instances += aws.list_ec2()
         if rt == 'rds' or rt == 'all':
-            Base.wait_for_input('Getting list of AWS RDS Resources')
+            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS RDS resources')
             instances += aws.list_rds()
         if rt == 'elb' or rt == 'all':
-            Base.wait_for_input('Getting list of AWS ELB Resources')
+            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS ELB resources')
             instances += aws.list_elb() 
 
         results = Base.tabulate_iaas_resources(instances)
@@ -225,7 +230,7 @@ class CloudResourceController(Controller):
             print('--> No AWS resources to sync')
             return
 
-        Base.wait_for_input('Filtering for new AWS Resources')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new AWS resources')
         #TODO: List only AWS resources in specified Region (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.added_iaas_resources(instances, d_resources)
@@ -237,7 +242,7 @@ class CloudResourceController(Controller):
             print('--> No new AWS resources to sync')
             return
 
-        Base.wait_for_input('Syncing into Discovered Resource')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
@@ -273,7 +278,7 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of Azure Resource - vm | lbl. You can say "all" but be careful!'
+                'help': 'type of Azure resource - vm | lbl. You can say "all" but be careful!'
             }),
             (['resource_group'],
             {
@@ -281,11 +286,16 @@ class CloudResourceController(Controller):
             }),            
             (['--location'],
             {
-                'help': 'Location where Azure resources run - centralus, eastus, etc. If not specified, all locations are used.'
+                'help': 'location where Azure resources run - centralus, eastus, etc. If not specified, all locations are used.'
             }),            
             (['--tag_name'],
             {
-                'help': 'Only sync resources with specific tag name. If not specified, sync all resources.'
+                'help': 'only sync resources with specific tag name. If not specified, sync all resources.'
+            }),
+            (['--wait_for_input', '-w'],
+            {
+                'action': 'store_true',
+                'help': 'wait for user input before proceeding to next step'
             })
         ])
     def sync_azure(self):
@@ -298,17 +308,17 @@ class CloudResourceController(Controller):
         rt = self.app.pargs.resource_type.lower()
         azr = AzureController(self.app.pargs.resource_group, self.app.pargs.location, self.app.pargs.tag_name)
         if rt == 'vm' or rt == 'all':
-            Base.wait_for_input('Getting list of Azure VM Resources')
+            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of Azure VM resources')
             instances += azr.list_vm()
         if rt == 'lb' or rt == 'all':
-            Base.wait_for_input('Getting list of Azure LB Resources')
+            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of Azure LB resources')
             instances += azr.list_lb()
 
         results = Base.tabulate_iaas_resources(instances, ['id'])
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
-        Base.wait_for_input('Filtering for new Azure Resources')
-        #TODO: List only Azure resources in specified Resource Group (need API update)
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new Azure resources')
+        #TODO: List only Azure resources in specified resource Group (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.added_iaas_resources(instances, d_resources)
 
@@ -319,7 +329,7 @@ class CloudResourceController(Controller):
             print('--> No new Azure resources to sync')
             return
 
-        Base.wait_for_input('Syncing into Discovered Resource')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
@@ -355,15 +365,24 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of VMWare Resource - vm | all.'
+                'help': 'type of VMWare resource - vm | all.'
             }),
             (['project'],
             {
                 'help': 'Project ID where GCP resources run. You can say "all" but be careful!'
-            }),              
+            }),
+            (['--zone'],
+            {
+                'help': 'zone where GCP resources run - us-east4-b, us-west1-a, etc. If not specified, all zones are used.'
+            }),                      
             (['--tag_name'],
             {
-                'help': 'Only sync resources with specific category:tag'
+                'help': 'only sync resources with specific category:tag'
+            }),
+            (['--wait_for_input', '-w'],
+            {
+                'action': 'store_true',
+                'help': 'wait for user input before proceeding to next step'
             })
         ])
     def sync_gcp(self):
@@ -372,14 +391,14 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input('Getting list of GCP Resources')
-        gcp = GcpController(self.app.pargs.project)
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of GCP VM resources')
+        gcp = GcpController(self.app.pargs.project, self.app.pargs.zone, self.app.pargs.tag_name)
         instances: List[IaasResource] = gcp.list_vm()
 
         results = Base.tabulate_iaas_resources(instances)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
-        Base.wait_for_input('Filtering for new GCP Resources')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new GCP resources')
         #TODO: List only GCP resources in specified Project (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.added_iaas_resources(instances, d_resources)
@@ -391,7 +410,7 @@ class CloudResourceController(Controller):
             print('--> No new GCP resources to sync')
             return
 
-        Base.wait_for_input('Syncing into Discovered Resource')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')
@@ -427,16 +446,25 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'Type of VMWare Resource - vm | all.'
+                'help': 'type of OCI resource - vm | all.'
             }),
             (['compartment'],
             {
                 'help': 'Compartment NAME where OCI resources run. You can say "all" but be careful!'
-            }),              
+            }), 
+            (['--region'],
+            {
+                'help': 'region where OCI resources run - phx, iad, sjc, etc. If not specified, all regions are used.'
+            }),                         
             (['--tag_name'],
             {
-                'help': 'Only sync resources with specific category:tag'
-            })
+                'help': 'only sync resources with specific category:tag'
+            }),
+            (['--wait_for_input', '-w'],
+            {
+                'action': 'store_true',
+                'help': 'wait for user input before proceeding to next step'
+            })            
         ])
     def sync_oci(self):
         try:
@@ -444,14 +472,14 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input('Getting list of OCI Resources')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of OCI VM resources')
         orl = OciController(self.app.pargs.compartment)
         instances: List[IaasResource] = orl.list_vm()
 
         results = Base.tabulate_iaas_resources(instances, ['id', 'account'])
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
 
-        Base.wait_for_input('Filtering for new OCI Resources')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new OCI resources')
         #TODO: List only OCI resources in specified Compartment (need API update)
         d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
         added_instances = Base.added_iaas_resources(instances, d_resources)
@@ -460,10 +488,10 @@ class CloudResourceController(Controller):
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
 
         if len(new_results) == 0:
-            print('--> No new VMware resources to sync')
+            print('--> No new OCI resources to sync')
             return
 
-        Base.wait_for_input('Syncing into Discovered Resource')
+        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
             self.app.render(CloudResource.Schema().dump(res), handler='json')

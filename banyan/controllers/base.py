@@ -74,7 +74,9 @@ class Base(Controller):
         return json.loads(arg)       
 
     @staticmethod
-    def wait_for_input(text: str):
+    def wait_for_input(wait: bool, text: str):
+        if not wait:
+            return
         print('\n--> %s:' % text)
         user_input = input('press enter to continue, type "stop" to stop ...\n')
         if 'stop' in user_input:

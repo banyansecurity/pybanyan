@@ -63,6 +63,8 @@ class OciController:
             vm_list = compute_client.list_instances(compartment_id=cmpt_id).data
             for vm in vm_list:
                 #print(vm)
+                #TODO: filter by region
+
                 vnic_attachments = compute_client.list_vnic_attachments(compartment_id=cmpt_id, instance_id=vm.id).data
                 # assume only 1 NIC
                 vnic = network_client.get_vnic(vnic_attachments[0].vnic_id).data
