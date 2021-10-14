@@ -317,39 +317,3 @@ class ServiceInfo(InfoBase):
     def id(self) -> str:
         return self.service_id
 
-
-@dataclass
-class SimpleWebService():
-    class Meta:
-        unknown = EXCLUDE
-
-    type: str
-    subtype: str
-    name: str
-    description: str
-    domain: str
-    port: int
-    backend_name: str
-    backend_port: int
-    backend_tls: bool
-    Schema: ClassVar[Schema] = Schema
-
-    @property
-    def service(self) -> Service:
-        svc_tags = Tags('https', self.domain, True, self.subtype, self.type, 'leanpub', self.port)
-        svc_metadata = Metadata(self.name, self.description, 'edge1', svc_tags)
-        frontend_address = FrontendAddress(self.port, '')
-        host_tag_selector = {"com.banyanops.hosttag.site_name": "*"}
-        attributes = Attributes([self.domain], [frontend_address], [host_tag_selector])
-        backend_target = BackendTarget(self.backend_name, '', self.backend_port, self.backend_tls)
-        backend = Backend(backend_target, {}, [], [])
-        custom_tls_cert = CustomTLSCert()
-        cert_settings = CertSettings(custom_tls_cert, [self.domain])
-        oidc_settings = OIDCSettings(True, 'https://' + self.domain)
-        http_settings = HttpSettings(True, oidc_settings, {}, {}, {})
-        svc_spec = Spec(attributes, backend, cert_settings, http_settings, {})
-        svc = Service('rbac.banyanops.com/v1', 'BanyanService', 'origin', svc_metadata, svc_spec)
-        return svc
-
-
-ServiceInfoOrName = Union[ServiceInfo, str]
