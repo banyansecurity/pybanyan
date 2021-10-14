@@ -46,7 +46,7 @@ class CloudResourceController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in d_resources:
-            new_res = [res.name, res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
+            new_res = [res.name[:20], res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
                        res.region, res.resource_type, 
                        self.trunc(res.private_ip or res.private_dns_name, 24), 
                        self.trunc(res.public_ip or res.public_dns_name, 24), 
