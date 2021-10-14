@@ -104,8 +104,7 @@ Commands:
     service             manage web and TCP services and workloads
 ```
 
-Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, 
-create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
+Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
 
 ```console
 $ banyan service
@@ -149,6 +148,18 @@ optional arguments:
   --enforcing         Set the policy to enforcing mode (deny unauthorized
                       access).
 ```
+
+## Integrations
+
+You can automate different types of workflows by integrating with external APIs. 
+
+### Bookmark Banyan services into your SSO catalog
+
+You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal, so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
+
+- [Okta](docs/idp/okta.md)
+- [AzureAD](docs/idp/azure_ad.md)
+
 
 ## Development
 

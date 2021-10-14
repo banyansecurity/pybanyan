@@ -190,3 +190,75 @@ class ServiceController(Controller):
                               self.app.pargs.timeout, self.app.pargs.external_dns,
                               self.app.pargs.wildcard)
         harness.run()
+
+    @ex(help='create an Okta Bookmark Application from a web service',
+        arguments=[
+            (['service_name'],
+            {
+                'help': 'name of service to add to Okta.'
+            }),
+            (['group_name'],
+            {
+                'help': 'Okta group to assign application access.'
+            }),            
+        ])
+    def bookmark_okta(self):
+        try:
+            from banyan.ext.idp.okta import OktaApplicationController
+        except Exception as ex:
+            raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
+
+        self._client.list()
+        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
+        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+            raise RuntimeError('Service needs to be of type WEB')
+
+        Base.wait_for_input(True, 'Get service to add to Okta:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+        Base.wait_for_input(True, 'Adding to Okta and assigning group.')
+        okta = OktaApplicationController()
+        okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
+        print(okta_app)
+        okta_assignment = okta.assign(okta_app.id, self.app.pargs.group_name)
+        print(okta_assignment)
+
+        print('\n--> Bookmark to Okta successful.')
+
+
+    @ex(help='create an Azure AD Linked Sign-on from a web service',
+    arguments=[
+        (['service_name'],
+        {
+            'help': 'name of service to add to Azure AD.'
+        }),
+        (['group_name'],
+        {
+            'help': 'Azure AD group to assign application access.'
+        }),            
+    ])
+    def bookmark_aad(self):
+        try:
+            from banyan.ext.idp.azure_ad import AzureADApplicationController
+        except Exception as ex:
+            raise NotImplementedError("Azure AD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
+
+        self._client.list()
+        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
+        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+            raise RuntimeError('Service needs to be of type WEB')
+
+        Base.wait_for_input(True, 'Get service to add to AzureAD:')
+        svc = service_info.service
+        service_json = Service.Schema().dump(svc)
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+        Base.wait_for_input(True, 'Adding to Azure AD and assigning group.')
+        aad = AzureADApplicationController()
+        aad_app = aad.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
+        print(aad_app)
+
+        print('\n--> Bookmark to Azure AD successful.')
+        
