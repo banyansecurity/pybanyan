@@ -1,10 +1,10 @@
 # VMware vSphere
 
-Ensure you have the [VMware vSphere Automation SDK for Python](https://github.com/vmware/vsphere-automation-sdk-python) installed and configured.
+**NOTE: WIP!**
 
-```bash
-pip install -r requirements.txt
-```
+Banyan uses the [VMware vSphere Automation SDK for Python](https://github.com/vmware/vsphere-automation-sdk-python) to synchronize vSphere resources into Banyan's inventory.
+
+
 
 ## Configuration
 
@@ -16,15 +16,12 @@ VSPHERE_PASSWORD="Password to use when connecting to host"
 VSPHERE_NOSSL="Set to Disable ssl host certificate verification"
 ```
 
-Other credentials configuration methods are available. See the VMware docs for details.
-
-
 ## Test
 
-Confirm you are set up correctly, by running:
+Try the Controller:
 
 ```console
-python main.py
+python -m banyan.ext.iaas.vmware
 ```
 
 You should see a list of your VMs.

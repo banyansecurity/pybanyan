@@ -27,5 +27,3 @@ azure-mgmt-network
 google-api-python-client
 # oci
 oci
-# vmware
--e git+https://github.com/vmware/vsphere-automation-sdk-python.git#egg=vsphere-automation-sdk-python

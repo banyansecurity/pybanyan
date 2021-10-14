@@ -154,17 +154,18 @@ optional arguments:
 
 You can automate different types of workflows by integrating with external APIs. We provide pre-built integrations for 2 types of workflows:
 
-### 1. Discover cloud resources from your IaaS provider and publish as Banyan services
+### 1. Synchronize cloud resources from your IaaS provider
 
-You can discover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory. You can then publish these resources as Banyan services so your end-users can access them. Check out the provider-specific link for setup instructions.
+You can discover and synchronize your IaaS (Infrastructure As A Service) resources into Banyan's inventory, so you can later publish some or all of them as Banyan services. Read our [overview on how Banyan synchronizes IaaS resources](docs/iaas/README.md), and then check out instructions to set up for your specific IaaS provider:
 
-- [AWS](banyan/ext/aws/)
-- [Azure](banyan/ext/azure/)
-- [VMware vSphere](banyan/ext/vmware/)
+- [AWS](docs/iaas/aws.md)
+- [Azure Cloud](docs/iaas/azure_cloud.md)
+- [GCP](docs/iaas/gcp.md)
+- [Oracle Cloud](docs/iaas/oracle_cloud.md)
 
 ### 2. Bookmark Banyan services into your SSO catalog
 
-You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
+You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal, so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
 
 - [Okta](banyan/ext/okta/)
 - [AzureAD](banyan/ext/azuread/)

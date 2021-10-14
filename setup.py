@@ -45,8 +45,7 @@ setup(
         'aws': ['boto3'],
         'azure': ['azure-identity', 'azure-mgmt-resource', 'azure-mgmt-compute', 'azure-mgmt-network'],
         'gcp': ['google-api-python-client'],
-        'oci': ['oci'],
-        'vmware': ['git+https://github.com/vmware/vsphere-automation-sdk-python.git']
+        'oci': ['oci']
     },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
