@@ -1,35 +1,23 @@
 {
-    "request_id": "60a5a929-3ddc-4d87-8a3d-1a2de8ffb3cf",
-    "error_code": 0,
-    "error_description": "",
-    "data":
-    {
-        "result":
-        [
-            {
-                "id": "aff13145-e8a2-4bb5-aad1-542ba60b62a0",
-                "org_id": "acea0c97-09e6-45df-b969-c9304b820c99",
-                "cloud_resource_id": "e002082f-24af-4548-9396-7c582a8c13fe",
-                "service_id": "dc-nginx.edge1.bnn",
-                "created_at": 1634226834162244401,
-                "created_by": "tarun+tdupnsan@banyanops.com",
-                "updated_at": 1634226834162244401,
-                "updated_by": "tarun+tdupnsan@banyanops.com",
-                "port": 443,
-                "service_name": "dc-nginx",
-                "service_type": "origin",
-                "service_spec": "",
-                "cluster_name": "edge1",
-                "resource_id": "wiki.banyan.local",
-                "resource_name": "wiki.banyan.local",
-                "resource_type": "dns",
-                "status": "published",
-                "public_dns_name": "",
-                "private_dns_name": "wiki.banyan.local",
-                "public_ip": "",
-                "private_ip": "172.31.6.6"
-            }
-        ],
-        "count": 1
-    }
+    "id": "aff13145-e8a2-4bb5-aad1-542ba60b62a0",
+    "org_id": "acea0c97-09e6-45df-b969-c9304b820c99",
+    "cloud_resource_id": "e002082f-24af-4548-9396-7c582a8c13fe",
+    "service_id": "dc-nginx.edge1.bnn",
+    "created_at": 1634226834162244401,
+    "created_by": "tarun+tdupnsan@banyanops.com",
+    "updated_at": 1634226834162244401,
+    "updated_by": "tarun+tdupnsan@banyanops.com",
+    "port": 443,
+    "service_name": "dc-nginx",
+    "service_type": "origin",
+    "service_spec": "",
+    "cluster_name": "edge1",
+    "resource_id": "wiki.banyan.local",
+    "resource_name": "wiki.banyan.local",
+    "resource_type": "dns",
+    "status": "published",
+    "public_dns_name": "",
+    "private_dns_name": "wiki.banyan.local",
+    "public_ip": "",
+    "private_ip": "172.31.6.6"
 }
