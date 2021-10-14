@@ -17,11 +17,8 @@ class PolicyAPI(ServiceBase):
 
     def attach(self, policy: PolicyInfoOrName, service: ServiceInfoOrName, enforcing: bool) -> PolicyAttachInfo:
         from banyan.api.service import ServiceAPI
-        print('------DEBUG-----')
         policy = self.find(policy)
-        print(policy)
         service = ServiceAPI(self._client).find(service)
-        print(service)
         json_response = self._client.api_request('POST', '/insert_security_attach_policy',
                                                  params={
                                                      'PolicyID': policy.id,
