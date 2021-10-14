@@ -2,7 +2,8 @@
 
 Banyan uses the [OCI Python SDK](https://github.com/oracle/oci-python-sdk) to synchronize OCI resources into Banyan's inventory.
 
-## Credentials
+
+## Authentication
 
 Create an [IAM User](https://docs.oracle.com/en-us/iaas/Content/GSG/Tasks/addingusers.htm#Adding_Users).
 
@@ -28,10 +29,19 @@ region=us-ashburn-1
 **Note:** if you're on Windows, Python still uses `/` not `\` in the path to key file, so you'd use `C:/Users/foobar/key.json` and not `C:\Users\foobar\key.json`.
 
 
-## Try it
+## Test
 
 Run the test command to verify access:
 
 ```bash
 banyan cloud-resource test-oci
+```
+
+
+## Synchronize
+
+Run the sync command to synchronize your Iaas resources:
+
+```bash
+banyan cloud-resource sync-oci
 ```

@@ -2,7 +2,8 @@
 
 Banyan uses the [Azure SDK for Python](https://github.com/Azure/azure-sdk-for-python) to synchronize Azure resources into Banyan's inventory.
 
-## Credentials
+
+## Authentication
 
 Create a Service Principal via the [Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) or the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli).
 
@@ -24,10 +25,18 @@ azure_client_id = "id of an Azure Active Directory application"
 azure_client_secret = "one of the application's client secrets"
 ```
 
-## Try it
+## Test
 
 Run the test command to verify access:
 
 ```
 banyan cloud-resource test-azure
+```
+
+## Synchronize
+
+Run the sync command to synchronize your Iaas resources:
+
+```bash
+banyan cloud-resource sync-azure
 ```

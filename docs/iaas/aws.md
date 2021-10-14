@@ -2,7 +2,8 @@
 
 Banyan uses the [AWS SDK for Python](https://github.com/boto/boto3) to synchronize AWS resources into Banyan's inventory.
 
-## Credentials
+
+## Authentication
 
 Create an [IAM User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) for programmatic access.
 
@@ -24,10 +25,18 @@ aws_access_key_id = YOUR_KEY
 aws_secret_access_key = YOUR_SECRET
 ```
 
-## Try it
+## Test
 
 Run the test command to verify access:
 
 ```
 banyan cloud-resource test-aws
+```
+
+## Synchronize
+
+Run the sync command to synchronize your Iaas resources:
+
+```bash
+banyan cloud-resource sync-aws
 ```

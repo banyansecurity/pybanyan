@@ -1,6 +1,6 @@
 from banyan.api.base import ServiceBase
-from banyan.model.policy import PolicyInfoOrName, PolicyAttachInfo
-from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName, SimpleWebService
+from banyan.model.policy import PolicyInfo, PolicyInfoOrName, PolicyAttachInfo
+from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName
 
 class ServiceAPI(ServiceBase):
     class Meta:
@@ -38,11 +38,8 @@ class ServiceAPI(ServiceBase):
     def test(self, service: ServiceInfoOrName) -> None:
         pass
 
-    def attached_policy(self, service: ServiceInfoOrName) -> 'PolicyInfo':
+    def attached_policy(self, service: ServiceInfoOrName) -> PolicyInfo:
         from banyan.model.policy import PolicyAttachInfo
         service = self.find(service)
         json_response = self._client.api_request('GET', f'/policy/attachment/service/{service.id}')
         return PolicyAttachInfo.Schema().load(json_response[0]) if len(json_response) > 0 else None
-
-    def create_simple_web(self, svc_web: SimpleWebService) -> ServiceInfo:
-        return ServiceAPI(self._client).create(svc_web.service)

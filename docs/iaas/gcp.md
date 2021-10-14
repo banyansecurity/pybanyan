@@ -2,7 +2,8 @@
 
 Banyan uses the [Google Cloud Client Libraries for Python](https://cloud.google.com/compute/docs/tutorials/python-guide) to synchronize GCP resources into Banyan's inventory.
 
-## Credentials
+
+## Authentication
 
 Create a [Service Account](https://cloud.google.com/iam/docs/creating-managing-service-accounts).
 
@@ -30,10 +31,19 @@ google_application_credentials=/path/to/my/key.json
 The same Service Account can be used to discover resources across multiple projects. As in [this post](https://gtseres.medium.com/using-service-accounts-across-projects-in-gcp-cf9473fef8f0), add the Service Account email address and assign the IAM roles in each project you want to synchronize.
 
 
-## Try it
+## Test
 
 Run the test command to verify access:
 
 ```bash
 banyan cloud-resource test-gcp
+```
+
+
+## Synchronize
+
+Run the sync command to synchronize your Iaas resources:
+
+```bash
+banyan cloud-resource sync-gcp
 ```

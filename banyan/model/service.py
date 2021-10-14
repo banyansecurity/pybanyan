@@ -317,3 +317,5 @@ class ServiceInfo(InfoBase):
     def id(self) -> str:
         return self.service_id
 
+
+ServiceInfoOrName = Union[ServiceInfo, str]

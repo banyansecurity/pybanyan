@@ -183,3 +183,5 @@ class PolicyAttachInfo:
     detached_by: Optional[str] = field(default=None, metadata={'data_key': 'DetachedBy'})
     Schema: ClassVar[Schema] = Schema
 
+
+PolicyInfoOrName = Union[PolicyInfo, str]
