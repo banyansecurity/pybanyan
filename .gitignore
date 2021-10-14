@@ -112,3 +112,5 @@ temp/
 tmp/
 ._*
 
+# vsphere SDK
+src/vsphere-automation-sdk-python
