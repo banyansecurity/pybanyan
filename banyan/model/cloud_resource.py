@@ -24,7 +24,6 @@ class CloudResource(Resource):
 
     cloud_provider: str
     account: str
-    parent_id: str
     region: str
 
     resource_type: str
@@ -38,6 +37,7 @@ class CloudResource(Resource):
     ports: str = ''
     status: str = 'discovered'
     tags: Optional[List[ResourceTag]] = field(default_factory=list)
+    parent_id: str = ''
     
     Schema: ClassVar[Schema] = Schema
 
@@ -54,7 +54,6 @@ class CloudResourceInfo(Resource):
     cloud_provider: str
     account: str
     region: str
-    parent_id: str
 
     resource_type: str
     resource_id: str
@@ -67,6 +66,7 @@ class CloudResourceInfo(Resource):
     ports: str
     status: str
     tags: Optional[List[ResourceTag]]
+    parent_id: str
 
     created_at: Optional[int]
     updated_at: Optional[int]

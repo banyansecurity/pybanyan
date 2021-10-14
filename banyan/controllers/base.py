@@ -103,8 +103,12 @@ class Base(Controller):
             allvars['provider'] = res.provider.upper()
             allvars['account'] = res.account.id
             allvars['region'] = res.region.id
+            # truncate
+            for key, val in allvars.items():
+                if val:
+                    allvars[key] = val[:16]
+            # tags num
             allvars['tags'] = len(res.tags)
-
             # rm keys that don't print well
             for del_key in del_keys:
                 allvars.pop(del_key)
@@ -123,7 +127,7 @@ class Base(Controller):
             res_tags.append(res_tag)
 
         cloud_res = CloudResource(
-            cloud_provider = res.provider,
+            cloud_provider = res.provider.upper(),
             account = res.account.id,
             region = res.region.id,
 
