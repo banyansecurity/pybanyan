@@ -5,7 +5,7 @@ import os, time
 from banyan.ext.idp.base import IdpConf
 
 from azure.identity import DefaultAzureCredential
-from msgraphcore import GraphSession
+from msgraph.core import GraphClient
 from tabulate import tabulate
 
 
@@ -36,9 +36,9 @@ class AzureADApplicationController:
             os.environ['AZURE_TENANT_ID'] = _azure_tenant_id
             os.environ['AZURE_CLIENT_ID'] = _azure_client_id
             os.environ['AZURE_CLIENT_SECRET'] = _azure_client_secret            
-            self._credential = DefaultAzureCredential()     # needs env vars
-            scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
-            self._graph_session = GraphSession(self._credential, scopes)    
+            _credential = DefaultAzureCredential()     # needs env vars
+            self._scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
+            self._client = GraphClient(credential = _credential)    
         except Exception as ex:
             print('AzureSDKError > %s' % ex.args[0])
             raise
@@ -47,7 +47,7 @@ class AzureADApplicationController:
     CUSTOM_APP_TEMPLATE_ID = '8adf8e6e-67b2-4cf2-a259-e3dc5476c621'
 
     def list(self):
-        response = self._graph_session.get('/applications')
+        response = self._client.get('/applications', scopes=self._scopes)
         apps = response.json()['value']
 
         applications: List[AzureADApplicationModel] = list()
@@ -61,8 +61,9 @@ class AzureADApplicationController:
 
         results = list()
         for application in applications:
-            response = self._graph_session.get(
+            response = self._client.get(
                 f'/servicePrincipals?$search="appId:{application.app_id}"&$count=true',
+                scopes = self._scopes,
                 headers = {'ConsistencyLevel': 'eventual'}
             )
             if response.status_code == 200 and response.json()['@odata.count'] == 1:
@@ -80,8 +81,9 @@ class AzureADApplicationController:
 
 
     def create_bookmark(self, name: str, url: str):
-        response = self._graph_session.post(
+        response = self._client.post(
             f'/applicationTemplates/{AzureADApplicationController.CUSTOM_APP_TEMPLATE_ID}/instantiate',
+            scopes = self._scopes,
             json = { 'displayName': name }
         )
         application = response.json()['application']
@@ -93,14 +95,15 @@ class AzureADApplicationController:
             print(f'Waiting to update Service Principal {principal_id}')
             time.sleep(5)
 
-            response = self._graph_session.get(f'/servicePrincipals/{principal_id}')
+            response = self._client.get(f'/servicePrincipals/{principal_id}', scopes = self._scopes)
             if response.status_code != 200:
                 print('Service Principal creation pending')
             else:
                 print('Service Principal creation ok')
 
-            response = self._graph_session.patch(
+            response = self._client.patch(
                 f'/servicePrincipals/{principal_id}',
+                scopes = self._scopes,
                 json = { 'loginURL': f'{url}', 'preferredSingleSignOnMode': 'notsupported' }
             )
             if response.status_code != 204:
@@ -125,21 +128,23 @@ class AzureADApplicationController:
 
     def assign(self, principal_id: str, group_name: str):
         group_id = ''
-        response = self._graph_session.get(
+        response = self._client.get(
             f'/groups?$search="displayName:{group_name}"&$count=true',
+            scopes = self._scopes,
             headers = {'ConsistencyLevel': 'eventual'}
         )
         if response.status_code == 200 and response.json()['@odata.count'] == 1:
             group = response.json()['value'][0]
             group_id = group['id']
 
-        response = self._graph_session.get(f'/servicePrincipals/{principal_id}')
+        response = self._client.get(f'/servicePrincipals/{principal_id}', scopes = self._scopes)
         principal = response.json()
         principal_id = principal['id']
         app_role_id = principal['appRoles'][0]['id']
 
-        response = self._graph_session.post(
+        response = self._client.post(
             f'/groups/{group_id}/appRoleAssignments',
+            scopes = self._scopes,
             # f'/servicePrincipals/{principal_id}', # requires an AD plan
             json = { 
                 'principalId': group_id,

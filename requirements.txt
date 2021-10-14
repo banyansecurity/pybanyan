@@ -32,4 +32,4 @@ oci
 okta
 # azure ad
 azure-identity
-msgraphcore==0.0.3
+msgraph-core

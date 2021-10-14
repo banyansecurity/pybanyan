@@ -47,7 +47,7 @@ setup(
         'gcp': ['google-api-python-client'],
         'oracle_cloud': ['oci'],
         'okta': ['okta'],
-        'azure_ad': ['azure-identity', 'msgraphcore==0.0.3']
+        'azure_ad': ['azure-identity', 'msgraph-core']
     },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
