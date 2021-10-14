@@ -1,30 +1,36 @@
-from typing import List, Dict, ClassVar, Type, Optional, Union
+from typing import List
 import os, json
 
-try: 
-    from azure.identity import DefaultAzureCredential
-    from azure.mgmt.resource import ResourceManagementClient
-    from azure.mgmt.compute import ComputeManagementClient
-    from azure.mgmt.network import NetworkManagementClient
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
-
-try:
-    from ..model import *
-except:
-    # trying to run "python main.py"
-    import sys
-    sys.path.append('..')
-    from model import *
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
+ 
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.compute import ComputeManagementClient
+from azure.mgmt.network import NetworkManagementClient
 
 
 class AzureController:
     def __init__(self, filter_by_resource_group: str, filter_by_location: str = None, filter_by_tag_name: str = None):
+        self._provider = 'azure'
+        _azure_subscription_id = os.getenv('AZURE_SUBSCRIPTION_ID')
+        _azure_tenant_id = os.getenv('AZURE_TENANT_ID')
+        _azure_client_id = os.getenv('AZURE_CLIENT_ID')
+        _azure_client_secret = os.getenv('AZURE_CLIENT_SECRET')
+        if not _azure_subscription_id:
+            _creds = IaasConf.get_creds(self._provider)
+            _azure_subscription_id = _creds['azure_subscription_id']
+            _azure_tenant_id = _creds['azure_tenant_id']
+            _azure_client_id = _creds['azure_client_id']
+            _azure_client_secret = _creds['azure_client_secret']
+
         try:
-            self._credential = DefaultAzureCredential()
-            self._subscription = os.environ["AZURE_SUBSCRIPTION_ID"]
-            resource_client = ResourceManagementClient(self._credential, self._subscription)
+            os.environ['AZURE_SUBSCRIPTION_ID'] = _azure_subscription_id
+            os.environ['AZURE_TENANT_ID'] = _azure_tenant_id
+            os.environ['AZURE_CLIENT_ID'] = _azure_client_id
+            os.environ['AZURE_CLIENT_SECRET'] = _azure_client_secret            
+            self._credential = DefaultAzureCredential()     # needs env vars
+            self._subscription_id = _azure_subscription_id  # for clients
+            resource_client = ResourceManagementClient(self._credential, self._subscription_id)
         except Exception as ex:
             print('AzureSDKError > %s' % ex.args[0])
             raise
@@ -32,8 +38,6 @@ class AzureController:
         self._filter_by_location = filter_by_location
         self._filter_by_tag_name = filter_by_tag_name
 
-        self._provider = 'AZURE'
-        self._account = IaasLevel('subscription', self._subscription, '')
         try:
             self._resource_group_list = resource_client.resource_groups.list()
         except Exception as ex:
@@ -43,8 +47,8 @@ class AzureController:
 
     def list_vm(self):
         res_type = 'vm'
-        compute_client =  ComputeManagementClient(self._credential, self._subscription)
-        network_client = NetworkManagementClient(self._credential, self._subscription)
+        compute_client =  ComputeManagementClient(self._credential, self._subscription_id)
+        network_client = NetworkManagementClient(self._credential, self._subscription_id)
 
         # VMs in all resource groups
         vm_list = compute_client.virtual_machines.list_all()
@@ -87,19 +91,18 @@ class AzureController:
                 id = vm.id,
                 name = vm.name,
                 private_ip = private_ip,
-                public_ip = public_ip,
-                tags = vm_tags
+                public_ip = public_ip
             )
 
-            res_parent = IaasLevel('resource_group', vm_rg, '')
-            res_loc = IaasLocation('location', vm_loc, '')
+            res_acct = IaasAccount('resource_group', vm_rg)
+            res_regn = IaasRegion('location', vm_loc)
 
             res = IaasResource(
                 provider = self._provider,
-                account = self._account,
-                parent = res_parent,
-                location = res_loc,
-                instance = res_inst
+                account = res_acct,
+                region = res_regn,
+                instance = res_inst,
+                tags = vm_tags
             )
             instances.append(res)
 
@@ -108,7 +111,7 @@ class AzureController:
 
     def list_lb(self):
         res_type = 'lb'
-        network_client = NetworkManagementClient(self._credential, self._subscription)
+        network_client = NetworkManagementClient(self._credential, self._subscription_id)
 
         lb_list = network_client.load_balancers.list_all()
 
@@ -149,19 +152,18 @@ class AzureController:
                 name = lb.name,
                 public_ip = public_ip,
                 private_ip = private_ip,
-                ports = res_ports,
-                tags = lb_tags
+                ports = res_ports
             )
 
-            res_parent = IaasLevel('resource_group', lb_rg, '')
-            res_loc = IaasLocation('location', lb_loc, '')
+            res_acct = IaasAccount('resource_group', lb_rg)
+            res_regn = IaasRegion('location', lb_loc)
 
             res = IaasResource(
                 provider = self._provider,
-                account = self._account,
-                parent = res_parent,
-                location = res_loc,
-                instance = res_inst
+                account = res_acct,
+                region = res_regn,
+                instance = res_inst,
+                tags = lb_tags
             )
             instances.append(res)
 
@@ -169,7 +171,7 @@ class AzureController:
 
 
 if __name__ == '__main__':
-    azr = AzureController('all', 'banyan:discovery')
+    azr = AzureController('all', None, 'banyan:discovery')
     my_vms = azr.list_vm()
     print(my_vms)
     my_lbs = azr.list_lb()

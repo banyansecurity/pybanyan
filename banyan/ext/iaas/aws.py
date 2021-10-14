@@ -1,26 +1,28 @@
+import logging
+import os
 from typing import List
 
-try:
-    import boto3
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
 
-try:
-    from ..model import *
-except:
-    # trying to run "python main.py"
-    import sys
-    sys.path.append('..')
-    from model import *
+import boto3
 
 
 class AwsController:
     def __init__(self, filter_by_region: str, filter_by_tag_name: str = None):
+        self._provider = 'aws'
+        _aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+        _aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        if not _aws_access_key_id:
+            _creds = IaasConf.get_creds(self._provider)
+            _aws_access_key_id = _creds['aws_access_key_id']
+            _aws_secret_access_key = _creds['aws_secret_access_key']
+
         try:
-            self._session = boto3.session.Session()
+            self._session = boto3.Session(
+                aws_access_key_id = _aws_access_key_id,
+                aws_secret_access_key = _aws_secret_access_key,
+            )
             sts_client = self._session.client('sts')
-            iam_client = self._session.client('iam')
             ec2_client = self._session.client('ec2')
         except Exception as ex:
             print('BotoError (AWS SDK) > %s' % ex.args[0])
@@ -28,11 +30,10 @@ class AwsController:
         self._filter_by_region = filter_by_region
         self._filter_by_tag_name = filter_by_tag_name
 
-        self._provider = 'AWS'
-        self._account = IaasLevel('account')
         try:
-            self._account.id = sts_client.get_caller_identity().get('Account')
-            self._account.name = iam_client.list_account_aliases()['AccountAliases'][0]
+            account_id = sts_client.get_caller_identity().get('Account')
+            #NOTE: cannot get account_name without requiring IAM or Organizations permissions
+            self._account = IaasAccount('account', account_id)
             self._region_list = ec2_client.describe_regions().get('Regions')
         except Exception as ex:
             print('AwsControllerError > %s' % ex.args[0])
@@ -49,7 +50,7 @@ class AwsController:
             if self._filter_by_region != 'all' and self._filter_by_region != region_name:
                 continue
 
-            res_loc = IaasLocation('region', region_name, region_name)
+            res_regn = IaasRegion('region', region_name)
             ec2 = self._session.resource(res_type, region_name=region_name)
 
             filters = []
@@ -78,16 +79,15 @@ class AwsController:
                     private_ip = vm.private_ip_address,
                     private_dns_name = vm.private_dns_name,
                     public_ip = vm.public_ip_address,
-                    public_dns_name = vm.public_dns_name,
-                    tags = res_tags
+                    public_dns_name = vm.public_dns_name
                 )
 
                 res = IaasResource(
                     provider = self._provider,
                     account = self._account,
-                    parent = None,
-                    location = res_loc,
-                    instance = res_inst
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
 
@@ -104,7 +104,7 @@ class AwsController:
             if self._filter_by_region != 'all' and self._filter_by_region != region_name:
                 continue
 
-            res_loc = IaasLocation('region', region_name, region_name)
+            res_regn = IaasRegion('region', region_name)
             rds_client = self._session.client(res_type, region_name=region_name)
 
             describe_db_instances = rds_client.describe_db_instances(Filters=[], MaxRecords=100)
@@ -126,16 +126,15 @@ class AwsController:
                     id = inst.get('DBInstanceArn'),
                     name = inst.get('DBInstanceIdentifier'),
                     public_dns_name = inst.get('Endpoint').get('Address'),
-                    ports = ['%d/tcp' % inst.get('Endpoint').get('Port')],
-                    tags = res_tags
+                    ports = ['%d/tcp' % inst.get('Endpoint').get('Port')]
                 )
                 
                 res = IaasResource(
                     provider = self._provider,
                     account = self._account,
-                    parent = None,
-                    location = res_loc,
-                    instance = res_inst
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
         
@@ -152,7 +151,7 @@ class AwsController:
             if self._filter_by_region != 'all' and self._filter_by_region != region_name:
                 continue
 
-            res_loc = IaasLocation('region', region_name, region_name)
+            res_regn = IaasRegion('region', region_name)
             elbv1_client = self._session.client('elb', region_name=region_name) # classic
             elbv2_client = self._session.client('elbv2', region_name=region_name) # current
 
@@ -185,16 +184,15 @@ class AwsController:
                     id = v1_lb.get('LoadBalancerName'),
                     name = v1_lb.get('LoadBalancerName'),
                     public_dns_name = v1_lb.get('DNSName'),  # public DNS, resolves to public or private IP
-                    ports = res_ports,
-                    tags = res_tags
+                    ports = res_ports
                 )
 
                 res = IaasResource(
                     provider = self._provider,
                     account = self._account,
-                    parent = None,
-                    location = res_loc,
-                    instance = res_inst
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
 
@@ -224,16 +222,15 @@ class AwsController:
                     id = v2_lb.get('LoadBalancerArn'),
                     name = v2_lb.get('LoadBalancerName'),
                     public_dns_name = v2_lb.get('DNSName'),  # public DNS, resolves to public or private IP
-                    ports = res_ports,
-                    tags = res_tags
+                    ports = res_ports
                 )
 
                 res = IaasResource(
                     provider = self._provider,
                     account = self._account,
-                    parent = None,
-                    location = res_loc,
-                    instance = res_inst
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
 
@@ -241,7 +238,7 @@ class AwsController:
 
 
 if __name__ == '__main__':
-    aws = AwsController('us-east-1', 'banyan:discovery')
+    aws = AwsController('us-east-2', None)
     ec2_instances = aws.list_ec2()
     print(ec2_instances)
     rds_instances = aws.list_rds()

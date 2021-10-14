@@ -1,37 +1,44 @@
-from typing import List, Dict, ClassVar, Type, Optional, Union
-from dataclasses import dataclass, field
+from typing import List
 import os
 
-try:
-    import oci
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
 
-try:
-    from ..model import *
-except:
-    # trying to run "python main.py"
-    import sys
-    sys.path.append('..')
-    from model import *
+import oci
 
 
 class OciController:
-    def __init__(self, filter_by_compartment: str, filter_by_region: str = None, filter_by_tag_name: str = None):
+    def __init__(self, filter_by_compartment_name: str, filter_by_region: str = None, filter_by_tag_name: str = None):
+        self._provider = 'oci'
+        _oci_user = os.getenv('OCI_USER')
+        _oci_fingerprint = os.getenv('OCI_FINGERPRINT')
+        _oci_tenancy = os.getenv('OCI_TENANCY')
+        _oci_region = os.getenv('OCI_REGION')
+        _oci_key_file = os.getenv('OCI_KEY_FILE')
+        if not _oci_user:
+            _creds = IaasConf.get_creds(self._provider)
+            _oci_user = _creds['user']
+            _oci_fingerprint = _creds['fingerprint']
+            _oci_tenancy = _creds['tenancy']
+            _oci_region = _creds['region']
+            _oci_key_file = _creds['key_file']
         try:
-            self._config = oci.config.from_file()
-            self._tenancy = self._config.get('tenancy')
+            self._config = {
+                "user": _oci_user,
+                "fingerprint": _oci_fingerprint,
+                "tenancy": _oci_tenancy,
+                "region": _oci_region,               
+                "key_file": _oci_key_file
+            }
+            oci.config.validate_config(self._config)
+            self._tenancy = self._config.get('tenancy')     # for clients
             identity_client = oci.identity.IdentityClient(self._config)
         except Exception as ex:
             print('OCISDKError > %s' % ex.args[0])
             raise
-        self._filter_by_compartment = filter_by_compartment
+        self._filter_by_compartment_name = filter_by_compartment_name
         self._filter_by_region = filter_by_region
         self._filter_by_tag_name = filter_by_tag_name
 
-        self._provider = 'OCI'
-        self._account = IaasLevel('tenant', self._tenancy, 'root')
         try:
             # all compartments from root, parent is in compartment_id
             self._compartment_list = identity_client.list_compartments(compartment_id=self._tenancy, compartment_id_in_subtree=True).data
@@ -50,7 +57,7 @@ class OciController:
             #print(compartment_obj)
             cmpt_id = compartment_obj.id
             cmpt_name = compartment_obj.name
-            if self._filter_by_compartment != 'all' and self._filter_by_compartment != cmpt_name:
+            if self._filter_by_compartment_name != 'all' and self._filter_by_compartment_name != cmpt_name:
                 continue
 
             vm_list = compute_client.list_instances(compartment_id=cmpt_id).data
@@ -65,6 +72,7 @@ class OciController:
                 if vnic.public_ip:
                     public_ip = vnic.public_ip
 
+                # OCI has 2 types of tags - freeform and defined
                 res_tags = dict()
                 res_tags.update(vm.freeform_tags)
                 for key, subkeyval in vm.defined_tags.items():
@@ -78,18 +86,17 @@ class OciController:
                     name = vm.display_name,
                     private_ip = private_ip,
                     public_ip = public_ip,
-                    tags = res_tags
                 )
 
-                res_parent = IaasLevel('compartment', compartment_obj.id, compartment_obj.name)
-                res_loc = IaasLocation('region', vm.region, '')
+                res_acct = IaasAccount('compartment', cmpt_name)
+                res_regn = IaasRegion('region', vm.region)
 
                 res = IaasResource(
                     provider = self._provider,
-                    account = self._account,
-                    parent = res_parent,
-                    location = res_loc,
-                    instance = res_inst
+                    account = res_acct,
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
 

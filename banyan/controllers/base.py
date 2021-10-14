@@ -8,7 +8,7 @@ from cement.utils.version import get_version_banner
 
 from ..core.version import get_version
 
-from banyan.ext.iaas.model import IaasResource
+from banyan.ext.iaas.base import IaasResource
 from banyan.model.cloud_resource import CloudResource
 
 VERSION_BANNER = """
@@ -98,15 +98,14 @@ class Base(Controller):
         results = list()
         for res in res_list:
             allvars = vars(copy.copy(res.instance))
-            allvars['tags'] = len(allvars['tags'])
-            allvars['provider'] = res.provider
+            allvars['provider'] = res.provider.upper()
             allvars['account'] = res.account.id
-             # not in all IaaS providers
-            allvars['parent'] = (res.parent.name or res.parent.id) if res.parent else ''
-            allvars['location'] = res.location.id if res.location else ''
+            allvars['region'] = res.region.id
+            allvars['tags'] = len(res.tags)
+
             # rm keys that don't print well
-            for key in del_keys:
-                allvars.pop(key)
+            for del_key in del_keys:
+                allvars.pop(del_key)
             results.append(allvars)
         #self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
         return results
@@ -114,7 +113,7 @@ class Base(Controller):
     @staticmethod
     def convert_iaas_resource(res: IaasResource) -> CloudResource:
         res_tags = []
-        for key, val in res.instance.tags.items():
+        for key, val in res.tags.items():
             res_tag = {
                 'name': key,
                 'value': val
@@ -124,20 +123,17 @@ class Base(Controller):
         cloud_res = CloudResource(
             cloud_provider = res.provider,
             account = res.account.id,
-
-            # not in all IaaS providers
-            parent_id = (res.parent.name or res.parent.id) if res.parent else '',    
-            region = res.location.id if res.location else '',
+            region = res.region.id,
 
             resource_type = res.instance.type,
             resource_id = res.instance.id,
             resource_name = res.instance.name,
-
             public_dns_name = res.instance.public_dns_name,
             public_ip = res.instance.public_ip,
             private_dns_name = res.instance.private_dns_name,
             private_ip = res.instance.private_ip,
             ports = res.instance.ports,
+
             tags = res_tags
         )
         return cloud_res

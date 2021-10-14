@@ -1,27 +1,22 @@
-from typing import List, Dict, ClassVar, Type, Optional, Union
-from dataclasses import dataclass, field
+from typing import List
 import os
 
-try:
-    import googleapiclient.discovery
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
 
-try:
-    from ..model import *
-except:
-    # trying to run "python main.py"
-    import sys
-    sys.path.append('..')
-    from model import *
+import googleapiclient.discovery
     
 
 class GcpController:
     def __init__(self, filter_by_project: str, filter_by_zone: str = None, filter_by_label_name: str = None):
+        self._provider = 'gcp'
+        _google_application_credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+        if not _google_application_credentials:
+            _creds = IaasConf.get_creds(self._provider)
+            _google_application_credentials = _creds['google_application_credentials'].strip('"')
+
         try:
-            gcp_creds = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-            self._cloud_client = googleapiclient.discovery.build('cloudresourcemanager', 'v1')
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = _google_application_credentials
+            self._cloud_client = googleapiclient.discovery.build('cloudresourcemanager', 'v1')  # needs env var
         except Exception as ex:
             print('GoogleApiClientError > %s' % ex.args[0])
             raise
@@ -29,11 +24,8 @@ class GcpController:
         self._filter_by_zone = filter_by_zone
         self._filter_by_label_name = filter_by_label_name    
 
-        self._provider = 'GCP'
         try:
             self._project_list = self._cloud_client.projects().list().execute()
-            account = self._project_list.get('projects')[0].get('parent')
-            self._account = IaasLevel(account.get('type'), account.get('id'), '')
         except Exception as ex:
             print('GcpControllerError > %s' % ex.args[0])
             raise
@@ -48,7 +40,6 @@ class GcpController:
         # get VMs by Project
         for project_obj in list(self._project_list.get('projects')):
             project_id = project_obj.get('projectId')
-            project_name = project_obj.get('name')
             if self._filter_by_project != 'all' and self._filter_by_project != project_id:
                 continue
 
@@ -86,19 +77,18 @@ class GcpController:
                         id = vm.get('id'),
                         name = vm.get('name'),
                         public_ip = public_ip,
-                        private_ip = private_ip,
-                        tags = vm_labels
+                        private_ip = private_ip
                     )
 
-                    res_parent = IaasLevel('project', project_id, project_name)
-                    res_loc = IaasLocation('zone', zone, '')
+                    res_acct = IaasAccount('project', project_id)
+                    res_regn = IaasRegion('zone', zone)
 
                     res = IaasResource(
                         provider = self._provider,
-                        account = self._account,
-                        parent = res_parent,
-                        location = res_loc,
-                        instance = res_inst
+                        account = res_acct,
+                        region = res_regn,
+                        instance = res_inst,
+                        tags = vm_labels
                     )                    
                     instances.append(res)
 
@@ -106,6 +96,6 @@ class GcpController:
 
 
 if __name__ == '__main__':
-    gcp = GcpController('all', 'us-east4-b')
+    gcp = GcpController('all', None)
     my_vms = gcp.list_vm()
     print(my_vms)

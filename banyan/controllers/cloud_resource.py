@@ -13,7 +13,7 @@ from banyan.api import BanyanApiClient
 from banyan.model.cloud_resource import CloudResource, CloudResourceInfo
 from banyan.model.service import ServiceInfo, Service, SimpleWebService, AllowPattern
 from banyan.model.policy import PolicyInfo, SimpleWebPolicy
-from banyan.ext.iaas.model import IaasResource
+from banyan.ext.iaas.base import IaasResource
 
 
 class CloudResourceController(Controller):
@@ -165,16 +165,16 @@ class CloudResourceController(Controller):
         self.app.render(info, handler='json')
 
 
-    @ex(help='test AWS configuration',
+    @ex(help='test AWS configuration by getting EC2 resources',
         arguments=[
             (['region_name'],
             {
-                'help': 'Region where AWS resources run - us-east-1, us-west-2, etc.'
+                'help': 'Region where AWS EC2 resources exist - us-east-1, us-west-2, etc.'
             })    
         ])
     def test_aws(self):
         try:
-            from banyan.ext.iaas.aws.main import AwsController
+            from banyan.ext.iaas.aws import AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
@@ -203,7 +203,7 @@ class CloudResourceController(Controller):
         ])
     def sync_aws(self):
         try:
-            from banyan.ext.iaas.aws.main import AwsController
+            from banyan.ext.iaas.aws import AwsController
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
@@ -254,12 +254,12 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_group'],
             {
-                'help': 'Azure Resource Group where resources run. You can say "all" but be careful!'
+                'help': 'Azure Resource Group where some VMs run. You can say "all" but be careful!'
             })
         ])    
     def test_azure(self):
         try:
-            from banyan.ext.iaas.azure.main import AzureController
+            from banyan.ext.iaas.azure_cloud import AzureController
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
@@ -292,7 +292,7 @@ class CloudResourceController(Controller):
         ])
     def sync_azure(self):
         try:
-            from banyan.ext.iaas.azure.main import AzureController
+            from banyan.ext.iaas.azure_cloud import AzureController
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
@@ -341,7 +341,7 @@ class CloudResourceController(Controller):
         ])    
     def test_vmware(self):
         try:
-            from banyan.ext.iaas.vmware.main import VmwareController
+            from banyan.ext.iaas.vmware import VmwareController
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
@@ -370,7 +370,7 @@ class CloudResourceController(Controller):
         ])
     def sync_vmware(self):
         try:
-            from banyan.ext.iaas.vmware.main import VmwareController
+            from banyan.ext.iaas.vmware import VmwareController
         except Exception as ex:
             raise NotImplementedError("VMware SDK not configured correctly > %s" % ex.args[0])
 
@@ -413,7 +413,7 @@ class CloudResourceController(Controller):
         ])    
     def test_gcp(self):
         try:
-            from banyan.ext.iaas.gcp.main import GcpController
+            from banyan.ext.iaas.gcp import GcpController
         except Exception as ex:
             raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
 
@@ -442,7 +442,7 @@ class CloudResourceController(Controller):
         ])
     def sync_gcp(self):
         try:
-            from banyan.ext.iaas.gcp.main import GcpController
+            from banyan.ext.iaas.gcp import GcpController
         except Exception as ex:
             raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
 
@@ -485,7 +485,7 @@ class CloudResourceController(Controller):
         ])    
     def test_oci(self):
         try:
-            from banyan.ext.iaas.oci.main import OciController
+            from banyan.ext.iaas.oracle_cloud import OciController
         except Exception as ex:
             raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
 
@@ -514,7 +514,7 @@ class CloudResourceController(Controller):
         ])
     def sync_oci(self):
         try:
-            from banyan.ext.iaas.oci.main import OciController
+            from banyan.ext.iaas.oracle_cloud import OciController
         except Exception as ex:
             raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
 

@@ -2,31 +2,33 @@ from typing import List
 import os
 import requests, urllib3
 
-try: 
-    from vmware.vapi.vsphere.client import create_vsphere_client
-    from com.vmware.vapi.std_client import DynamicID
-    from com.vmware.vcenter_client import VM
-    from com.vmware.vcenter.vm_client import Power
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
 
-try:
-    from ..model import *
-except:
-    # trying to run "python main.py"
-    import sys
-    sys.path.append('..')
-    from model import *
+from vmware.vapi.vsphere.client import create_vsphere_client
+from com.vmware.vapi.std_client import DynamicID
+from com.vmware.vcenter_client import VM
+from com.vmware.vcenter.vm_client import Power
 
 
 class VmwareController:
     def __init__(self, filter_by_datacenter: str, filter_by_tag_name: str = None):
+        self._provider = 'vmware'
+        _vsphere_server = os.getenv('VSPHERE_SERVER')
+        _vsphere_username = os.getenv('VSPHERE_SERVER')
+        _vsphere_password = os.getenv('VSPHERE_PASSWORD')
+        _vsphere_nossl = os.getenv('VSPHERE_NOSSL')
+        if not _vsphere_server:
+            _creds = IaasConf.get_creds(self._provider)
+            _vsphere_server = _creds['vsphere_server']
+            _vsphere_username = _creds['vsphere_username']
+            _vsphere_password = _creds['vsphere_password']
+            _vsphere_nossl = _creds['vsphere_nossl']
+
         try:
-            server = os.environ["VSPHERE_SERVER"]
-            username = os.environ["VSPHERE_USERNAME"]
-            password = os.environ["VSPHERE_PASSWORD"]
-            nossl = os.environ["VSPHERE_NOSSL"] != None
+            server = _vsphere_server
+            username = _vsphere_username
+            password = _vsphere_password
+            nossl = _vsphere_nossl != None
             
             session = None
             if nossl:
@@ -34,15 +36,18 @@ class VmwareController:
                 session.verify = False
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-            self._vsphere_client = create_vsphere_client(server=server, username=username, password=password, session=session)
+            self._vsphere_client = create_vsphere_client(
+                server=server, 
+                username=username, 
+                password=password, 
+                session=session
+            )
         except :
             print('VMwareSDKError > %s' % ex.args[0])
             raise
         self._filter_by_datacenter = filter_by_datacenter
         self._filter_by_tag_name = filter_by_tag_name
 
-        self._provider = 'VMWARE'
-        self._account = IaasLevel('vsphere', server, '')
         try:
             self._datacenter_list = self._vsphere_client.vcenter.Datacenter.list()
         except Exception as ex:
@@ -70,6 +75,7 @@ class VmwareController:
                     continue
 
                 # Private IP via Guest Additions
+                res_private_ip = ''
                 try:
                     guest_model = vcenter_client.vm.guest.Identity.get(vm.vm)
                     res_private_ip = guest_model.ip_address
@@ -93,16 +99,18 @@ class VmwareController:
                     type = resource_type,
                     id = vm_model.identity.instance_uuid,
                     name = vm_model.name,
+                    private_ip = res_private_ip
                 )
 
-                res_parent = IaasLevel('datacenter', dc.name, '')
+                res_acct = IaasAccount('datacenter', dc.name)
+                res_regn = IaasRegion('n/a', '')
 
                 res = IaasResource(
                     provider = self._provider,
-                    account = self._account,
-                    parent = res_parent,
-                    location = None,
-                    instance = res_inst
+                    account = res_acct,
+                    region = res_regn,
+                    instance = res_inst,
+                    tags = res_tags
                 )
                 instances.append(res)
 
