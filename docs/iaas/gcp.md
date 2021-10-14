@@ -12,14 +12,14 @@ Assign the following IAM roles to your Service Account:
 
 Create a key and download the JSON key file.
 
-Add a section named `iaas-gcp` in the `~/.banyan.conf` file with the path to your Service Account's JSON key file:
+Add a section named `gcp` in the `~/.banyan.conf` file with the path to your Service Account's JSON key file:
 
 ```ini
 [banyan]
 api_url = ...
 refresh_token = ...
 
-[iaas-gcp]
+[gcp]
 google_application_credentials=/path/to/my/key.json
 ```
 

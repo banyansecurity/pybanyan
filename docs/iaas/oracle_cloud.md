@@ -12,13 +12,13 @@ Assign the user to a Group that is restricted to the following Policy statements
 
 Create an API key for this user, and download your configuration file.
 
-Add a section named `iaas-oci` in the `~/.banyan.conf` file with these configurations:
+Add a section named `oci` in the `~/.banyan.conf` file with these configurations:
 ```ini
 [banyan]
 api_url = ...
 refresh_token = ...
 
-[iaas-oci]
+[oci]
 user=ocid1.user.oc1..<unique_ID>
 fingerprint=<your_fingerprint>
 key_file=/path/to/oci_api_key.pem

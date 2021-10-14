@@ -191,11 +191,11 @@ class ServiceController(Controller):
                               self.app.pargs.wildcard)
         harness.run()
 
-    @ex(help='create an Okta bookmark application from a web service',
+    @ex(help='create an Okta Bookmark Application from a web service',
         arguments=[
             (['service_name'],
             {
-                'help': 'Name of service to add to Okta.'
+                'help': 'name of service to add to Okta.'
             }),
             (['group_name'],
             {
@@ -232,7 +232,7 @@ class ServiceController(Controller):
     arguments=[
         (['service_name'],
         {
-            'help': 'Name of service to add to AzureAD.'
+            'help': 'name of service to add to AzureAD.'
         }),
         (['group_name'],
         {

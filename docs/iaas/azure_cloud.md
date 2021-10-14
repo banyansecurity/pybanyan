@@ -12,13 +12,13 @@ Assign the following built-in role to your Service Principal:
 
 Grab the [credentials](https://docs.microsoft.com/en-us/azure/developer/python/configure-local-development-environment?tabs=cmd#what-the-create-for-rbac-command-does) for your Service Principal.
 
-Add a section named `iaas-azure` in the `~/.banyan.conf` file with your Service Principal credentials:
+Add a section named `azure` in the `~/.banyan.conf` file with your Service Principal credentials:
 ```ini
 [banyan]
 api_url = ...
 refresh_token = ...
 
-[iaas-aws]
+[azure]
 azure_subscription_id = "id of your Azure subscription"
 azure_tenant_id = "id of the application's Azure Active Directory tenant"
 azure_client_id = "id of an Azure Active Directory application"

@@ -1,36 +1,48 @@
 
 # Azure
 
-Ensure you have the [Microsoft Graph SDK for Python](https://github.com/microsoftgraph/msgraph-sdk-python-core) installed and configured.
+Banyan uses the [Microsoft Graph SDK for Python](https://github.com/microsoftgraph/msgraph-sdk-python-core) to bookmark Services into your Azure AD SSO catalog.
 
-```bash
-pip install -r requirements.txt
+
+## Authentication
+
+Create a Service Principal via the [Azure Portal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) or the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli).
+
+Assign the following built-in roles to your Service Principal to interact with the Graph API:
+- Application.ReadWrite.All
+- Group.Read.All
+- GroupMember.ReadWrite.All
+
+Grab the [credentials](https://docs.microsoft.com/en-us/azure/developer/python/configure-local-development-environment?tabs=cmd#what-the-create-for-rbac-command-does) for your Service Principal.
+
+Add a section named `azure_ad` in the `~/.banyan.conf` file with your Service Principal credentials:
+```ini
+[banyan]
+api_url = ...
+refresh_token = ...
+
+[azure_ad]
+azure_subscription_id = "id of your Azure subscription"
+azure_tenant_id = "id of the application's Azure Active Directory tenant"
+azure_client_id = "id of an Azure Active Directory application"
+azure_client_secret = "one of the application's client secrets"
 ```
-
-## Permissions
-
-Create a [service principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and ensure it has permissions granted for your organization. Specifically, you need `Application.ReadWrite.All`, `Group.Read.All`, `GroupMember.ReadWrite.All` permission to interact with the Graph API.
-
-
-## Configuration
-
-Set up environment variables for your service principal
-```bash
-AZURE_SUBSCRIPTION_ID="id of your Azure subscription"
-AZURE_TENANT_ID="id of the application's Azure Active Directory tenant"
-AZURE_CLIENT_ID="id of an Azure Active Directory application"
-AZURE_CLIENT_SECRET="one of the application's client secrets"
-```
-
-Other credentials configuration methods are available. See the Azure docs for details.
 
 ## Test
 
-Confirm you are set up correctly, by running:
+Confirm you are set up correctly by running:
 
 ```bash
-python -u application.py
+python -m banyan.ext.idp.azure_ad
 ```
 
 You should see a list of your AzureAD applications.
 
+
+## Bookmark
+
+You can now create an AzureAD Linked Sign-on from a web service:
+
+```bash
+banyan cloud-resource bookmark-azuread
+```

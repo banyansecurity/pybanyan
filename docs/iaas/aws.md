@@ -14,13 +14,13 @@ Assign the following built-in permissions for your IAM User:
 
 Add an access key for your IAM User and get the credentials.
 
-Add a section named `iaas-aws` in the `~/.banyan.conf` file with your IAM User credentials:
+Add a section named `aws` in the `~/.banyan.conf` file with your IAM User credentials:
 ```ini
 [banyan]
 api_url = ...
 refresh_token = ...
 
-[iaas-aws]
+[aws]
 aws_access_key_id = YOUR_KEY
 aws_secret_access_key = YOUR_SECRET
 ```

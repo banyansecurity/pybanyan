@@ -167,8 +167,8 @@ You can discover and synchronize your IaaS (Infrastructure As A Service) resourc
 
 You can publish Banyan services as bookmark applications in your SSO (Single Sign On) portal, so your end-user can access them via their SSO catalog. Check out the provider-specific link for setup instructions.
 
-- [Okta](banyan/ext/okta/)
-- [AzureAD](banyan/ext/azuread/)
+- [Okta](docs/idp/okta.md)
+- [AzureAD](docs/idp/azure_ad.md)
 
 
 ## Development
