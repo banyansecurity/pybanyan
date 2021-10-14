@@ -1,20 +1,16 @@
+from typing import List
 from dataclasses import dataclass
-from typing import List, ClassVar, Type, Optional, Union
-import os, json, time
+import os, time
 
-try:
-    from azure.identity import DefaultAzureCredential
-    from msgraphcore import GraphSession
-    from tabulate import tabulate
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.idp.base import IdpConf
+
+from azure.identity import DefaultAzureCredential
+from msgraphcore import GraphSession
+from tabulate import tabulate
+
 
 @dataclass
 class AzureADApplicationModel:
-    class Meta:
-        help = "AzureAD Application Model"
-
     app_id: str
     name: str
     template: str
@@ -23,22 +19,35 @@ class AzureADApplicationModel:
     
 
 class AzureADApplicationController:
-    class Meta:
-        help = "AzureAD Application Controller"
+    def __init__(self):
+        _azure_subscription_id = os.getenv('AZURE_SUBSCRIPTION_ID')
+        _azure_tenant_id = os.getenv('AZURE_TENANT_ID')
+        _azure_client_id = os.getenv('AZURE_CLIENT_ID')
+        _azure_client_secret = os.getenv('AZURE_CLIENT_SECRET')
+        if not _azure_subscription_id:
+            _creds = IdpConf.get_creds('azure_ad')
+            _azure_subscription_id = _creds['azure_subscription_id']
+            _azure_tenant_id = _creds['azure_tenant_id']
+            _azure_client_id = _creds['azure_client_id']
+            _azure_client_secret = _creds['azure_client_secret']
+
+        try:
+            os.environ['AZURE_SUBSCRIPTION_ID'] = _azure_subscription_id
+            os.environ['AZURE_TENANT_ID'] = _azure_tenant_id
+            os.environ['AZURE_CLIENT_ID'] = _azure_client_id
+            os.environ['AZURE_CLIENT_SECRET'] = _azure_client_secret            
+            self._credential = DefaultAzureCredential()     # needs env vars
+            scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
+            self._graph_session = GraphSession(self._credential, scopes)    
+        except Exception as ex:
+            print('AzureSDKError > %s' % ex.args[0])
+            raise
 
     SCOPE_FOR_SERVICE_ACCOUNTS = 'https://graph.microsoft.com/.default'
     CUSTOM_APP_TEMPLATE_ID = '8adf8e6e-67b2-4cf2-a259-e3dc5476c621'
 
     def list(self):
-        try:
-            credential = DefaultAzureCredential()
-            scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
-            graph_session = GraphSession(credential, scopes)    
-        except Exception as ex:
-            print('MSGraphClientError > %s' % ex.args[0])
-            raise
-    
-        response = graph_session.get('/applications')
+        response = self._graph_session.get('/applications')
         apps = response.json()['value']
 
         applications: List[AzureADApplicationModel] = list()
@@ -52,7 +61,7 @@ class AzureADApplicationController:
 
         results = list()
         for application in applications:
-            response = graph_session.get(
+            response = self._graph_session.get(
                 f'/servicePrincipals?$search="appId:{application.app_id}"&$count=true',
                 headers = {'ConsistencyLevel': 'eventual'}
             )
@@ -71,15 +80,7 @@ class AzureADApplicationController:
 
 
     def create_bookmark(self, name: str, url: str):
-        try:
-            credential = DefaultAzureCredential()
-            scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
-            graph_session = GraphSession(credential, scopes)    
-        except Exception as ex:
-            print('MSGraphClientError > %s' % ex.args[0])
-            raise
-
-        response = graph_session.post(
+        response = self._graph_session.post(
             f'/applicationTemplates/{AzureADApplicationController.CUSTOM_APP_TEMPLATE_ID}/instantiate',
             json = { 'displayName': name }
         )
@@ -92,13 +93,13 @@ class AzureADApplicationController:
             print(f'Waiting to update Service Principal {principal_id}')
             time.sleep(5)
 
-            response = graph_session.get(f'/servicePrincipals/{principal_id}')
+            response = self._graph_session.get(f'/servicePrincipals/{principal_id}')
             if response.status_code != 200:
                 print('Service Principal creation pending')
             else:
                 print('Service Principal creation ok')
 
-            response = graph_session.patch(
+            response = self._graph_session.patch(
                 f'/servicePrincipals/{principal_id}',
                 json = { 'loginURL': f'{url}', 'preferredSingleSignOnMode': 'notsupported' }
             )
@@ -123,16 +124,8 @@ class AzureADApplicationController:
 
 
     def assign(self, principal_id: str, group_name: str):
-        try:
-            credential = DefaultAzureCredential()
-            scopes = [AzureADApplicationController.SCOPE_FOR_SERVICE_ACCOUNTS]
-            graph_session = GraphSession(credential, scopes)    
-        except Exception as ex:
-            print('MSGraphClientError > %s' % ex.args[0])
-            raise
-
         group_id = ''
-        response = graph_session.get(
+        response = self._graph_session.get(
             f'/groups?$search="displayName:{group_name}"&$count=true',
             headers = {'ConsistencyLevel': 'eventual'}
         )
@@ -140,12 +133,12 @@ class AzureADApplicationController:
             group = response.json()['value'][0]
             group_id = group['id']
 
-        response = graph_session.get(f'/servicePrincipals/{principal_id}')
+        response = self._graph_session.get(f'/servicePrincipals/{principal_id}')
         principal = response.json()
         principal_id = principal['id']
         app_role_id = principal['appRoles'][0]['id']
 
-        response = graph_session.post(
+        response = self._graph_session.post(
             f'/groups/{group_id}/appRoleAssignments',
             # f'/servicePrincipals/{principal_id}', # requires an AD plan
             json = { 

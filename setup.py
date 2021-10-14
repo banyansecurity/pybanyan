@@ -43,9 +43,11 @@ setup(
     ],
     extras_require={
         'aws': ['boto3'],
-        'azure': ['azure-identity', 'azure-mgmt-resource', 'azure-mgmt-compute', 'azure-mgmt-network'],
+        'azure_cloud': ['azure-identity', 'azure-mgmt-resource', 'azure-mgmt-compute', 'azure-mgmt-network'],
         'gcp': ['google-api-python-client'],
-        'oci': ['oci']
+        'oracle_cloud': ['oci'],
+        'okta': ['okta'],
+        'azure_ad': ['azure-identity', 'msgraphcore==0.0.3']
     },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"

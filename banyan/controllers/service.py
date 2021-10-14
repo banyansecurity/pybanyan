@@ -204,7 +204,7 @@ class ServiceController(Controller):
         ])
     def bookmark_okta(self):
         try:
-            from banyan.ext.okta.application import OktaApplicationController
+            from banyan.ext.idp.okta import OktaApplicationController
         except Exception as ex:
             raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
 
@@ -213,12 +213,12 @@ class ServiceController(Controller):
         if not service_info.service.spec.http_settings.oidc_settings.enabled:
             raise RuntimeError('Service needs to be of type WEB')
 
-        Base.wait_for_input('Get service to add to Okta:')
+        Base.wait_for_input(True, 'Get service to add to Okta:')
         svc = service_info.service
         service_json = Service.Schema().dump(svc)
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-        Base.wait_for_input('Adding to Okta and assigning group.')
+        Base.wait_for_input(True, 'Adding to Okta and assigning group.')
         okta = OktaApplicationController()
         okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
         print(okta_app)
@@ -236,12 +236,12 @@ class ServiceController(Controller):
         }),
         (['group_name'],
         {
-            'help': 'AzureAD group to assign application access.'
+            'help': 'Azure AD group to assign application access.'
         }),            
     ])
     def bookmark_azuread(self):
         try:
-            from banyan.ext.azuread.application import AzureADApplicationController
+            from banyan.ext.idp.azure_ad import AzureADApplicationController
         except Exception as ex:
             raise NotImplementedError("AzureAD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
 
@@ -250,12 +250,12 @@ class ServiceController(Controller):
         if not service_info.service.spec.http_settings.oidc_settings.enabled:
             raise RuntimeError('Service needs to be of type WEB')
 
-        Base.wait_for_input('Get service to add to AzureAD:')
+        Base.wait_for_input(True, 'Get service to add to AzureAD:')
         svc = service_info.service
         service_json = Service.Schema().dump(svc)
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-        Base.wait_for_input('Adding to AzureAD and assigning group.')
+        Base.wait_for_input(True, 'Adding to AzureAD and assigning group.')
         aad = AzureADApplicationController()
         aad_app = aad.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
         print(aad_app)

@@ -1,30 +1,43 @@
-import asyncio
-import functools
+from typing import List
 from dataclasses import dataclass
-from typing import List, ClassVar, Type, Optional, Union
+import os
+import asyncio, functools
 
-try:
-    from okta.client import Client as OktaClient
-    from okta.models import BookmarkApplicationSettingsApplication, BookmarkApplicationSettings, BookmarkApplication, ApplicationGroupAssignment
-    from tabulate import tabulate
-except ImportError as ex:
-    print('ImportError > %s' % ex.args[0])
-    raise
+from banyan.ext.idp.base import IdpConf
+
+from okta.client import Client as OktaClient
+from okta.models import BookmarkApplicationSettingsApplication, BookmarkApplicationSettings, BookmarkApplication, ApplicationGroupAssignment
+from tabulate import tabulate
+
 
 @dataclass
 class OktaApplicationModel:
-    class Meta:
-        help = "Okta Application Model"
-
     id: str
     label: str
     sign_on_mode: str
     status: str
     link: str = ''
 
+
 class OktaApplicationController:
-    class Meta:
-        help = "Okta Application Controller"
+    def __init__(self):
+        _okta_org_url = os.getenv('OKTA_ORG_URL')
+        _okta_token = os.getenv('OKTA_TOKEN')
+        if not _okta_org_url:
+            _creds = IdpConf.get_creds('okta')
+            _okta_org_url = _creds['org_url']
+            _okta_token = _creds['token']
+
+        try:
+            config = {
+                'orgUrl': _okta_org_url,
+                'token': _okta_token,
+                'raiseException': True
+            }         
+            self._client = OktaClient(config)
+        except Exception as ex:
+            print('OktaClientError > %s' % ex.args[0])
+            raise            
 
     # no async needed -> https://gist.github.com/phizaz/20c36c6734878c6ec053245a477572ec
     def force_sync(fn):
@@ -40,15 +53,8 @@ class OktaApplicationController:
 
     @force_sync
     async def list(self):
-        try:
-            config = {'raiseException': True}            
-            client = OktaClient(config)
-        except Exception as ex:
-            print('OktaClientError > %s' % ex.args[0])
-            raise
-        
         params = {'limit': 200}
-        apps, resp, err = await client.list_applications(params)
+        apps, resp, err = await self._client.list_applications(params)
 
         applications: List[OktaApplicationModel] = list()
         for app in apps:
@@ -89,28 +95,14 @@ class OktaApplicationController:
             'settings': bookmark_app_settings,
         })
 
-        try:
-            config = {'raiseException': True}            
-            client = OktaClient(config)
-        except Exception as ex:
-            print('OktaClientError > %s' % ex.args[0])
-            raise
-
-        app, resp, err = await client.create_application(bookmark_app_model)
+        app, resp, err = await self._client.create_application(bookmark_app_model)
         return app
 
 
     @force_sync
     async def assign(self, app_id: str, group_name: str):
-        try:
-            config = {'raiseException': True}            
-            client = OktaClient(config)
-        except Exception as ex:
-            print('OktaClientError > %s' % ex.args[0])
-            raise
-
         params = {'q': group_name}
-        app, resp, err = await client.list_groups(params)
+        app, resp, err = await self._client.list_groups(params)
         print (app, resp, err)
         group_id = ''
         if len(app):
@@ -119,7 +111,7 @@ class OktaApplicationController:
             raise Exception('Group not found')
         
         application_group_assignment = ApplicationGroupAssignment()
-        app, resp, err = await client.create_application_group_assignment(app_id, group_id, application_group_assignment)
+        app, resp, err = await self._client.create_application_group_assignment(app_id, group_id, application_group_assignment)
         return app
 
 

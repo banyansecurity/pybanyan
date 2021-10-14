@@ -1,2 +1,0 @@
-azure-identity
-msgraphcore==0.0.3
