@@ -95,3 +95,6 @@ class CloudResourceAssociateInfo:
     service_name: str
     Schema: ClassVar[Type[Schema]] = Schema
 
+    @property
+    def cloud_resource_id(self) -> str:
+        return str(self.resource_udid)

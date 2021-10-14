@@ -1,0 +1,29 @@
+{
+    "id": "1075cf45-6d65-42fb-b399-510cd3503b92",
+    "org_id": "acea0c97-09e6-45df-b969-c9304b820c99",
+    "resource_id": "i-04a4e38f9f178fcd1",
+    "resource_name": "EI-Crowdstrike Test",
+    "resource_type": "ec2",
+    "parent_id": "",
+    "public_dns_name": "",
+    "private_dns_name": "",
+    "public_ip": "34.201.98.41",
+    "private_ip": "172.31.11.229",
+    "region": "us-east-1",
+    "service_id": "",
+    "status": "discovered",
+    "cloud_provider": "AWS",
+    "created_at": 1633733543320318712,
+    "updated_at": 1633733543320318712,
+    "ports": "",
+    "account": "",
+    "tags":
+    [
+        {
+            "id": "730ef0f1-9839-4415-8d9f-d6f68d8ae944",
+            "cloud_resource_id": "1075cf45-6d65-42fb-b399-510cd3503b92",
+            "name": "Name",
+            "value": "EI-Crowdstrike Test"
+        }
+    ]
+}
