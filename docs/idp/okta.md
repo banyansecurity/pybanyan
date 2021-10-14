@@ -2,6 +2,10 @@
 
 Banyan uses the [Okta SDK for Python](https://github.com/okta/okta-sdk-python) to bookmark Services into your Okta SSO catalog.
 
+If you installed `pybanyan` using `pip`, get the Okta extra:
+```console
+$ pip install pybanyan[okta]
+```
 
 ## Authentication
 
@@ -39,5 +43,5 @@ You should see a list of your Okta applications.
 You can now create an Okta bookmark application from a web service:
 
 ```bash
-banyan cloud-resource bookmark-azuread
+banyan cloud-resource bookmark-okta
 ```

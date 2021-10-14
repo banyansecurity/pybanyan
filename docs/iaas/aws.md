@@ -2,6 +2,10 @@
 
 Banyan uses the [AWS SDK for Python](https://github.com/boto/boto3) to synchronize AWS resources into Banyan's inventory.
 
+If you installed `pybanyan` using `pip`, get the AWS extra:
+```console
+$ pip install pybanyan[aws]
+```
 
 ## Authentication
 
@@ -24,6 +28,11 @@ refresh_token = ...
 aws_access_key_id = YOUR_KEY
 aws_secret_access_key = YOUR_SECRET
 ```
+
+## TODO: Multiple Accounts
+
+You can discover resources across multiple accounts that belong to the same AWS organization. This capability hasn't been implemented yet.
+
 
 ## Test
 

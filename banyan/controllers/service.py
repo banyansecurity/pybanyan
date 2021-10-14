@@ -228,22 +228,22 @@ class ServiceController(Controller):
         print('\n--> Bookmark to Okta successful.')
 
 
-    @ex(help='create an AzureAD Linked Sign-on from a web service',
+    @ex(help='create an Azure AD Linked Sign-on from a web service',
     arguments=[
         (['service_name'],
         {
-            'help': 'name of service to add to AzureAD.'
+            'help': 'name of service to add to Azure AD.'
         }),
         (['group_name'],
         {
             'help': 'Azure AD group to assign application access.'
         }),            
     ])
-    def bookmark_azuread(self):
+    def bookmark_aad(self):
         try:
             from banyan.ext.idp.azure_ad import AzureADApplicationController
         except Exception as ex:
-            raise NotImplementedError("AzureAD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
+            raise NotImplementedError("Azure AD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
 
         self._client.list()
         service_info: ServiceInfo = self._client[self.app.pargs.service_name]
@@ -255,10 +255,10 @@ class ServiceController(Controller):
         service_json = Service.Schema().dump(svc)
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-        Base.wait_for_input(True, 'Adding to AzureAD and assigning group.')
+        Base.wait_for_input(True, 'Adding to Azure AD and assigning group.')
         aad = AzureADApplicationController()
         aad_app = aad.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
         print(aad_app)
 
-        print('\n--> Bookmark to AzureAD successful.')
+        print('\n--> Bookmark to Azure AD successful.')
         

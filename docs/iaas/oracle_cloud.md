@@ -2,6 +2,10 @@
 
 Banyan uses the [OCI Python SDK](https://github.com/oracle/oci-python-sdk) to synchronize OCI resources into Banyan's inventory.
 
+If you installed `pybanyan` using `pip`, get the OCI extra:
+```console
+$ pip install pybanyan[oracle_cloud]
+```
 
 ## Authentication
 
@@ -27,6 +31,11 @@ region=us-ashburn-1
 ```
 
 **Note:** if you're on Windows, Python still uses `/` not `\` in the path to key file, so you'd use `C:/Users/foobar/key.json` and not `C:\Users\foobar\key.json`.
+
+
+## Multiple Containers
+
+You can discover resources across multiple containers in the OCI tenant.
 
 
 ## Test

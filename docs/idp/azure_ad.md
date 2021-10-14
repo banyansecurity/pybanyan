@@ -3,6 +3,11 @@
 
 Banyan uses the [Microsoft Graph SDK for Python](https://github.com/microsoftgraph/msgraph-sdk-python-core) to bookmark Services into your Azure AD SSO catalog.
 
+If you installed `pybanyan` using `pip`, get the Azure AD extra:
+```console
+$ pip install pybanyan[azure_ad]
+```
+
 
 ## Authentication
 
@@ -44,5 +49,5 @@ You should see a list of your AzureAD applications.
 You can now create an AzureAD Linked Sign-on from a web service:
 
 ```bash
-banyan cloud-resource bookmark-azuread
+banyan cloud-resource bookmark-aad
 ```

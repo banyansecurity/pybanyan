@@ -2,6 +2,10 @@
 
 Banyan uses the [Azure SDK for Python](https://github.com/Azure/azure-sdk-for-python) to synchronize Azure resources into Banyan's inventory.
 
+If you installed `pybanyan` using `pip`, get the Azure extra:
+```console
+$ pip install pybanyan[azure_cloud]
+```
 
 ## Authentication
 
@@ -24,6 +28,11 @@ azure_tenant_id = "id of the application's Azure Active Directory tenant"
 azure_client_id = "id of an Azure Active Directory application"
 azure_client_secret = "one of the application's client secrets"
 ```
+
+## Multiple Resource Groups
+
+You can discover resources across multiple resource groups in the Azure subscription.
+
 
 ## Test
 

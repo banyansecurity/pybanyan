@@ -2,6 +2,10 @@
 
 Banyan uses the [Google Cloud Client Libraries for Python](https://cloud.google.com/compute/docs/tutorials/python-guide) to synchronize GCP resources into Banyan's inventory.
 
+If you installed `pybanyan` using `pip`, get the GCP extra:
+```console
+$ pip install pybanyan[gcp]
+```
 
 ## Authentication
 
@@ -26,7 +30,7 @@ google_application_credentials=/path/to/my/key.json
 **Note:** if you're on Windows, Python still uses `/` not `\` in the path to key file, so you'd use `C:/Users/foobar/key.json` and not `C:\Users\foobar\key.json`.
 
 
-## Additional Projects
+## Multiple Projects
 
 The same Service Account can be used to discover resources across multiple projects. As in [this post](https://gtseres.medium.com/using-service-accounts-across-projects-in-gcp-cf9473fef8f0), add the Service Account email address and assign the IAM roles in each project you want to synchronize.
 

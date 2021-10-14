@@ -4,7 +4,10 @@
 
 Banyan uses the [VMware vSphere Automation SDK for Python](https://github.com/vmware/vsphere-automation-sdk-python) to synchronize vSphere resources into Banyan's inventory.
 
-
+Install the SDK following instructions in the repo:
+```console
+$ pip install git+https://github.com/vmware/vsphere-automation-sdk-python.git
+```
 
 ## Configuration
 
