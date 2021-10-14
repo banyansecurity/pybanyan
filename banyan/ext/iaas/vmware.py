@@ -42,7 +42,7 @@ class VmwareController:
                 password=password, 
                 session=session
             )
-        except :
+        except Exception as ex:
             print('VMwareSDKError > %s' % ex.args[0])
             raise
         self._filter_by_datacenter = filter_by_datacenter
