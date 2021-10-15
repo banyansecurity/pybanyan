@@ -1,7 +1,7 @@
 from typing import List
 import os, json
 
-from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf, IaasController
  
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.resource import ResourceManagementClient
@@ -9,7 +9,7 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.network import NetworkManagementClient
 
 
-class AzureController:
+class AzureController(IaasController):
     def __init__(self, filter_by_resource_group: str, filter_by_location: str = None, filter_by_tag_name: str = None):
         self._provider = 'azure'
         _azure_subscription_id = os.getenv('AZURE_SUBSCRIPTION_ID')

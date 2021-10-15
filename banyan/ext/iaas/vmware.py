@@ -10,7 +10,7 @@ from com.vmware.vcenter_client import VM
 from com.vmware.vcenter.vm_client import Power
 
 
-class VmwareController:
+class VmwareController(IaasController):
     def __init__(self, filter_by_datacenter: str, filter_by_tag_name: str = None):
         self._provider = 'vmware'
         _vsphere_server = os.getenv('VSPHERE_SERVER')

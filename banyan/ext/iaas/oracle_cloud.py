@@ -1,12 +1,12 @@
 from typing import List
 import os
 
-from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf, IaasController
 
 import oci
 
 
-class OciController:
+class OciController(IaasController):
     def __init__(self, filter_by_compartment_name: str, filter_by_region: str = None, filter_by_tag_name: str = None):
         self._provider = 'oci'
         _oci_user = os.getenv('OCI_USER')

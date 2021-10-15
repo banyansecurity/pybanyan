@@ -1,12 +1,12 @@
 from typing import List
 import os
 
-from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf, IaasController
 
 import googleapiclient.discovery
     
 
-class GcpController:
+class GcpController(IaasController):
     def __init__(self, filter_by_project: str, filter_by_zone: str = None, filter_by_label_name: str = None):
         self._provider = 'gcp'
         _google_application_credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')

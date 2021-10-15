@@ -2,12 +2,12 @@ import logging
 import os
 from typing import List
 
-from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf
+from banyan.ext.iaas.base import IaasAccount, IaasResource, IaasInstance, IaasRegion, IaasConf, IaasController
 
 import boto3
 
 
-class AwsController:
+class AwsController(IaasController):
     def __init__(self, filter_by_region: str, filter_by_tag_name: str = None):
         self._provider = 'aws'
         _aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')

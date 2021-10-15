@@ -32,6 +32,14 @@ class IaasResource:
     instance: IaasInstance
     tags: Dict
 
+class IaasController:
+    def __init__(self):
+        self._provider = 'iaas'
+
+    @property
+    def provider(self) -> str:
+        return self._provider.upper()
+
 
 # IaaS credentials in named sections in ~/.banyan.conf file
 class IaasConf:
