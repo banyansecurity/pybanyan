@@ -75,9 +75,9 @@ class Base(Controller):
 
     @staticmethod
     def wait_for_input(wait: bool, text: str):
+        print('\n--> %s:' % text)
         if not wait:
             return
-        print('\n--> %s:' % text)
         user_input = input('press enter to continue, type "stop" to stop ...\n')
         if 'stop' in user_input:
             raise RuntimeError('User terminated workflow')
@@ -100,7 +100,7 @@ class Base(Controller):
         results = list()
         for res in res_list:
             allvars = vars(copy.copy(res.instance))
-            allvars['provider'] = res.provider.upper()
+            allvars['provider'] = res.provider
             allvars['account'] = res.account.id
             allvars['region'] = res.region.id
             # truncate
@@ -126,20 +126,30 @@ class Base(Controller):
             }
             res_tags.append(res_tag)
 
+        # enforce capitalization conventions, ports in a comma-separated string 
         cloud_res = CloudResource(
             cloud_provider = res.provider.upper(),
             account = res.account.id,
             region = res.region.id,
 
-            resource_type = res.instance.type,
+            resource_type = res.instance.type.lower(),
             resource_id = res.instance.id,
             resource_name = res.instance.name,
             public_dns_name = res.instance.public_dns_name,
             public_ip = res.instance.public_ip,
             private_dns_name = res.instance.private_dns_name,
             private_ip = res.instance.private_ip,
-            ports = res.instance.ports,
+            ports = (',').join(res.instance.ports),
 
             tags = res_tags
         )
         return cloud_res
+
+    @staticmethod
+    def sanitize_alls(params):
+        sanitized = {}
+        for key, val in params.items():
+            if val == 'all':
+                val = None
+            sanitized[key] = val
+        return sanitized

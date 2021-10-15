@@ -28,24 +28,37 @@ class CloudResourceController(Controller):
     def trunc(self, value, num_chars) -> str:
         if not value:
             return ''
-        elif len(value) < num_chars+3:
+        value = str(value)
+        if len(value) < num_chars + 3:
             return value
         else:
-            return '...' + str(value)[-num_chars:]
+            return '...' + value[-num_chars:]
 
     @ex(help='list cloud_resources',
         arguments=[
-            (['--tag_name'], 
+            (['--cloud'], 
             {
-                'help': 'filter discovered resource by Tag Name.'
+                'help': 'filter by provider - AWS | AZURE | GCP | OCI | ...'
             }),
+            (['--account'], 
+            {
+                'help': 'filter by account'
+            }),
+            (['--region'], 
+            {
+                'help': 'filter by region/location/zone'
+            }),
+            (['--resource_type'], 
+            {
+                'help': 'filter by type - ec2 | vm | rds | ...'
+            })
         ])
     def list(self):
-        params={'include_tags': 'true', 'tag_name': self.app.pargs.tag_name}
-        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
+        params={'cloud_provider': self.app.pargs.cloud, 'account': self.app.pargs.account, 'region': self.app.pargs.region, 'resource_type': self.app.pargs.resource_type}
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
-        for res in d_resources:
+        for res in synced_resources:
             new_res = [res.name[:20], res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
                        res.region, res.resource_type, 
                        self.trunc(res.private_ip or res.private_dns_name, 24), 
@@ -116,6 +129,14 @@ class CloudResourceController(Controller):
         self.app.render(info, handler='json')
 
 
+    @ex(hide=True, help='delete all cloud_resource records')
+    def delete_all(self):
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
+        for d_resource in synced_resources:
+            info = self._client.cloud_resources.delete(d_resource.id)
+            self.app.render(info, handler='json')
+            sleep(0.05)
+
     @ex(help='show cloud_resources associated with services', 
         arguments=[
             (['--resource_uuid'],
@@ -165,7 +186,7 @@ class CloudResourceController(Controller):
 
     @ex(help='test AWS configuration by getting EC2 resources',
         arguments=[
-            (['region_name'],
+            (['region'],
             {
                 'help': 'region where AWS EC2 resources exist - us-east-1, us-west-2, etc.'
             })    
@@ -176,7 +197,7 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        aws = AwsController(self.app.pargs.region_name)
+        aws = AwsController(self.app.pargs.region)
         instances: List[IaasResource] = aws.list_ec2()
         if len(instances):
             print('--> AWS configuration test passed. Found %d resources.' % len(instances))
@@ -190,7 +211,7 @@ class CloudResourceController(Controller):
             {
                 'help': 'type of AWS resource - ec2 | rds | elb. You can say "all" but be careful!'
             }),
-            (['region_name'],
+            (['region'],
             {
                 'help': 'region where AWS resources run - us-east-1, us-west-2, etc. You can say "all" but be careful!'
             }),            
@@ -210,44 +231,43 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("AWS SDK not configured correctly > %s" % ex.args[0])
 
-        instances: List[IaasResource] = list()
         rt = self.app.pargs.resource_type.lower()
-        aws = AwsController(self.app.pargs.region_name, self.app.pargs.tag_name)
+        wait = self.app.pargs.wait_for_input
+
+        instances: List[IaasResource] = list()
+        aws = AwsController(self.app.pargs.region, self.app.pargs.tag_name)
         if rt == 'ec2' or rt == 'all':
-            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS EC2 resources')
+            Base.wait_for_input(wait, 'Getting list of AWS EC2 resources')
             instances += aws.list_ec2()
         if rt == 'rds' or rt == 'all':
-            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS RDS resources')
+            Base.wait_for_input(wait, 'Getting list of AWS RDS resources')
             instances += aws.list_rds()
         if rt == 'elb' or rt == 'all':
-            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of AWS ELB resources')
+            Base.wait_for_input(wait, 'Getting list of AWS ELB resources')
             instances += aws.list_elb() 
 
         results = Base.tabulate_iaas_resources(instances)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
-
         if len(results) == 0:
             print('--> No AWS resources to sync')
             return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new AWS resources')
-        #TODO: List only AWS resources in specified Region (need API update)
-        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.added_iaas_resources(instances, d_resources)
+        Base.wait_for_input(wait, 'Filtering for new AWS resources')
+        params={'cloud_provider': aws.provider, 'resource_type': rt, 'region': self.app.pargs.region}
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=Base.sanitize_alls(params))
+        added_instances = Base.added_iaas_resources(instances, synced_resources)
 
         new_results = Base.tabulate_iaas_resources(added_instances)
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
-
         if len(new_results) == 0:
             print('--> No new AWS resources to sync')
             return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
+        Base.wait_for_input(wait, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
-            self.app.render(CloudResource.Schema().dump(res), handler='json')
-            info = self._client.cloud_resources.create(res)
-            print('\n-->', info)
+            self._client.cloud_resources.create(res)
+            print('\n--> Added AWS resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
             sleep(0.05)
 
         print('\n--> Sync with AWS successful.')
@@ -304,37 +324,40 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("Azure SDK not configured correctly > %s" % ex.args[0])
 
+        rt = self.app.pargs.resource_type.lower()     
+        wait = self.app.pargs.wait_for_input
+
         instances: List[IaasResource] = list()
-        rt = self.app.pargs.resource_type.lower()
         azr = AzureController(self.app.pargs.resource_group, self.app.pargs.location, self.app.pargs.tag_name)
         if rt == 'vm' or rt == 'all':
-            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of Azure VM resources')
+            Base.wait_for_input(wait, 'Getting list of Azure VM resources')
             instances += azr.list_vm()
         if rt == 'lb' or rt == 'all':
-            Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of Azure LB resources')
+            Base.wait_for_input(wait, 'Getting list of Azure LB resources')
             instances += azr.list_lb()
 
         results = Base.tabulate_iaas_resources(instances, ['id'])
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+        if len(results) == 0:
+            print('--> No Azure resources to sync')
+            return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new Azure resources')
-        #TODO: List only Azure resources in specified resource Group (need API update)
-        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.added_iaas_resources(instances, d_resources)
+        Base.wait_for_input(wait, 'Filtering for new Azure resources')
+        params={'cloud_provider': azr.provider, 'resource_type': rt, 'account': self.app.pargs.resource_group, 'region': self.app.pargs.location}
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=Base.sanitize_alls(params))
+        added_instances = Base.added_iaas_resources(instances, synced_resources)
 
         new_results = Base.tabulate_iaas_resources(added_instances, ['id'])
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
-
         if len(new_results) == 0:
             print('--> No new Azure resources to sync')
             return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
+        Base.wait_for_input(wait, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
-            self.app.render(CloudResource.Schema().dump(res), handler='json')
-            info = self._client.cloud_resources.create(res)
-            print('\n-->', info)
+            self._client.cloud_resources.create(res)
+            print('\n--> Added Azure resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
             sleep(0.05)
 
         print('\n--> Sync with Azure successful.')
@@ -365,7 +388,7 @@ class CloudResourceController(Controller):
         arguments=[
             (['resource_type'],
             {
-                'help': 'type of VMWare resource - vm | all.'
+                'help': 'type of GCP resource - vm | all.'
             }),
             (['project'],
             {
@@ -391,31 +414,37 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("GCP Client Libraries for Python not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of GCP VM resources')
+        rt = self.app.pargs.resource_type.lower()
+        wait = self.app.pargs.wait_for_input
+
+        instances: List[IaasResource] = list()
         gcp = GcpController(self.app.pargs.project, self.app.pargs.zone, self.app.pargs.tag_name)
-        instances: List[IaasResource] = gcp.list_vm()
+        if rt == 'vm' or rt == 'all':
+            Base.wait_for_input(wait, 'Getting list of GCP VM resources')
+            instances += gcp.list_vm()
 
         results = Base.tabulate_iaas_resources(instances)
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+        if len(results) == 0:
+            print('--> No GCP resources to sync')
+            return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new GCP resources')
-        #TODO: List only GCP resources in specified Project (need API update)
-        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.added_iaas_resources(instances, d_resources)
+        Base.wait_for_input(wait, 'Filtering for new GCP resources')
+        params={'cloud_provider': gcp.provider, 'resource_type': rt, 'account': self.app.pargs.project, 'region': self.app.pargs.zone}
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=Base.sanitize_alls(params))
+        added_instances = Base.added_iaas_resources(instances, synced_resources)
 
         new_results = Base.tabulate_iaas_resources(added_instances)
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
-
         if len(new_results) == 0:
             print('--> No new GCP resources to sync')
             return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
+        Base.wait_for_input(wait, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
-            self.app.render(CloudResource.Schema().dump(res), handler='json')
-            info = self._client.cloud_resources.create(res)
-            print('\n-->', info)
+            self._client.cloud_resources.create(res)
+            print('\n--> Added GCP resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
             sleep(0.05)
 
         print('\n--> Sync with Google Cloud successful.')
@@ -472,31 +501,37 @@ class CloudResourceController(Controller):
         except Exception as ex:
             raise NotImplementedError("OCI Python SDK not configured correctly > %s" % ex.args[0])
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Getting list of OCI VM resources')
+        wait = self.app.pargs.wait_for_input
+        rt = self.app.pargs.resource_type.lower()
+
+        instances: List[IaasResource] = list()
         orl = OciController(self.app.pargs.compartment)
-        instances: List[IaasResource] = orl.list_vm()
+        if rt == 'vm' or rt == 'all':
+            Base.wait_for_input(wait, 'Getting list of OCI VM resources')
+            instances += orl.list_vm()
 
         results = Base.tabulate_iaas_resources(instances, ['id', 'account'])
         self.app.render(results, handler='tabulate', headers='keys', tablefmt='simple')
+        if len(results) == 0:
+            print('--> No OCI resources to sync')
+            return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Filtering for new OCI resources')
-        #TODO: List only OCI resources in specified Compartment (need API update)
-        d_resources: List[CloudResourceInfo] = self._client.cloud_resources.list()
-        added_instances = Base.added_iaas_resources(instances, d_resources)
+        Base.wait_for_input(wait, 'Filtering for new OCI resources')
+        params={'cloud_provider': orl.provider, 'resource_type': rt, 'account': self.app.pargs.compartment, 'region': self.app.pargs.region}
+        synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=Base.sanitize_alls(params))
+        added_instances = Base.added_iaas_resources(instances, synced_resources)
 
         new_results = Base.tabulate_iaas_resources(added_instances, ['id', 'account'])
         self.app.render(new_results, handler='tabulate', headers='keys', tablefmt='simple')
-
         if len(new_results) == 0:
             print('--> No new OCI resources to sync')
             return
 
-        Base.wait_for_input(self.app.pargs.wait_for_input, 'Syncing into Banyan Cloud Resource inventory')
+        Base.wait_for_input(wait, 'Syncing into Banyan Cloud Resource inventory')
         for instance in added_instances:
             res = Base.convert_iaas_resource(instance)
-            self.app.render(CloudResource.Schema().dump(res), handler='json')
-            info = self._client.cloud_resources.create(res)
-            print('\n-->', info)
+            self._client.cloud_resources.create(res)
+            print('\n--> Added Azure resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
             sleep(0.05)
 
         print('\n--> Sync with Oracle Cloud successful.')
