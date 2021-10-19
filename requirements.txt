@@ -15,3 +15,9 @@ requests
 aenum
 colorama
 cryptography
+
+# okta
+okta
+# azure ad
+azure-identity
+msgraph-core

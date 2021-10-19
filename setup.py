@@ -42,7 +42,9 @@ setup(
         'cryptography'
     ],
     extras_require={
-        'aws': ['boto3', 'ec2_metadata']
+        'aws': ['boto3', 'ec2_metadata'],        
+        'okta': ['okta'],
+        'azure_ad': ['azure-identity', 'msgraph-core']
     },
     entry_points={'console_scripts': [
         "banyan=banyan.main:main"
