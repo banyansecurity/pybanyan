@@ -122,7 +122,7 @@ class BanyanApiClient:
             try:
                 cp = configparser.ConfigParser(CONFIG)
                 cp.read(conf_path)
-                self._api_url = cp.get('banyan', 'api_url')
+                self._api_url = self._normalize_url(cp.get('banyan', 'api_url'))
                 self._refresh_token = cp.get('banyan', 'refresh_token')
             except configparser.Error:
                 pass
