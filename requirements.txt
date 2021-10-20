@@ -15,7 +15,8 @@ requests
 aenum
 colorama
 cryptography
-
+gunicorn
+flask
 # aws
 boto3
 # azure cloud
