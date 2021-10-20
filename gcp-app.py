@@ -5,7 +5,7 @@ from time import sleep
 from banyan.api import BanyanApiClient
 from banyan.model.cloud_resource import CloudResource, CloudResourceInfo
 from banyan.ext.iaas.base import IaasResource
-
+import logging
 from flask import Flask
 
 app = Flask(__name__)
@@ -22,18 +22,19 @@ def handler():
     zone = os.getenv('ZONE')
     api_url = os.getenv('api_url')
     refresh_token = os.getenv('refresh_token')
-
+    if zone is None or zone == "":
+        zone = "us-central1-a"
     client = BanyanApiClient(api_url, refresh_token, debug=True)
     print("project: ", project)
     print("zone: ", zone)
     print("api_url: ", api_url)
     print("refresh_token: ", refresh_token)
-    msg = sync_aws(banyan_api_client=client, project='banyan-dev', zone='us-west1')
+    msg = sync_gcp(banyan_api_client=client, project='banyan-dev', zone=zone)
     print(msg)
     return msg
 
 
-def sync_aws(banyan_api_client, project, resource_type='all', zone=None, tag_name=None):
+def sync_gcp(banyan_api_client, project, resource_type='all', zone=None, tag_name=None):
     try:
         from banyan.ext.iaas.gcp import GcpController
     except Exception as ex:
@@ -66,9 +67,9 @@ def sync_aws(banyan_api_client, project, resource_type='all', zone=None, tag_nam
             sleep(0.05)
 
         return '--> Sync with GCP successful.'
-    except Exception as ex:
-        print(ex)
-        return "GCP sync failed"
+    except:
+        logging.exception('Got exception on main handler')
+        raise
 
 
 def added_iaas_resources(res_list: List[IaasResource], inv_list: List[CloudResource]) -> List[IaasResource]:
