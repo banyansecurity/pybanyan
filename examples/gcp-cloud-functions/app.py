@@ -5,53 +5,53 @@ import os
 from banyan.api import BanyanApiClient
 from banyan.model.cloud_resource import CloudResourceInfo
 from banyan.controllers.base import Base
-from banyan.ext.iaas.aws import AwsController
+from banyan.ext.iaas.gcp import GcpController
 from banyan.ext.iaas.base import IaasResource
 
+from flask import Flask
 
-# sync_aws
-def handler(event, context):
-    print("--> entering Lambda handler")
+# sync_gcp
+app = Flask(__name__)
+@app.route('/')
+def handler():
+    print("--> entering Cloud Functions handler")
 
     # env vars: BANYAN_API_URL, BANYAN_REFRESH_TOKEN
     bnn = BanyanApiClient()
 
     resource_type = os.getenv('RESOURCE_TYPE')
-    region = os.getenv('REGION')
+    project = os.getenv('PROJECT')
+    zone = os.getenv('ZONE')
     tag_name = os.getenv('TAG_NAME')
     rt = resource_type.lower()
 
-    # env vars: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN
-    aws = AwsController(region, tag_name)
+    # env vars: GOOGLE_APPLICATION_CREDENTIALS
+    gcp = GcpController(project, zone, tag_name)
 
     instances: List[IaasResource] = list()
-    if rt == 'ec2' or rt == 'all':
-        instances += aws.list_ec2()
-    if rt == 'rds' or rt == 'all':
-        instances += aws.list_rds()
-    if rt == 'elb' or rt == 'all':
-        instances += aws.list_elb() 
+    if resource_type == 'vm' or resource_type == 'all':
+        instances += gcp.list_vm()
 
     if len(instances) == 0:
         print('--> No AWS resources to sync')
         return
 
-    params={'cloud_provider': aws.provider, 'resource_type': rt, 'region': region}
+    params = {'cloud_provider': gcp.provider, 'resource_type': rt, 'account': project, 'region': zone}
     synced_resources: List[CloudResourceInfo] = bnn.cloud_resources.list(params=Base.sanitize_alls(params))
     added_instances = Base.added_iaas_resources(instances, synced_resources)
 
     if len(added_instances) == 0:
-        print('--> No new AWS resources to sync')
+        print('--> No new GCP resources to sync')
         return
 
     for instance in added_instances:
         res = Base.convert_iaas_resource(instance)
         bnn.cloud_resources.create(res)
-        print('\n--> Added AWS resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
+        print('\n--> Added GCP resource id(name): %s(%s)' % (res.resource_id, res.resource_name))
         sleep(0.05)
-        
-    print('\n--> Sync with AWS successful.')
+
+    print('\n--> Sync with GCP successful.')
 
 
-if __name__ == '__main__':
-    handler(None, None)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

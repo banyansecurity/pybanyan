@@ -1,0 +1,4 @@
+pybanyan[gcp]
+# HTTP endpoint needed for cloud functions
+gunicorn
+flask
