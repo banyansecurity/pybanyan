@@ -9,14 +9,13 @@ import googleapiclient.discovery
 class GcpController(IaasController):
     def __init__(self, filter_by_project: str, filter_by_zone: str = None, filter_by_label_name: str = None):
         self._provider = 'gcp'
-        _google_application_credentials = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-        if not _google_application_credentials:
+
+        if not os.getenv('GOOGLE_APPLICATION_CREDENTIALS') and not os.getenv('GOOGLE_CLOUD_FUNCTIONS'):
             _creds = IaasConf.get_creds(self._provider)
-            _google_application_credentials = _creds['google_application_credentials'].strip('"')
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = _creds['google_application_credentials'].strip('"')
 
         try:
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = _google_application_credentials
-            self._cloud_client = googleapiclient.discovery.build('cloudresourcemanager', 'v1')  # needs env var
+            self._cloud_client = googleapiclient.discovery.build('cloudresourcemanager', 'v1')  # uses env vars
         except Exception as ex:
             print('GoogleApiClientError > %s' % ex.args[0])
             raise

@@ -20,12 +20,12 @@ def handler():
     bnn = BanyanApiClient()
 
     resource_type = os.getenv('RESOURCE_TYPE')
-    project = os.getenv('PROJECT')
-    zone = os.getenv('ZONE')
-    tag_name = os.getenv('TAG_NAME')
+    project = os.getenv('PROJECT', 'all')
+    zone = os.getenv('ZONE', 'all')
+    tag_name = os.getenv('TAG_NAME', '')
     rt = resource_type.lower()
 
-    # env vars: GOOGLE_APPLICATION_CREDENTIALS
+    # env vars: GOOGLE_CLOUD_FUNCTIONS (so GcpController knows not to look for config file)
     gcp = GcpController(project, zone, tag_name)
 
     instances: List[IaasResource] = list()

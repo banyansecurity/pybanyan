@@ -9,25 +9,22 @@ import oci
 class OciController(IaasController):
     def __init__(self, filter_by_compartment_name: str, filter_by_region: str = None, filter_by_tag_name: str = None):
         self._provider = 'oci'
-        _oci_user = os.getenv('OCI_USER')
-        _oci_fingerprint = os.getenv('OCI_FINGERPRINT')
-        _oci_tenancy = os.getenv('OCI_TENANCY')
-        _oci_region = os.getenv('OCI_REGION')
-        _oci_key_file = os.getenv('OCI_KEY_FILE')
-        if not _oci_user:
+
+        if not os.getenv('OCI_CLI_USER'):
             _creds = IaasConf.get_creds(self._provider)
-            _oci_user = _creds['user']
-            _oci_fingerprint = _creds['fingerprint']
-            _oci_tenancy = _creds['tenancy']
-            _oci_region = _creds['region']
-            _oci_key_file = _creds['key_file']
+            os.environ['OCI_CLI_USER'] = _creds['user']
+            os.environ['OCI_CLI_FINGERPRINT'] = _creds['fingerprint']
+            os.environ['OCI_CLI_TENANCY'] = _creds['tenancy']
+            os.environ['OCI_CLI_REGION'] = _creds['region']
+            os.environ['OCI_CLI_KEY_FILE'] = _creds['key_file']
+
         try:
             self._config = {
-                "user": _oci_user,
-                "fingerprint": _oci_fingerprint,
-                "tenancy": _oci_tenancy,
-                "region": _oci_region,               
-                "key_file": _oci_key_file
+                "user": os.getenv('OCI_CLI_USER'),
+                "fingerprint": os.getenv('OCI_CLI_FINGERPRINT'),
+                "tenancy": os.getenv('OCI_CLI_TENANCY'),
+                "region": os.getenv('OCI_CLI_REGION'),               
+                "key_file": os.getenv('OCI_CLI_KEY_FILE')
             }
             oci.config.validate_config(self._config)
             self._tenancy = self._config.get('tenancy')     # for clients

@@ -5,9 +5,17 @@ Discover your AWS resources. See docs for more info.
 In AWS Lambda, run container every hour.
 
 Specify:
-resource_type
-region
-tag_name
+```
+BANYAN_API_URL
+BANYAN_REFRESH_TOKEN
+```
+
+Optionally:
+```
+RESOURCE_TYPE
+REGION
+TAG_NAME
+```
 
 ---
 

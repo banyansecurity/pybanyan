@@ -10,18 +10,15 @@ import boto3
 class AwsController(IaasController):
     def __init__(self, filter_by_region: str, filter_by_tag_name: str = None):
         self._provider = 'aws'
-        _aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-        _aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-        if not _aws_access_key_id:
+
+        if not os.getenv('AWS_ACCESS_KEY_ID'):
             _creds = IaasConf.get_creds(self._provider)
-            _aws_access_key_id = _creds['aws_access_key_id']
-            _aws_secret_access_key = _creds['aws_secret_access_key']
+            os.environ['AWS_ACCESS_KEY_ID'] = _creds['aws_access_key_id']
+            os.environ['AWS_SECRET_ACCESS_KEY'] = _creds['aws_secret_access_key']
+            os.environ['AWS_SESSION_TOKEN'] = _creds.get('aws_session_token', '') # optional, for short-lived creds
 
         try:
-            self._session = boto3.Session(
-                aws_access_key_id = _aws_access_key_id,
-                aws_secret_access_key = _aws_secret_access_key,
-            )
+            self._session = boto3.Session()     # uses env vars
             sts_client = self._session.client('sts')
             ec2_client = self._session.client('ec2')
         except Exception as ex:

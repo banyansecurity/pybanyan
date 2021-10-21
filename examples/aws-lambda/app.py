@@ -21,7 +21,7 @@ def handler(event, context):
     tag_name = os.getenv('TAG_NAME')
     rt = resource_type.lower()
 
-    # env vars: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN
+    # env vars: none (Lambda sets the correct env vars automatically)
     aws = AwsController(region, tag_name)
 
     instances: List[IaasResource] = list()

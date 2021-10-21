@@ -12,24 +12,17 @@ from azure.mgmt.network import NetworkManagementClient
 class AzureController(IaasController):
     def __init__(self, filter_by_resource_group: str, filter_by_location: str = None, filter_by_tag_name: str = None):
         self._provider = 'azure'
-        _azure_subscription_id = os.getenv('AZURE_SUBSCRIPTION_ID')
-        _azure_tenant_id = os.getenv('AZURE_TENANT_ID')
-        _azure_client_id = os.getenv('AZURE_CLIENT_ID')
-        _azure_client_secret = os.getenv('AZURE_CLIENT_SECRET')
-        if not _azure_subscription_id:
+
+        if not os.getenv('AZURE_SUBSCRIPTION_ID'):
             _creds = IaasConf.get_creds(self._provider)
-            _azure_subscription_id = _creds['azure_subscription_id']
-            _azure_tenant_id = _creds['azure_tenant_id']
-            _azure_client_id = _creds['azure_client_id']
-            _azure_client_secret = _creds['azure_client_secret']
+            os.environ['AZURE_SUBSCRIPTION_ID'] = _creds['azure_subscription_id']
+            os.environ['AZURE_TENANT_ID'] = _creds['azure_tenant_id']
+            os.environ['AZURE_CLIENT_ID'] = _creds['azure_client_id']
+            os.environ['AZURE_CLIENT_SECRET'] = _creds['azure_client_secret']
 
         try:
-            os.environ['AZURE_SUBSCRIPTION_ID'] = _azure_subscription_id
-            os.environ['AZURE_TENANT_ID'] = _azure_tenant_id
-            os.environ['AZURE_CLIENT_ID'] = _azure_client_id
-            os.environ['AZURE_CLIENT_SECRET'] = _azure_client_secret            
-            self._credential = DefaultAzureCredential()     # needs env vars
-            self._subscription_id = _azure_subscription_id  # for clients
+            self._credential = DefaultAzureCredential()     # uses env vars
+            self._subscription_id = os.getenv('AZURE_SUBSCRIPTION_ID')      # need for clients
             resource_client = ResourceManagementClient(self._credential, self._subscription_id)
         except Exception as ex:
             print('AzureSDKError > %s' % ex.args[0])
