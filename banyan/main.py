@@ -16,6 +16,7 @@ from banyan.controllers.role import RoleController
 from banyan.controllers.service import ServiceController
 from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
+from banyan.controllers.cloud_resource import CloudResourceController
 from .core.exc import BanyanError
 
 # configuration defaults
@@ -79,6 +80,7 @@ class MyApp(App):
         # register handlers
         handlers = [
             Base,
+            CloudResourceController,
             ServiceController,
             RoleController,
             PolicyController,

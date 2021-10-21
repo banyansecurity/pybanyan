@@ -24,6 +24,7 @@ from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
+from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
@@ -106,6 +107,7 @@ class BanyanApiClient:
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
+        self._cloud_resources = CloudResourceAPI(self)
 
     def __del__(self):
         if self._http:
@@ -161,6 +163,8 @@ class BanyanApiClient:
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
         if '://' not in url:
             url = self._api_url + url
+        if '/v2/' in url:
+            url = url.replace('/api/v1', '/api/experimental')
         if self._insecure_tls and not verify:
             verify = False
             urllib3.disable_warnings()
@@ -223,7 +227,10 @@ class BanyanApiClient:
             headers['Content-Type'] = self.JSON_TYPE
 
         with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json) as response:
-            return response.json()
+            resp = response.json()
+            if '/v2/' in uri:
+                return resp['data']
+            return resp
 
     @property
     def progress_callback(self) -> ProgressCallback:
@@ -260,7 +267,7 @@ class BanyanApiClient:
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
                 logging.debug('Looking for %s in %s', key, uri)
-                if key in uri or key == 'data':
+                if key in uri or key == 'data' or key == 'result':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
@@ -380,6 +387,10 @@ class BanyanApiClient:
     @property
     def audit(self) -> AuditAPI:
         return self._audit
+
+    @property
+    def cloud_resources(self) -> CloudResourceAPI:
+        return self._cloud_resources
 
 
 # configuration defaults

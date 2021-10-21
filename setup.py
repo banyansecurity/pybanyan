@@ -42,7 +42,10 @@ setup(
         'cryptography'
     ],
     extras_require={
-        'aws': ['boto3', 'ec2_metadata'],        
+        'aws': ['boto3', 'ec2_metadata'],
+        'azure_cloud': ['azure-identity', 'azure-mgmt-resource', 'azure-mgmt-compute', 'azure-mgmt-network'],
+        'gcp': ['google-api-python-client'],
+        'oracle_cloud': ['oci'],
         'okta': ['okta'],
         'azure_ad': ['azure-identity', 'msgraph-core']
     },
