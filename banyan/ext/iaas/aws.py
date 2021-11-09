@@ -62,15 +62,22 @@ class AwsController(IaasController):
             vm_list = list(ec2.instances.filter(Filters=filters))
 
             for vm in vm_list:
+                # only track running instances, ignore stopped, terminated, etc
+                res_state = vm.state
+                if res_state['Name'] != 'running':
+                    continue
+
+                # tags
                 res_tags = dict()
                 res_name = ''
-                for tag in vm.tags:
-                    key = tag['Key']
-                    val = tag['Value']
-                    res_tags[key] = val
-                    # EC2 resource name in tag called Name
-                    if key == 'Name':
-                        res_name = val 
+                if vm.tags is not None:
+                    for tag in vm.tags:
+                        key = tag['Key']
+                        val = tag['Value']
+                        res_tags[key] = val
+                        # EC2 instance name is in a tag called 'Name'
+                        if key == 'Name':
+                            res_name = val 
 
                 res_inst = IaasInstance(
                     type = res_type,
@@ -238,7 +245,7 @@ class AwsController(IaasController):
 
 
 if __name__ == '__main__':
-    aws = AwsController('us-east-2', None)
+    aws = AwsController('us-west-2', None)
     ec2_instances = aws.list_ec2()
     print(ec2_instances)
     rds_instances = aws.list_rds()
