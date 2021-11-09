@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.27.1
+
+ * bugfixes for autodiscovering cloud resources
+
 ## 0.27.0
 
  * support for autodiscovering cloud resources
