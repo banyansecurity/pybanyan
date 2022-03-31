@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List
 
-from banyan.api.base import ServiceBase, Resource
+from banyan.api.base import ApiBase, Resource
 from banyan.model import BanyanApiObject
 from banyan.model.audit import AuditEvent
 
 
-class AuditAPI(ServiceBase):
+class AuditAPI(ApiBase):
     class Meta:
         data_class = AuditEvent
         info_class = AuditEvent
@@ -27,7 +27,7 @@ class AuditAPI(ServiceBase):
 
     def list(self, before_dt: datetime = None, after_dt: datetime = None,
              event_type: str = None, action: str = None, admin_email: str = None) -> list:
-        params = ServiceBase.args_to_html_params([
+        params = ApiBase.args_to_html_params([
             (before_dt, 'end_time', int(before_dt.timestamp() * 1000000000) if before_dt else None),
             (after_dt, 'start_time', int(after_dt.timestamp() * 1000000000) if after_dt else None),
             (event_type, 'type', event_type),

@@ -1,11 +1,11 @@
 from typing import List, Dict, Any
 
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model import Resource
 from banyan.model.netagent import Netagent
 
 
-class NetagentAPI(ServiceBase):
+class NetagentAPI(ApiBase):
     class Meta:
         data_class = Netagent
         info_class = Netagent

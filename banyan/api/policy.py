@@ -1,10 +1,10 @@
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model.policy import PolicyInfo, Policy, PolicyInfoOrName, PolicyAttachInfo
 from banyan.model.service import ServiceInfoOrName
 from typing import List
 
 
-class PolicyAPI(ServiceBase):
+class PolicyAPI(ApiBase):
     class Meta:
         data_class = Policy
         info_class = PolicyInfo

@@ -1,9 +1,9 @@
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model import BanyanApiObject
 from banyan.model.role import Role, RoleInfo, RoleInfoOrName
 
 
-class RoleAPI(ServiceBase):
+class RoleAPI(ApiBase):
     class Meta:
         data_class = Role
         info_class = RoleInfo

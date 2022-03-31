@@ -1,10 +1,10 @@
 from typing import List
 
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model.user_device import User, TrustScore
 
 
-class UserAPI(ServiceBase):
+class UserAPI(ApiBase):
     class Meta:
         data_class = User
         info_class = User
