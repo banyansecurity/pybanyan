@@ -22,6 +22,8 @@ from banyan.api.netagent import NetagentAPI
 from banyan.api.policy import PolicyAPI
 from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
+from banyan.api.service_web import ServiceWebAPI
+from banyan.api.service_infra import ServiceInfraAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
@@ -96,7 +98,7 @@ class BanyanApiClient:
             requests_log = logging.getLogger('requests.packages.urllib3')
             requests_log.setLevel(logging.DEBUG)
             requests_log.propagate = True
-        self._http = self._create_session()
+        self._http = self._create_session()        
         self._services = ServiceAPI(self)
         self._policies = PolicyAPI(self)
         self._attach = AttachmentAPI(self)
@@ -108,6 +110,8 @@ class BanyanApiClient:
         self._events = EventV2API(self)
         self._audit = AuditAPI(self)
         self._cloud_resources = CloudResourceAPI(self)
+        self._services_web = ServiceWebAPI(self)
+        self._services_infra = ServiceInfraAPI(self)
 
     def __del__(self):
         if self._http:
@@ -319,6 +323,20 @@ class BanyanApiClient:
     @insecure_tls.setter
     def insecure_tls(self, value: bool) -> None:
         self._insecure_tls = value
+
+    @property
+    def services_web(self) -> ServiceWebAPI:
+        """
+        Returns an instance of the :py:class:`ServiceWebAPI` class, which can be used to manage Banyan hosted websites.
+        """
+        return self._services_web
+
+    @property
+    def services_infra(self) -> ServiceInfraAPI:
+        """
+        Returns an instance of the :py:class:`ServiceInfraAPI` class, which can be used to manage Banyan infra services.
+        """
+        return self._services_infra        
 
     @property
     def services(self) -> ServiceAPI:

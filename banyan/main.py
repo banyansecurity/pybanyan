@@ -14,6 +14,8 @@ from banyan.controllers.netagent import NetagentController
 from banyan.controllers.policy import PolicyController
 from banyan.controllers.role import RoleController
 from banyan.controllers.service import ServiceController
+from banyan.controllers.service_web import ServiceWebController
+from banyan.controllers.service_infra import ServiceInfraController
 from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from banyan.controllers.cloud_resource import CloudResourceController
@@ -81,6 +83,8 @@ class MyApp(App):
         handlers = [
             Base,
             CloudResourceController,
+            ServiceInfraController,
+            ServiceWebController,
             ServiceController,
             RoleController,
             PolicyController,
