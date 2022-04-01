@@ -32,23 +32,23 @@ class Tags:
         unknown = EXCLUDE
 
     template: str = field(metadata={'validate': validate.OneOf(ServiceTemplate.choices() + ["USER_WEB", "USER_TCP"])})
+    service_app_type: str = field(metadata={'validate': validate.OneOf(ServiceAppType.choices())})
     user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
     protocol: str
     domain: str
     port: int = field(metadata={'marshmallow_field': fields.String(), 'allow_none': True})
-    service_app_type: str = field(metadata={'validate': validate.OneOf(ServiceAppType.choices())})
-    enforcement_mode: Optional[str]
-    allow_user_override: Optional[bool]
-    banyanproxy_mode: Optional[str]
-    app_listen_port: Optional[str]
-    ssh_service_type: Optional[str]
-    ssh_chain_mode: Optional[bool] 
-    ssh_host_directive: Optional[str]
-    write_ssh_config: Optional[bool]
-    kube_cluster_name: Optional[str]
-    kube_ca_key: Optional[str]
-    description_link: Optional[str]
-    include_domains: Optional[List[str]]
+    enforcement_mode: Optional[str] = ''
+    allow_user_override: Optional[bool] = field(default=False)
+    banyanproxy_mode: Optional[str] = ''
+    app_listen_port: Optional[str] = ''
+    ssh_service_type: Optional[str] = ''
+    ssh_chain_mode: Optional[bool] = field(default=False)
+    ssh_host_directive: Optional[str] = ''
+    write_ssh_config: Optional[bool] = field(default=False)
+    kube_cluster_name: Optional[str] = ''
+    kube_ca_key: Optional[str] = ''
+    description_link: Optional[str] = ''
+    include_domains: Optional[List[str]] = field(default_factory=list)
     icon: str = field(default="")
     Schema: ClassVar[Schema] = Schema
 
@@ -216,12 +216,12 @@ class HttpSettings:
 
     enabled: bool
     oidc_settings: Optional[OIDCSettings]
-    exempted_paths: Optional[ExemptedPaths]
-    http_health_check: Optional[HTTPHealthCheck] # deprecated
-    http_redirect: Optional[HTTPRedirect] # deprecated
-    headers: Optional[Dict[str, str]]
-    custom_trust_cookie: Optional[CustomTrustCookie]
-    token_loc: Optional[TokenLocation]
+    exempted_paths: Optional[ExemptedPaths] = field(default_factory=dict)
+    #http_health_check: Optional[HTTPHealthCheck] # deprecated
+    #http_redirect: Optional[HTTPRedirect] # deprecated
+    headers: Optional[Dict[str, str]] = field(default_factory=dict)
+    custom_trust_cookie: Optional[CustomTrustCookie] = field(default_factory=dict)
+    token_loc: Optional[TokenLocation] = field(default_factory=dict)
 
 
 @dataclass
@@ -249,7 +249,7 @@ class BackendTarget:
         unknown = EXCLUDE
 
     name: Optional[str]
-    name_delimiter: Optional[str]
+    name_delimiter: Optional[str] = ''
     port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     tls: Optional[bool] = False
     tls_insecure: Optional[bool] = False
@@ -275,6 +275,7 @@ class Backend:
     allow_patterns: Optional[List[AllowPattern]] = field(default_factory=list)
     whitelist: Optional[List[str]] = field(default_factory=list) # deprecated
     http_connect: Optional[bool] = False
+    connector_name: Optional[str] = ''
 
 
 @dataclass
