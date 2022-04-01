@@ -18,7 +18,7 @@ class ServiceInfraController(Controller):
     def _client(self) -> ServiceInfraAPI:
         return self.app.client.services_infra
 
-    @ex(help='list registered services')
+    @ex(help='list infrastructure services')
     def list(self):
         services: List[ServiceInfo] = self._client.list()
         results = list()
@@ -32,7 +32,8 @@ class ServiceInfraController(Controller):
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
-    @ex(help='show the definition of a registered service',
+
+    @ex(help='show the definition of a infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -46,7 +47,8 @@ class ServiceInfraController(Controller):
         # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-    @ex(help='create a new service from a JSON specification',
+
+    @ex(help='create a new custom infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -54,13 +56,14 @@ class ServiceInfraController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def create(self):
+    def create_custom(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='update an existing service from a JSON specification',
+
+    @ex(help='update an existing custom infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -68,13 +71,13 @@ class ServiceInfraController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def update(self):
+    def update_custom(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.update(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='delete a service',
+    @ex(help='delete an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -86,7 +89,7 @@ class ServiceInfraController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.delete(service))
 
-    @ex(help='enable a service',
+    @ex(help='enable an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -98,7 +101,7 @@ class ServiceInfraController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.enable(service))
 
-    @ex(help='disable a service',
+    @ex(help='disable an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -110,7 +113,7 @@ class ServiceInfraController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.disable(service))
 
-    @ex(help='attach a policy to a service',
+    @ex(help='attach a policy to an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -140,7 +143,7 @@ class ServiceInfraController(Controller):
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
         self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
 
-    @ex(help='detach the active policy from a service',
+    @ex(help='detach the active policy from an infrastructure service',
         arguments=[
             (['service_name'],
              {

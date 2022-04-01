@@ -12,13 +12,14 @@ class ServiceWebController(Controller):
         label = 'service_web'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage hosted websites'
+        help = 'manage hosted website services'
 
     @property
     def _client(self) -> ServiceWebAPI:
         return self.app.client.services_web
 
-    @ex(help='list registered services')
+
+    @ex(help='list hosted website services')
     def list(self):
         services: List[ServiceInfo] = self._client.list()
         results = list()
@@ -32,7 +33,8 @@ class ServiceWebController(Controller):
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
-    @ex(help='show the definition of a registered service',
+
+    @ex(help='show the definition of a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -46,7 +48,8 @@ class ServiceWebController(Controller):
         # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-    @ex(help='create a new service from a JSON specification',
+
+    @ex(help='create a new standard hosted website service',
         arguments=[
             (['service_spec'],
              {
@@ -54,13 +57,24 @@ class ServiceWebController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def create(self):
+    def create_standard(self):
+        pass
+
+    @ex(help='create a new custom hosted website service from a JSON specification',
+        arguments=[
+            (['service_spec'],
+             {
+                 'help': 'JSON blob describing the new service to be created, or a filename '
+                         'containing JSON prefixed by "@" (example: @service.json).'
+             }),
+        ])
+    def create_custom(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='update an existing service from a JSON specification',
+    @ex(help='update an existing custom hosted website service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -68,13 +82,13 @@ class ServiceWebController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def update(self):
+    def update_custom(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.update(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='delete a service',
+    @ex(help='delete a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -86,7 +100,7 @@ class ServiceWebController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.delete(service))
 
-    @ex(help='enable a service',
+    @ex(help='enable a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -98,7 +112,7 @@ class ServiceWebController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.enable(service))
 
-    @ex(help='disable a service',
+    @ex(help='disable a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -110,7 +124,7 @@ class ServiceWebController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.disable(service))
 
-    @ex(help='attach a policy to a service',
+    @ex(help='attach a policy to a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -140,7 +154,7 @@ class ServiceWebController(Controller):
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
         self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
 
-    @ex(help='detach the active policy from a service',
+    @ex(help='detach the active policy from a hosted website service',
         arguments=[
             (['service_name'],
              {
@@ -157,7 +171,7 @@ class ServiceWebController(Controller):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
 
 
-    @ex(help='create an Okta Bookmark Application from a web service',
+    @ex(help='create an Okta Bookmark Application from a hosted website service',
         arguments=[
             (['service_name'],
             {
@@ -194,7 +208,7 @@ class ServiceWebController(Controller):
         print('\n--> Bookmark to Okta successful.')
 
 
-    @ex(help='create an Azure AD Linked Sign-on from a web service',
+    @ex(help='create an Azure AD Linked Sign-on from a hosted website service',
     arguments=[
         (['service_name'],
         {
