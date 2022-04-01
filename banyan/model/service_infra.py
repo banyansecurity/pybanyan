@@ -1,5 +1,4 @@
 import json
-
 from marshmallow_dataclass import dataclass
 from banyan.model.service import *
 
@@ -22,9 +21,9 @@ class ServiceInfraBase:
     backend_dns_override_for_domain: str = ""
     # client
     client_user_override: bool = True
+    client_listen_port: int = None
     # client proxy
     client_banyanproxy_mode: str = ""
-    client_listen_port: int = None
     # client ssh
     client_ssh_auth: str = ""
     client_ssh_host_directive: str = ""
@@ -119,9 +118,9 @@ class ServiceInfraBase:
 @dataclass
 class ServiceInfraSSH(ServiceInfraBase):
     def __post_init__(self):
-        super().__post_init__()
         if self.client_ssh_auth == "":
             self.client_ssh_auth = ServiceClientCertificateType.TRUSTCERT
+        super().__post_init__()
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
@@ -149,21 +148,24 @@ class ServiceInfraRDP(ServiceInfraBase):
         return svc
 
 @dataclass
-class ServiceInfraK8s(ServiceInfraBase):
+class ServiceInfraK8S(ServiceInfraBase):
     def __post_init__(self):
-        super().__post_init__()
         self.backend_http_connect = True
         if self.client_kube_cluster_name == "" or self.client_kube_ca_key == "" or self.backend_dns_override_for_domain == "":
             raise Exception("Configuration Error! Need to specify client_kube_cluster_name, client_kube_ca_key, backend_dns_override_for_domain.")
+        super().__post_init__()
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
         svc.metadata.tags.service_app_type = ServiceAppType.K8S
         svc.metadata.tags.app_listen_port = self.client_listen_port
+        svc.metadata.tags.kube_cluster_name = self.client_kube_cluster_name
+        svc.metadata.tags.kube_ca_key = self.client_kube_ca_key
         # proxy mode
         svc.metadata.tags.banyanproxy_mode = ServiceClientProxyMode.CHAIN
-
+        # dns override
+        svc.spec.backend.dns_overrides = { self.domain : self.backend_dns_override_for_domain }
         return svc
 
 @dataclass
@@ -196,15 +198,27 @@ class ServiceInfraTCP(ServiceInfraBase):
 
 
 if __name__ == '__main__':
-    svc_ssh = ServiceInfraSSH(
-        name = "test-infra-ssh",
+    svc_ssh_at = ServiceInfraSSH(
+        name = "test-ssh-at",
         cluster = "cluster1",
         access_tier = "foo",
         domain = "test-infra-ssh.example.com",
         backend_http_connect = True,
         client_ssh_host_directive = "10.10.1.0/24"
     )
-    print(svc_ssh.service_obj())
+    obj = svc_ssh_at.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
+
+    svc_ssh_conn = ServiceInfraSSH(
+        name = "test-ssh-conn",
+        cluster = "global-edge",
+        connector = "foo",
+        domain = "test-ssh-conn" + ".orgname.banyanops.com",
+        backend_domain = "10.10.1.1",
+        backend_port = 22
+    )
+    obj = svc_ssh_conn.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
 
     svc_tcp_at = ServiceInfraTCP(
         name = "test-infra-tcp",
@@ -213,7 +227,20 @@ if __name__ == '__main__':
         domain = "test-infra-tcp.example.com",
         backend_domain = "10.10.1.1",
         backend_port = 6006,
+        client_listen_port = 9119
     )
-    print(svc_tcp_at.service_obj())
-    #obj = svc_tcp_at.service_obj()
-    #print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
+    obj = svc_tcp_at.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
+
+    svc_k8s_conn = ServiceInfraK8S(
+        name = "test-k8s-conn",
+        cluster = "global-edge",
+        connector = "foo",
+        domain = "test-k8s-conn" + ".orgname.banyanops.com",
+        backend_dns_override_for_domain = "myoidcproxy.amazonaws.com",
+        client_kube_cluster_name = "eks-hero",
+        client_kube_ca_key = "AAAA1234"
+    )
+    obj = svc_k8s_conn.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
+

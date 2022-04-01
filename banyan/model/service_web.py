@@ -1,3 +1,4 @@
+import json
 from marshmallow_dataclass import dataclass
 from banyan.model.service import *
 
@@ -112,9 +113,9 @@ if __name__ == '__main__':
         backend_domain = "10.10.1.1",
         backend_port = 8080
     )
-    svc_obj = svc_web_at.service_obj()
-    print(svc_obj)
-
+    obj = svc_web_at.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
+    
     svc_web_conn = ServiceWebStandard(
         name = "test-web-conn",
         cluster = "global-edge",
@@ -123,6 +124,19 @@ if __name__ == '__main__':
         backend_domain = "10.10.1.1",
         backend_port = 8080
     )
-    svc_obj = svc_web_conn.service_obj()
-    print(svc_obj)
+    obj = svc_web_conn.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
 
+    svc_web_certs = ServiceWebStandard(
+        name = "test-web-certs",
+        cluster = "global-edge",
+        connector = "foo",
+        domain = "test-web-certs" + ".orgname.banyanops.com",
+        letsencrypt = True,
+        backend_domain = "10.10.1.1",
+        backend_port = 8080,
+        backend_tls = True,
+        backend_tls_insecure = True
+    )
+    obj = svc_web_conn.service_obj()
+    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
