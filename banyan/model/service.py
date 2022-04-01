@@ -1,5 +1,6 @@
 from dataclasses import field
 from ipaddress import IPv4Interface
+from optparse import Option
 from typing import List, Dict, Union, Optional, ClassVar
 
 from marshmallow import validate, fields, Schema, EXCLUDE, pre_load
@@ -30,13 +31,25 @@ class Tags:
     class Meta:
         unknown = EXCLUDE
 
+    template: str = field(metadata={'validate': validate.OneOf(ServiceTemplate.choices() + ["USER_WEB", "USER_TCP"])})
+    user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
     protocol: str
     domain: str
-    user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
-    template: str = field(metadata={'validate': validate.OneOf(ServiceTemplate.choices() + ["USER_WEB", "USER_TCP"])})
+    port: int = field(metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     service_app_type: str = field(metadata={'validate': validate.OneOf(ServiceAppType.choices())})
+    enforcement_mode: Optional[str]
+    allow_user_override: Optional[bool]
+    banyanproxy_mode: Optional[str]
+    app_listen_port: Optional[str]
+    ssh_service_type: Optional[str]
+    ssh_chain_mode: Optional[bool] 
+    ssh_host_directive: Optional[str]
+    write_ssh_config: Optional[bool]
+    kube_cluster_name: Optional[str]
+    kube_ca_key: Optional[str]
+    description_link: Optional[str]
+    include_domains: Optional[List[str]]
     icon: str = field(default="")
-    port: int = field(default=443, metadata={'marshmallow_field': fields.String(), 'allow_none': True})
     Schema: ClassVar[Schema] = Schema
 
 
@@ -46,6 +59,7 @@ class Metadata:
         unknown = EXCLUDE
 
     name: str
+    friendly_name: Optional[str]
     description: str
     cluster: str
     tags: Tags = field(default_factory=Tags)
@@ -68,7 +82,7 @@ class Attributes:
     tls_sni: List[str] = field(default_factory=list)
     frontend_addresses: List[FrontendAddress] = field(default_factory=list)
     host_tag_selector: List[Dict[str, str]] = field(default_factory=list)
-    addresses: List[str] = field(default_factory=list)  # Deprecated
+    addresses: List[str] = field(default_factory=list)  # deprecated
 
 
 @dataclass
@@ -88,6 +102,7 @@ class CertSettings:
 
     custom_tls_cert: CustomTLSCert = field(default_factory=CustomTLSCert)
     dns_names: List[str] = field(default_factory=list)
+    letsencrypt: bool = field(default=False)
 
 
 @dataclass
@@ -117,8 +132,8 @@ class HTTPRedirect:
     enabled: bool = field(default=False)
     url: str = field(default='')
     status_code: int = field(default=302)
-    addresses: List[str] = field(default_factory=list)
-    from_address: List[str] = field(default_factory=list)
+    addresses: Optional[List[str]] = field(default_factory=list)
+    from_address: Optional[List[str]] = field(default_factory=list)
 
 
 class HttpMethod(BanyanEnum):
@@ -141,8 +156,8 @@ class HTTPHealthCheck:
     user_agent: str = field(default='')
     https: bool = field(default=True)
     method: str = field(default='GET', metadata={'validate': validate.OneOf(HttpMethod.choices() + [""])})
-    addresses: List[str] = field(default_factory=list)
-    from_address: List[str] = field(default_factory=list)
+    addresses: Optional[List[str]] = field(default_factory=list)
+    from_address: Optional[List[str]] = field(default_factory=list)
 
 
 @dataclass
@@ -177,6 +192,24 @@ class ExemptedPaths:
 
 
 @dataclass
+class CustomTrustCookie:
+    class Meta:
+        unknown = EXCLUDE
+
+    same_site: Optional[str]    
+
+
+@dataclass
+class TokenLocation:
+    class Meta:
+        unknown = EXCLUDE
+
+    query_param: Optional[str]
+    authorization_header: Optional[bool]
+    custom_header: Optional[str]
+
+
+@dataclass
 class HttpSettings:
     class Meta:
         unknown = EXCLUDE
@@ -184,6 +217,11 @@ class HttpSettings:
     enabled: bool
     oidc_settings: Optional[OIDCSettings]
     exempted_paths: Optional[ExemptedPaths]
+    http_health_check: Optional[HTTPHealthCheck] # deprecated
+    http_redirect: Optional[HTTPRedirect] # deprecated
+    headers: Optional[Dict[str, str]]
+    custom_trust_cookie: Optional[CustomTrustCookie]
+    token_loc: Optional[TokenLocation]
 
 
 @dataclass
@@ -238,6 +276,7 @@ class Backend:
     whitelist: Optional[List[str]] = field(default_factory=list) # deprecated
     http_connect: Optional[bool] = False
 
+
 @dataclass
 class Spec:
     class Meta:
@@ -247,7 +286,7 @@ class Spec:
     backend: Backend
     cert_settings: CertSettings
     http_settings: HttpSettings
-    client_cidrs: List[ClientCIDRs] = field(default_factory=list)
+    client_cidrs: List[ClientCIDRs] = field(default_factory=list) # deprecated
 
 
 @dataclass
