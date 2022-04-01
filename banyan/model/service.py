@@ -15,16 +15,25 @@ class ServiceTemplate(BanyanEnum):
     WORKLOAD = "TCP_WORKLOAD"
     CUSTOM = "CUSTOM"
 
-
 class ServiceAppType(BanyanEnum):
     WEB = "WEB"
     SSH = "SSH"
-    TCP = "TCP"
     RDP = "RDP"
     K8S = "K8S"
-    GENERIC = "GENERIC"
-    CUSTOM = "CUSTOM"
+    DATABASE = "DATABASE"
+    TCP = "TCP"
 
+class ServiceClientCertificateType(BanyanEnum): 
+    TRUSTCERT = "TRUSTCERT"
+    SSHCERT = "SSHCERT"
+    BOTH = "BOTH"
+
+class ServiceClientProxyMode(BanyanEnum):
+    CHAIN = "CHAIN"
+    BASTION = "BASTION",
+    CONNECT = "CONNECT" # unused
+    TCP = "TCP"
+    RDPGATEWAY = "RDPGATEWAY"
 
 @dataclass
 class Tags:
@@ -37,18 +46,24 @@ class Tags:
     protocol: str
     domain: str
     port: int = field(metadata={'marshmallow_field': fields.String(), 'allow_none': True})
-    enforcement_mode: Optional[str] = ''
+
+    app_listen_port: Optional[int] = field(default='', metadata={'marshmallow_field': fields.String(), 'allow_none': True})
+    ssh_service_type: Optional[str] = field(default='', metadata={'validate': validate.OneOf(ServiceClientCertificateType.choices())})
+    banyanproxy_mode: Optional[str] = field(default='', metadata={'validate': validate.OneOf(ServiceClientProxyMode.choices())})
+
+    description_link: Optional[str] = field(default='')
+    enforcement_mode: Optional[str] = field(default='')
     allow_user_override: Optional[bool] = field(default=False)
-    banyanproxy_mode: Optional[str] = ''
-    app_listen_port: Optional[str] = ''
-    ssh_service_type: Optional[str] = ''
+
     ssh_chain_mode: Optional[bool] = field(default=False)
-    ssh_host_directive: Optional[str] = ''
+    ssh_host_directive: Optional[str] = field(default='')
     write_ssh_config: Optional[bool] = field(default=False)
-    kube_cluster_name: Optional[str] = ''
-    kube_ca_key: Optional[str] = ''
-    description_link: Optional[str] = ''
+
+    kube_cluster_name: Optional[str] = field(default='')
+    kube_ca_key: Optional[str] = field(default='')
+
     include_domains: Optional[List[str]] = field(default_factory=list)
+    
     icon: str = field(default="")
     Schema: ClassVar[Schema] = Schema
 
@@ -215,7 +230,7 @@ class HttpSettings:
         unknown = EXCLUDE
 
     enabled: bool
-    oidc_settings: Optional[OIDCSettings]
+    oidc_settings: Optional[OIDCSettings] = field(default_factory=dict)
     exempted_paths: Optional[ExemptedPaths] = field(default_factory=dict)
     #http_health_check: Optional[HTTPHealthCheck] # deprecated
     #http_redirect: Optional[HTTPRedirect] # deprecated

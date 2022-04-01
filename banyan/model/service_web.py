@@ -3,38 +3,47 @@ from banyan.model.service import *
 
 @dataclass
 class ServiceWebStandard:
-    name: str
-    description: str
-    
-    cluster: str
-    access_tier: str
-    connector: str
-    
-    domain: str
-    backend_domain: str
-    backend_port: int
-    
-    # solid defaults
+    name: str = ""
+    description: str = "ServiceWebStandard"
+    # deployment model
+    cluster: str = ""
+    access_tier: str = ""
+    connector: str = ""
+    # connectivity
+    domain: str = ""
     port: int = 443
     letsencrypt: bool = False
+    # backend
+    backend_domain: str = ""
+    backend_port: int = None
     backend_tls: bool = False
     backend_tls_insecure: bool = False
-
-    # todo - cors, exemptions, custom_headers, service_accounts
+    # TODO: cors, exemptions, custom_headers, service_accounts
     # in ui but ignore here - description_link, icon, show_in_catalog, backend_tls_client_cert
 
-    def create_service_obj(self) -> Service:
-        # global edge deployment model if connector is set
-        access_tier_selector = "com.banyanops.hosttag.site_name"
-        access_tier_value = self.access_tier
-        if self.connector:
-            access_tier_value = "*"
+    # check obj
+    def __post_init__(self):
+        # basics
+        if self.name == "" or self.domain == "" or self.backend_domain == "" or self.backend_port == 0:
+            raise Exception("Configuration Error! Need to specify name, domain, backend_domain, backend_port.")
+        # deployment model
+        if self.cluster == "":
+            raise Exception("Configuration Error! Need to specify cluster.")
+        if (self.connector == "" and self.access_tier == "") or (self.connector != "" and self.access_tier != ""):
+            raise Exception("Configuration Error! Need to specify either access_tier or connector.")
+        # deployment model = self-hosted access-tier
+        if self.access_tier != "":
+            self.connector = ""
+        # deployment model = global-edge
+        if self.connector != "":
+            self.access_tier = "*"
 
+    def service_obj(self) -> Service:
         tags = Tags(
             template = ServiceTemplate.WEB,
             service_app_type = ServiceAppType.WEB,
             user_facing = True,
-            protocol = "HTTPS",
+            protocol = "https",
             domain = self.domain,
             port = self.port
         )
@@ -53,7 +62,7 @@ class ServiceWebStandard:
             tls_sni = [self.domain],
             frontend_addresses = [frontend_address],
             host_tag_selector = [
-                {access_tier_selector: access_tier_value}
+                { "com.banyanops.hosttag.site_name": self.access_tier }
             ]
         )
         target = BackendTarget(
@@ -95,15 +104,25 @@ class ServiceWebStandard:
 
 
 if __name__ == '__main__':
-    svc_web = ServiceWebStandard(
-        name = "test",
-        description = "test",
-        cluster = "cl1",
-        access_tier = "",
-        connector = "myconn",
-        domain = "test.example.com",
+    svc_web_at = ServiceWebStandard(
+        name = "test-web-at",
+        cluster = "cluster1",
+        access_tier = "foo",
+        domain = "test-web-at.example.com",
         backend_domain = "10.10.1.1",
         backend_port = 8080
     )
-    svc_obj = svc_web.create_service_obj()
+    svc_obj = svc_web_at.service_obj()
     print(svc_obj)
+
+    svc_web_conn = ServiceWebStandard(
+        name = "test-web-conn",
+        cluster = "global-edge",
+        connector = "foo",
+        domain = "test-web-conn" + ".orgname.banyanops.com",
+        backend_domain = "10.10.1.1",
+        backend_port = 8080
+    )
+    svc_obj = svc_web_conn.service_obj()
+    print(svc_obj)
+
