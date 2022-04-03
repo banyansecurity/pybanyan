@@ -191,6 +191,8 @@ class ServiceInfraK8S(ServiceInfraBase):
 @dataclass
 class ServiceInfraDatabase(ServiceInfraBase):
     def __post_init__(self):
+        if self.client_tcp_domains_to_proxy is None:
+            self.client_tcp_domains_to_proxy = []
         super().__post_init__()            
 
     def service_obj(self) -> Service:
@@ -198,6 +200,7 @@ class ServiceInfraDatabase(ServiceInfraBase):
         # tags
         svc.metadata.tags.service_app_type = str(ServiceAppType.DATABASE)
         svc.metadata.tags.app_listen_port = str(self.client_listen_port)
+        svc.metadata.tags.include_domains = self.client_tcp_domains_to_proxy
         # proxy mode
         svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
