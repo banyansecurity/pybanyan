@@ -3,7 +3,7 @@ from ipaddress import IPv4Interface
 from optparse import Option
 from typing import List, Dict, Union, Optional, ClassVar
 
-from marshmallow import validate, fields, Schema, EXCLUDE, pre_load
+from marshmallow import validate, fields, Schema, EXCLUDE, pre_load, post_dump
 from marshmallow_dataclass import dataclass
 
 from banyan.model import BanyanApiObject, InfoBase, IPv4InterfaceField, BanyanEnum
@@ -21,7 +21,7 @@ class ServiceAppType(BanyanEnum):
     RDP = "RDP"
     K8S = "K8S"
     DATABASE = "DATABASE"
-    TCP = "TCP"
+    TCP = "GENERIC"
 
 class ServiceClientCertificateType(BanyanEnum): 
     TRUSTCERT = "TRUSTCERT"
@@ -42,31 +42,35 @@ class Tags:
 
     template: str = field(metadata={'validate': validate.OneOf(ServiceTemplate.choices() + ["USER_WEB", "USER_TCP"])})
     service_app_type: str = field(metadata={'validate': validate.OneOf(ServiceAppType.choices())})
-    user_facing: bool = field(metadata={'marshmallow_field': fields.String()})
     protocol: str
     domain: str
-    port: int = field(metadata={'marshmallow_field': fields.String(), 'allow_none': True})
-
-    app_listen_port: Optional[int] = field(default='', metadata={'marshmallow_field': fields.String(), 'allow_none': True})
-    ssh_service_type: Optional[str] = field(default='', metadata={'validate': validate.OneOf(ServiceClientCertificateType.choices())})
-    banyanproxy_mode: Optional[str] = field(default='', metadata={'validate': validate.OneOf(ServiceClientProxyMode.choices())})
-
+    port: str
+    user_facing: Optional[str] = field(default='true')
     description_link: Optional[str] = field(default='')
-    enforcement_mode: Optional[str] = field(default='')
-    allow_user_override: Optional[bool] = field(default=False)
+    icon: str = field(default='')
 
-    ssh_chain_mode: Optional[bool] = field(default=False)
-    ssh_host_directive: Optional[str] = field(default='')
-    write_ssh_config: Optional[bool] = field(default=False)
+    ssh_service_type: Optional[str] = field(default=None, metadata={'validate': validate.OneOf(ServiceClientCertificateType.choices())})
+    banyanproxy_mode: Optional[str] = field(default=None, metadata={'validate': validate.OneOf(ServiceClientProxyMode.choices())})
 
-    kube_cluster_name: Optional[str] = field(default='')
-    kube_ca_key: Optional[str] = field(default='')
+    enforcement_mode: Optional[str] = field(default=None)
+    allow_user_override: Optional[bool] = field(default=None)
+    app_listen_port: Optional[str] = field(default=None)
 
-    include_domains: Optional[List[str]] = field(default_factory=list)
+    ssh_chain_mode: Optional[bool] = field(default=None)
+    ssh_host_directive: Optional[str] = field(default=None)
+    write_ssh_config: Optional[bool] = field(default=None)
+
+    kube_cluster_name: Optional[str] = field(default=None)
+    kube_ca_key: Optional[str] = field(default=None)
+
+    include_domains: Optional[List[str]] = field(default=None)
     
-    icon: str = field(default="")
-    Schema: ClassVar[Schema] = Schema
-
+    # remove tags that are still None when dumping to JSON
+    @post_dump
+    def remove_none_values(self, data, **kwargs):
+        return {
+            key: value for key, value in data.items() if value is not None
+        }
 
 @dataclass
 class Metadata:
@@ -202,8 +206,8 @@ class ExemptedPaths:
         unknown = EXCLUDE
 
     enabled: Optional[bool]
-    paths: Optional[List[str]]
-    patterns: List[Pattern] = field(default_factory=list)
+    paths: Optional[List[str]] = field(default_factory=list)
+    patterns: Optional[List[Pattern]] = field(default_factory=list)
 
 
 @dataclass

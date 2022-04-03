@@ -16,7 +16,7 @@ class ServiceInfraBase:
     port: int = 8443
     # backend
     backend_domain: str = ""
-    backend_port: int = None
+    backend_port: str = ""
     backend_http_connect: bool = False
     backend_dns_override_for_domain: str = ""
     # client
@@ -31,7 +31,9 @@ class ServiceInfraBase:
     # client k8s
     client_kube_cluster_name: str = ""
     client_kube_ca_key: str = ""
-    # TODO: backend_allowed_hostnames, backend_allowed_cidrs, client_domains_to_proxy
+    # client tcp
+    client_tcp_domains_to_proxy: list = None
+    # TODO: backend_allowed_hostnames, backend_allowed_cidrs
     # TODO: ssh wildcard logic
     # in ui but ignore here - backend_target_delimiter, backend_domain_templating
 
@@ -57,24 +59,25 @@ class ServiceInfraBase:
 
     def service_obj(self) -> Service:
         tags = Tags(
-            template = ServiceTemplate.TCP,
-            service_app_type = "", # child will override
-            user_facing = True,
+            template = str(ServiceTemplate.TCP),
+            user_facing = "true",
             protocol = "tcp",
             domain = self.domain,
-            port = self.port,
+            port = str(self.port),
+            service_app_type = "", # child will override
             allow_user_override = self.client_user_override,
+            description_link = ""
         )
         metadata = Metadata(
             name = self.name,
-            friendly_name = self.name,
+            friendly_name = None,
             description = self.description,
             cluster = self.cluster,
             tags = tags
         )
         frontend_address = FrontendAddress(
-            port = self.port,
-            cidr = ""
+            port = str(self.port),
+            cidr = None
         )
         attributes = Attributes(
             tls_sni = [self.domain],
@@ -85,19 +88,33 @@ class ServiceInfraBase:
         )
         target = BackendTarget(
             name = self.backend_domain,
-            port = self.backend_port,
+            port = str(self.backend_port),
             tls = False,
+        )
+        allow_pattern = AllowPattern(
+            cidrs = [],
+            hostnames = []
         )
         backend = Backend(
             target = target,
+            connector_name = self.connector,
             http_connect = self.backend_http_connect,
-            connector_name = self.connector
+            allow_patterns = [allow_pattern] if self.backend_http_connect else []
         )
         cert_settings = CertSettings(
             dns_names = [self.domain],
         )
         http_settings = HttpSettings(
-            enabled = False
+            enabled = False,
+            oidc_settings = OIDCSettings(
+                enabled = False
+            ),
+            exempted_paths = ExemptedPaths(
+                enabled = False,
+                patterns = [Pattern(
+                    hosts = [Host()]
+                )]
+            )
         )
         spec = Spec(
             attributes = attributes,
@@ -118,14 +135,16 @@ class ServiceInfraBase:
 @dataclass
 class ServiceInfraSSH(ServiceInfraBase):
     def __post_init__(self):
+        if self.client_user_override:
+            self.client_user_override = None
         if self.client_ssh_auth == "":
-            self.client_ssh_auth = ServiceClientCertificateType.TRUSTCERT
+            self.client_ssh_auth = str(ServiceClientCertificateType.TRUSTCERT)
         super().__post_init__()
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
-        svc.metadata.tags.service_app_type = ServiceAppType.SSH
+        svc.metadata.tags.service_app_type = str(ServiceAppType.SSH)
         svc.metadata.tags.ssh_service_type = self.client_ssh_auth
         svc.metadata.tags.ssh_host_directive = self.client_ssh_host_directive
         svc.metadata.tags.write_ssh_config = self.client_ssh_write_config
@@ -141,10 +160,10 @@ class ServiceInfraRDP(ServiceInfraBase):
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
-        svc.metadata.tags.service_app_type = ServiceAppType.RDP
-        svc.metadata.tags.app_listen_port = self.client_listen_port
+        svc.metadata.tags.service_app_type = str(ServiceAppType.RDP)
+        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
         # proxy mode
-        svc.metadata.tags.banyanproxy_mode = ServiceClientProxyMode.RDPGATEWAY if self.backend_http_connect else ServiceClientProxyMode.TCP
+        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.RDPGATEWAY) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
 
 @dataclass
@@ -158,14 +177,15 @@ class ServiceInfraK8S(ServiceInfraBase):
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
-        svc.metadata.tags.service_app_type = ServiceAppType.K8S
-        svc.metadata.tags.app_listen_port = self.client_listen_port
+        svc.metadata.tags.service_app_type = str(ServiceAppType.K8S)
+        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
         svc.metadata.tags.kube_cluster_name = self.client_kube_cluster_name
         svc.metadata.tags.kube_ca_key = self.client_kube_ca_key
         # proxy mode
-        svc.metadata.tags.banyanproxy_mode = ServiceClientProxyMode.CHAIN
+        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN)
         # dns override
         svc.spec.backend.dns_overrides = { self.domain : self.backend_dns_override_for_domain }
+        svc.spec.backend.allow_patterns[0].hostnames = [ self.domain ]
         return svc
 
 @dataclass
@@ -176,71 +196,26 @@ class ServiceInfraDatabase(ServiceInfraBase):
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
-        svc.metadata.tags.service_app_type = ServiceAppType.DATABASE
-        svc.metadata.tags.app_listen_port = self.client_listen_port
+        svc.metadata.tags.service_app_type = str(ServiceAppType.DATABASE)
+        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
         # proxy mode
-        svc.metadata.tags.banyanproxy_mode = ServiceClientProxyMode.CHAIN if self.backend_http_connect else ServiceClientProxyMode.TCP
+        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
 
 @dataclass
 class ServiceInfraTCP(ServiceInfraBase):
     def __post_init__(self):
-        super().__post_init__()            
+        if self.client_tcp_domains_to_proxy is None:
+            self.client_tcp_domains_to_proxy = []
+        super().__post_init__()         
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
-        svc.metadata.tags.service_app_type = ServiceAppType.TCP
-        svc.metadata.tags.app_listen_port = self.client_listen_port
+        svc.metadata.tags.service_app_type = str(ServiceAppType.TCP)
+        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
+        svc.metadata.tags.include_domains = self.client_tcp_domains_to_proxy
         # proxy mode
-        svc.metadata.tags.banyanproxy_mode = ServiceClientProxyMode.CHAIN if self.backend_http_connect else ServiceClientProxyMode.TCP
+        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
-
-
-if __name__ == '__main__':
-    svc_ssh_at = ServiceInfraSSH(
-        name = "test-ssh-at",
-        cluster = "cluster1",
-        access_tier = "foo",
-        domain = "test-infra-ssh.example.com",
-        backend_http_connect = True,
-        client_ssh_host_directive = "10.10.1.0/24"
-    )
-    obj = svc_ssh_at.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
-
-    svc_ssh_conn = ServiceInfraSSH(
-        name = "test-ssh-conn",
-        cluster = "global-edge",
-        connector = "foo",
-        domain = "test-ssh-conn" + ".orgname.banyanops.com",
-        backend_domain = "10.10.1.1",
-        backend_port = 22
-    )
-    obj = svc_ssh_conn.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
-
-    svc_tcp_at = ServiceInfraTCP(
-        name = "test-infra-tcp",
-        cluster = "cluster1",
-        access_tier = "foo",
-        domain = "test-infra-tcp.example.com",
-        backend_domain = "10.10.1.1",
-        backend_port = 6006,
-        client_listen_port = 9119
-    )
-    obj = svc_tcp_at.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
-
-    svc_k8s_conn = ServiceInfraK8S(
-        name = "test-k8s-conn",
-        cluster = "global-edge",
-        connector = "foo",
-        domain = "test-k8s-conn" + ".orgname.banyanops.com",
-        backend_dns_override_for_domain = "myoidcproxy.amazonaws.com",
-        client_kube_cluster_name = "eks-hero",
-        client_kube_ca_key = "AAAA1234"
-    )
-    obj = svc_k8s_conn.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
 

@@ -41,23 +41,25 @@ class ServiceWebStandard:
 
     def service_obj(self) -> Service:
         tags = Tags(
-            template = ServiceTemplate.WEB,
-            service_app_type = ServiceAppType.WEB,
-            user_facing = True,
+            template = str(ServiceTemplate.WEB),
+            user_facing = "true",
             protocol = "https",
             domain = self.domain,
-            port = self.port
+            port = str(self.port),
+            icon = "",
+            service_app_type = str(ServiceAppType.WEB),
+            description_link = ""
         )
         metadata = Metadata(
             name = self.name,
-            friendly_name = self.name,
+            friendly_name = None,
             description = self.description,
             cluster = self.cluster,
             tags = tags
         )
         frontend_address = FrontendAddress(
-            port = self.port,
-            cidr = ""
+            port = str(self.port),
+            cidr = None
         )
         attributes = Attributes(
             tls_sni = [self.domain],
@@ -68,7 +70,7 @@ class ServiceWebStandard:
         )
         target = BackendTarget(
             name = self.backend_domain,
-            port = self.backend_port,
+            port = str(self.backend_port),
             tls = self.backend_tls,
             tls_insecure = self.backend_tls_insecure
         )
@@ -84,9 +86,13 @@ class ServiceWebStandard:
             enabled = True,
             service_domain_name = "https://" + self.domain
         )
+        exempted_paths = ExemptedPaths(
+            enabled = False
+        )
         http_settings = HttpSettings(
             enabled = True,
-            oidc_settings = oidc_settings
+            oidc_settings = oidc_settings,
+            exempted_paths = exempted_paths
         )
         spec = Spec(
             attributes = attributes,
@@ -98,45 +104,7 @@ class ServiceWebStandard:
             kind = "BanyanService",
             apiVersion = "rbac.banyanops.com/v1",
             type = "origin",
-            metadata = metadata, 
+            metadata = metadata,
             spec = spec
         )
         return service
-
-
-if __name__ == '__main__':
-    svc_web_at = ServiceWebStandard(
-        name = "test-web-at",
-        cluster = "cluster1",
-        access_tier = "foo",
-        domain = "test-web-at.example.com",
-        backend_domain = "10.10.1.1",
-        backend_port = 8080
-    )
-    obj = svc_web_at.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
-    
-    svc_web_conn = ServiceWebStandard(
-        name = "test-web-conn",
-        cluster = "global-edge",
-        connector = "foo",
-        domain = "test-web-conn" + ".orgname.banyanops.com",
-        backend_domain = "10.10.1.1",
-        backend_port = 8080
-    )
-    obj = svc_web_conn.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
-
-    svc_web_certs = ServiceWebStandard(
-        name = "test-web-certs",
-        cluster = "global-edge",
-        connector = "foo",
-        domain = "test-web-certs" + ".orgname.banyanops.com",
-        letsencrypt = True,
-        backend_domain = "10.10.1.1",
-        backend_port = 8080,
-        backend_tls = True,
-        backend_tls_insecure = True
-    )
-    obj = svc_web_conn.service_obj()
-    print(json.dumps(Service.Schema().dump(obj), indent=2, sort_keys=True))
