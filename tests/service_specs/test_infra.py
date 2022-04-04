@@ -16,6 +16,7 @@ class ServiceInfraSSHTest(unittest.TestCase):
             backend_http_connect = True,
             client_ssh_host_directive = "10.10.1.*"
         )
+        svc_ssh_at.initialize()
         svc_obj: Service = svc_ssh_at.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("ssh-at.json"))
         #print()
@@ -33,8 +34,32 @@ class ServiceInfraSSHTest(unittest.TestCase):
             backend_domain = "10.10.1.1",
             backend_port = 22
         )
+        svc_ssh_conn.initialize()
         svc_obj: Service = svc_ssh_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("ssh-conn.json"))
+        assert_specs_equal(self, ref_obj, svc_obj)
+
+
+class ServiceInfraK8STest(unittest.TestCase):
+
+    def test_k8s_conn(self):
+        svc_k8s_conn = ServiceInfraK8S(
+            name = "k8s-conn",
+            description = "pybanyan k8s-conn",
+            cluster = "managed-cl-edge1",
+            connector = "test-connector",
+            domain = "test-k8s-conn" + ".tdupnsan.getbnn.com",
+            backend_dns_override_for_domain = "myoidcproxy.amazonaws.com",
+            client_banyanproxy_listen_port = 9199,
+            client_kube_cluster_name = "eks-hero",
+            client_kube_ca_key = "AAAA1234"
+        )
+        svc_k8s_conn.initialize()
+        svc_obj: Service = svc_k8s_conn.service_obj()
+        ref_obj: Service = Service.Schema().loads(load_service_spec("k8s-conn.json"))
+        #print()
+        #print(ref_obj.spec.backend)
+        #print(svc_obj.spec.backend)
         assert_specs_equal(self, ref_obj, svc_obj)
 
 
@@ -49,8 +74,9 @@ class ServiceInfraRDPTest(unittest.TestCase):
             domain = "test-rdp-conn" + ".tdupnsan.getbnn.com",
             backend_domain = "10.10.2.1",
             backend_port = 3309,
-            client_listen_port = 9109
+            client_banyanproxy_listen_port = 9109
         )
+        svc_rdp_conn.initialize()
         svc_obj: Service = svc_rdp_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("rdp-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -63,35 +89,14 @@ class ServiceInfraRDPTest(unittest.TestCase):
             connector = "test-connector",
             domain = "test-rdp-collection" + ".tdupnsan.getbnn.com",
             backend_http_connect = True,
-            client_listen_port = 9108
+            client_banyanproxy_listen_port = 9108
         )
+        svc_rdp_collection.initialize()
         svc_obj: Service = svc_rdp_collection.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("rdp-collection.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
 
-
-class ServiceInfraK8STest(unittest.TestCase):
-
-    def test_k8s_conn(self):
-        svc_k8s_conn = ServiceInfraK8S(
-            name = "k8s-conn",
-            description = "pybanyan k8s-conn",
-            cluster = "managed-cl-edge1",
-            connector = "test-connector",
-            domain = "test-k8s-conn" + ".tdupnsan.getbnn.com",
-            backend_dns_override_for_domain = "myoidcproxy.amazonaws.com",
-            client_listen_port = 9199,
-            client_kube_cluster_name = "eks-hero",
-            client_kube_ca_key = "AAAA1234"
-        )
-        svc_obj: Service = svc_k8s_conn.service_obj()
-        ref_obj: Service = Service.Schema().loads(load_service_spec("k8s-conn.json"))
-        #print()
-        #print(ref_obj.spec.backend)
-        #print(svc_obj.spec.backend)
-        assert_specs_equal(self, ref_obj, svc_obj)
-
-
+        
 class ServiceInfraDatabaseTest(unittest.TestCase):
 
     def test_database_at(self):
@@ -103,8 +108,9 @@ class ServiceInfraDatabaseTest(unittest.TestCase):
             domain = "test-database-conn" + ".tdupnsan.getbnn.com",
             backend_domain = "10.10.1.123",
             backend_port = 3306,
-            client_listen_port = 9299
+            client_banyanproxy_listen_port = 9299
         )
+        svc_database_conn.initialize()
         svc_obj: Service = svc_database_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("database-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -121,8 +127,9 @@ class ServiceInfraTCPTest(unittest.TestCase):
             domain = "test-tcp-at.bar.com",
             backend_domain = "10.10.1.6",
             backend_port = 6006,
-            client_listen_port = 9119
+            client_banyanproxy_listen_port = 9119
         )
+        svc_tcp_at.initialize()
         svc_obj: Service = svc_tcp_at.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("tcp-at.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -136,8 +143,9 @@ class ServiceInfraTCPTest(unittest.TestCase):
             domain = "test-tcp-conn" + ".tdupnsan.getbnn.com",
             backend_domain = "10.10.1.100",
             backend_port = 5000,
-            client_listen_port = 9118
+            client_banyanproxy_listen_port = 9118
         )
+        svc_tcp_conn.initialize()
         svc_obj: Service = svc_tcp_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("tcp-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)

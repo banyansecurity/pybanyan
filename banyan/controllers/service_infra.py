@@ -5,7 +5,7 @@ from cement import Controller, ex
 from banyan.api.service_infra import ServiceInfraAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
-
+from banyan.model.service_infra import ServiceInfraSSH, ServiceInfraRDP, ServiceInfraK8S, ServiceInfraDatabase, ServiceInfraTCP
 
 class ServiceInfraController(Controller):
     class Meta:
@@ -48,7 +48,7 @@ class ServiceInfraController(Controller):
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='create a new custom infrastructure service from a JSON specification',
+    @ex(help='create a new infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -56,14 +56,14 @@ class ServiceInfraController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def create_custom(self):
+    def create(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='update an existing custom infrastructure service from a JSON specification',
+    @ex(help='update an existing infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -71,7 +71,7 @@ class ServiceInfraController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def update_custom(self):
+    def update(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.update(service)
@@ -158,3 +158,76 @@ class ServiceInfraController(Controller):
         ])
     def detach_policy(self):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
+
+
+    @ex(help='quick create a new SSH infrastructure service',
+        arguments=ServiceInfraSSH.arguments()
+        )
+    def quick_create_ssh(self):
+        svc = ServiceInfraSSH()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        svc.initialize()
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
+
+
+    @ex(help='quick create a new K8S infrastructure service',
+        arguments=ServiceInfraK8S.arguments()
+        )
+    def quick_create_k8s(self):
+        svc = ServiceInfraK8S()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        svc.initialize()
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
+
+
+    @ex(help='quick create a new RDP infrastructure service',
+        arguments=ServiceInfraRDP.arguments()
+        )
+    def quick_create_rdp(self):
+        svc = ServiceInfraRDP()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        svc.initialize()
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
+
+    @ex(help='quick create a new Database infrastructure service',
+        arguments=ServiceInfraDatabase.arguments()
+        )
+    def quick_create_db(self):
+        svc = ServiceInfraDatabase()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        svc.initialize()
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
+
+    @ex(help='quick create a new Generic TCP infrastructure service',
+        arguments=ServiceInfraTCP.arguments()
+        )
+    def quick_create_tcp(self):
+        svc = ServiceInfraTCP()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        svc.initialize()
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)                 

@@ -5,6 +5,7 @@ from cement import Controller, ex
 from banyan.api.service_web import ServiceWebAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
+from banyan.model.service_web import ServiceWebStandard
 
 
 class ServiceWebController(Controller):
@@ -48,8 +49,7 @@ class ServiceWebController(Controller):
         # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-
-    @ex(help='create a new standard hosted website service',
+    @ex(help='create a new hosted website service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -57,24 +57,13 @@ class ServiceWebController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def create_standard(self):
-        pass
-
-    @ex(help='create a new custom hosted website service from a JSON specification',
-        arguments=[
-            (['service_spec'],
-             {
-                 'help': 'JSON blob describing the new service to be created, or a filename '
-                         'containing JSON prefixed by "@" (example: @service.json).'
-             }),
-        ])
-    def create_custom(self):
+    def create(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='update an existing custom hosted website service from a JSON specification',
+    @ex(help='update an existing hosted website service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -82,7 +71,7 @@ class ServiceWebController(Controller):
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
-    def update_custom(self):
+    def update(self):
         spec = Base.get_json_input(self.app.pargs.service_spec)
         service: ServiceInfo = Service.Schema().load(spec)
         info = self._client.update(service)
@@ -169,6 +158,21 @@ class ServiceWebController(Controller):
         ])
     def detach_policy(self):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
+
+
+    @ex(help='quick create a new hosted website service',
+        arguments=ServiceWebStandard.arguments()
+        )
+    def quick_create(self):
+        svc_web = ServiceWebStandard()
+        for attr in vars(svc_web):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc_web, attr, argval)
+        svc_web.initialize()
+        Base.wait_for_input(True, 'Creating a hosted website service: ' + str(svc_web))
+        info = self._client.create(svc_web.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
 
     @ex(help='create an Okta Bookmark Application from a hosted website service',

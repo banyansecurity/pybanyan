@@ -1,61 +1,100 @@
-import json
+import dataclasses
 from marshmallow_dataclass import dataclass
 from banyan.model.service import *
 
-
 @dataclass
 class ServiceInfraBase:
-    name: str = ""
-    description: str = "ServiceInfraBase"
+    name: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'Name of the service; use lowercase alphanumeric characters or "-"'}
+        )
+    description: str = field(
+        default='ServiceInfraBase',
+        metadata={'help': 'Description of the service'}
+        )
     # deployment model
-    cluster: str = ""
-    access_tier: str = ""
-    connector: str = ""
-    # connectivity
-    domain: str = ""
-    port: int = 8443
+    cluster: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'Name of the cluster used for your deployment; for Global Edge set to "global-edge", for Private Edge set to "cluster1"'}
+        )
+    access_tier: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'Name of the access_tier which will proxy requests to your service backend; set to "" if using Global Edge deployment'}
+        )
+    connector: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'Name of the connector which will proxy requests to your service backend; set to "" if using Private Edge deployment'}
+        )
+    # frontend
+    domain: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'The external-facing network address for this service; ex. website.example.com'}
+        )
+    port: int = field(
+        default=8443,
+        metadata={'ignored': True, 'help': 'The external-facing port for this service; set to 8443 for infrastructure services'}
+        )
     # backend
-    backend_domain: str = ""
-    backend_port: str = ""
-    backend_http_connect: bool = False
-    backend_dns_override_for_domain: str = ""
-    # client
-    client_user_override: bool = True
-    client_listen_port: int = None
-    # client proxy
-    client_banyanproxy_mode: str = ""
-    # client ssh
-    client_ssh_auth: str = ""
-    client_ssh_host_directive: str = ""
-    client_ssh_write_config: bool = True
-    # client k8s
-    client_kube_cluster_name: str = ""
-    client_kube_ca_key: str = ""
-    # client tcp
-    client_tcp_domains_to_proxy: list = None
+    backend_connectivity: str = field(
+        default=None,
+        metadata={'required': True, 'help': 'Specify how incoming connections should be proxied to the backend; for Fixed Backend Domain set to "fixed", for Client Specified set to "http-connect"'}
+    )
+    backend_domain: str = field(
+        default='',
+        metadata={'required': True, 'help': 'The internal network address where this service is hosted; ex. 192.168.1.2; set to "" if using Client Specified connectivity'}
+        )
+    backend_port: int = field(
+        default='',
+        metadata={'required': True, 'help': 'The internal port where this service is hosted; set to 0 if using Client Specified connectivity'}
+        )
+    backend_http_connect: bool = field(
+        default=False,
+        metadata={'required': True, 'help': 'Client will specify backend address & port using HTTP Connect; set to False if using Fixed Backend Domain connectivity'}
+        )
+    # client proxy (not used by SSH)
+    client_banyanproxy_listen_port: int = field(
+        default=None,
+        metadata={'help': 'Local listen port to be used by client proxy; if not specified a random local port will be used'}
+        )
     # TODO: backend_allowed_hostnames, backend_allowed_cidrs
     # TODO: ssh wildcard logic
-    # in ui but ignore here - backend_target_delimiter, backend_domain_templating
+    # in ui but ignore here - backend_target_delimiter, backend_domain_templating, ssh_write_config, user_override
 
-    # check obj
-    def __post_init__(self):
+    # sanity check params and update dependencies
+    def initialize(self):
         # basics
-        if self.name == "" or self.domain == "":
-            raise Exception("Configuration Error! Need to specify name, domain, backend_domain, backend_port.")
+        if not self.name or not self.domain:
+            raise Exception("Configuration Error! Need to specify name, domain.")
         # deployment model
-        if self.cluster == "":
+        if not self.cluster:
             raise Exception("Configuration Error! Need to specify cluster.")
-        if (self.connector == "" and self.access_tier == "") or (self.connector != "" and self.access_tier != ""):
+        if (not self.connector and not self.access_tier) or (self.connector and self.access_tier):
             raise Exception("Configuration Error! Need to specify either access_tier or connector.")
         # deployment model = self-hosted access-tier
-        if self.access_tier != "":
+        if self.access_tier:
             self.connector = ""
         # deployment model = global-edge
-        if self.connector != "":
+        if self.connector:
             self.access_tier = "*"
         # backend connectivity
-        if (self.backend_http_connect and self.backend_domain != "") or (not self.backend_http_connect and self.backend_domain == ""):
+        if (self.backend_http_connect and self.backend_domain) or (not self.backend_http_connect and not self.backend_domain):
             raise Exception("Configuration Error! Need to specify either backend_http_connect or backend_domain.")
+
+    # argparse arguments in controller
+    @classmethod
+    def arguments(cls) -> list:
+        args = []
+        flds = dataclasses.fields(globals()[cls.__name__])
+        for fld in flds:
+            if fld.metadata.get("ignored"):
+                continue
+            # optional args are prefixed with "--", and should have valid defaults
+            argname = fld.name if fld.metadata.get("required") else ("--" + fld.name)
+            # help text should contain type
+            helptext = f'(type: {fld.type.__name__}) {fld.metadata.get("help")}'
+            arg = ([argname], dict(type = fld.type, help = helptext))
+            args.append(arg)
+        return args
 
     def service_obj(self) -> Service:
         tags = Tags(
@@ -64,8 +103,8 @@ class ServiceInfraBase:
             protocol = "tcp",
             domain = self.domain,
             port = str(self.port),
-            service_app_type = "", # child will override
-            allow_user_override = self.client_user_override,
+            service_app_type = "", # child must override
+            allow_user_override = True,
             description_link = ""
         )
         metadata = Metadata(
@@ -134,12 +173,18 @@ class ServiceInfraBase:
 
 @dataclass
 class ServiceInfraSSH(ServiceInfraBase):
-    def __post_init__(self):
-        if self.client_user_override:
-            self.client_user_override = None
-        if self.client_ssh_auth == "":
-            self.client_ssh_auth = str(ServiceClientCertificateType.TRUSTCERT)
-        super().__post_init__()
+    client_ssh_auth: str = field(
+        default=str(ServiceClientCertificateType.TRUSTCERT),
+        metadata={'help': 'Specifies which certificates - TRUSTCERT | SSHCERT | BOTH - should be used when the user connects to this service; default: TRUSTCERT '}
+        )
+    client_ssh_host_directive: str = field(
+        default="",
+        metadata={'help': 'Creates an entry in the SSH config file using the Host keyword. Wildcards are supported such as "192.168.*.?"; default: <service name>'}
+        )
+    client_banyanproxy_listen_port: int = field(
+        default=None,
+        metadata={'ignored': True}
+        )
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
@@ -147,38 +192,54 @@ class ServiceInfraSSH(ServiceInfraBase):
         svc.metadata.tags.service_app_type = str(ServiceAppType.SSH)
         svc.metadata.tags.ssh_service_type = self.client_ssh_auth
         svc.metadata.tags.ssh_host_directive = self.client_ssh_host_directive
-        svc.metadata.tags.write_ssh_config = self.client_ssh_write_config
+        svc.metadata.tags.write_ssh_config = True
+        svc.metadata.tags.allow_user_override = None # must not be set for SSH
         # proxy mode
         svc.metadata.tags.ssh_chain_mode = self.backend_http_connect
         return svc
 
-@dataclass
-class ServiceInfraRDP(ServiceInfraBase):
-    def __post_init__(self):
-        super().__post_init__()
-
-    def service_obj(self) -> Service:
-        svc = super().service_obj()
-        # tags
-        svc.metadata.tags.service_app_type = str(ServiceAppType.RDP)
-        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
-        # proxy mode
-        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.RDPGATEWAY) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
-        return svc
 
 @dataclass
 class ServiceInfraK8S(ServiceInfraBase):
-    def __post_init__(self):
-        self.backend_http_connect = True
+    backend_connectivity: str = field(
+        default=None,
+        metadata={'ignored': True}
+    )
+    backend_domain: str = field(
+        default='',
+        metadata={'ignored': True}
+        )
+    backend_port: int = field(
+        default='',
+        metadata={'ignored': True}
+        )
+    backend_http_connect: bool = field(
+        default=True,
+        metadata={'ignored': True}
+        )
+    backend_dns_override_for_domain: str = field(
+        default="",
+        metadata={'required': True, 'help': 'Override DNS for service domain name with this value'}
+        )
+    client_kube_cluster_name: str = field(
+        default="",
+        metadata={'required': True, 'help': 'Creates an entry in the Banyan KUBE config file under this name and populates the associated configuration parameters.'}
+        )
+    client_kube_ca_key: str = field(
+        default="",
+        metadata={'required': True, 'help': 'CA Public Key generated during Kube-OIDC-Proxy deployment'}
+        )
+
+    def initialize(self):
         if self.client_kube_cluster_name == "" or self.client_kube_ca_key == "" or self.backend_dns_override_for_domain == "":
             raise Exception("Configuration Error! Need to specify client_kube_cluster_name, client_kube_ca_key, backend_dns_override_for_domain.")
-        super().__post_init__()
+        super().initialize()
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
         svc.metadata.tags.service_app_type = str(ServiceAppType.K8S)
-        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
+        svc.metadata.tags.app_listen_port = str(self.client_banyanproxy_listen_port)
         svc.metadata.tags.kube_cluster_name = self.client_kube_cluster_name
         svc.metadata.tags.kube_ca_key = self.client_kube_ca_key
         # proxy mode
@@ -188,37 +249,50 @@ class ServiceInfraK8S(ServiceInfraBase):
         svc.spec.backend.allow_patterns[0].hostnames = [ self.domain ]
         return svc
 
+
+@dataclass
+class ServiceInfraRDP(ServiceInfraBase):
+    def service_obj(self) -> Service:
+        svc = super().service_obj()
+        # tags
+        svc.metadata.tags.service_app_type = str(ServiceAppType.RDP)
+        svc.metadata.tags.app_listen_port = str(self.client_banyanproxy_listen_port)
+        # proxy mode
+        svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.RDPGATEWAY) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
+        return svc
+
+
 @dataclass
 class ServiceInfraDatabase(ServiceInfraBase):
-    def __post_init__(self):
-        if self.client_tcp_domains_to_proxy is None:
-            self.client_tcp_domains_to_proxy = []
-        super().__post_init__()            
+    client_banyanproxy_allowed_domains: list = field(
+        default_factory=list,
+        metadata={'help': 'Restrict which domains can be proxied through the banyanproxy; only used with Client Specified connectivity'}
+        )        
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
         svc.metadata.tags.service_app_type = str(ServiceAppType.DATABASE)
-        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
-        svc.metadata.tags.include_domains = self.client_tcp_domains_to_proxy
+        svc.metadata.tags.app_listen_port = str(self.client_banyanproxy_listen_port)
+        svc.metadata.tags.include_domains = self.client_banyanproxy_allowed_domains
         # proxy mode
         svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
 
+
 @dataclass
 class ServiceInfraTCP(ServiceInfraBase):
-    def __post_init__(self):
-        if self.client_tcp_domains_to_proxy is None:
-            self.client_tcp_domains_to_proxy = []
-        super().__post_init__()         
+    client_banyanproxy_allowed_domains: list = field(
+        default_factory=list,
+        metadata={'help': 'Restrict which domains can be proxied through the banyanproxy; only used with Client Specified connectivity'}
+        )
 
     def service_obj(self) -> Service:
         svc = super().service_obj()
         # tags
         svc.metadata.tags.service_app_type = str(ServiceAppType.TCP)
-        svc.metadata.tags.app_listen_port = str(self.client_listen_port)
-        svc.metadata.tags.include_domains = self.client_tcp_domains_to_proxy
+        svc.metadata.tags.app_listen_port = str(self.client_banyanproxy_listen_port)
+        svc.metadata.tags.include_domains = self.client_banyanproxy_allowed_domains
         # proxy mode
         svc.metadata.tags.banyanproxy_mode = str(ServiceClientProxyMode.CHAIN) if self.backend_http_connect else str(ServiceClientProxyMode.TCP)
         return svc
-
