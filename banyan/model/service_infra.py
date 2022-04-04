@@ -51,10 +51,10 @@ class ServiceInfraBase:
         default=False,
         metadata={'required': True, 'help': 'Client will specify backend address & port using HTTP Connect; set to False if using Fixed Backend Domain connectivity'}
         )
-    # client proxy (not used by SSH)
+    # client proxy
     client_banyanproxy_listen_port: int = field(
         default=None,
-        metadata={'help': 'Local listen port to be used by client proxy; if not specified a random local port will be used'}
+        metadata={'help': 'Local listen port to be used by client proxy; if not specified, a random local port will be used'}
         )
     # TODO: backend_allowed_hostnames, backend_allowed_cidrs
     # TODO: ssh wildcard logic
@@ -183,7 +183,7 @@ class ServiceInfraSSH(ServiceInfraBase):
         )
     client_banyanproxy_listen_port: int = field(
         default=None,
-        metadata={'ignored': True}
+        metadata={'ignored': True, 'help': 'For SSH, banyanproxy uses stdin instead of a local port'}
         )
 
     def service_obj(self) -> Service:
@@ -203,19 +203,19 @@ class ServiceInfraSSH(ServiceInfraBase):
 class ServiceInfraK8S(ServiceInfraBase):
     backend_connectivity: str = field(
         default=None,
-        metadata={'ignored': True}
+        metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
     )
     backend_domain: str = field(
         default='',
-        metadata={'ignored': True}
+        metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
         )
     backend_port: int = field(
         default='',
-        metadata={'ignored': True}
+        metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
         )
     backend_http_connect: bool = field(
         default=True,
-        metadata={'ignored': True}
+        metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
         )
     backend_dns_override_for_domain: str = field(
         default="",
@@ -267,7 +267,7 @@ class ServiceInfraDatabase(ServiceInfraBase):
     client_banyanproxy_allowed_domains: list = field(
         default_factory=list,
         metadata={'help': 'Restrict which domains can be proxied through the banyanproxy; only used with Client Specified connectivity'}
-        )        
+        )
 
     def service_obj(self) -> Service:
         svc = super().service_obj()

@@ -230,4 +230,5 @@ class ServiceInfraController(Controller):
         svc.initialize()
         Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
         info = self._client.create(svc.service_obj())
-        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)                 
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
+        
