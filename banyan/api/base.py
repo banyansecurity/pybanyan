@@ -7,7 +7,7 @@ from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
 InfoObjectOrName = Union[InfoBase, str]
 
 
-class ServiceBase(ABC):
+class ApiBase(ABC):
     class Meta:
         data_class = BanyanApiObject
         info_class = Resource

@@ -1,11 +1,11 @@
 from datetime import timezone, datetime
 from typing import List, Dict, Any
 
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model.shield import Shield, ShieldConfig
 
 
-class ShieldAPI(ServiceBase):
+class ShieldAPI(ApiBase):
     class Meta:
         data_class = Shield
         info_class = Shield

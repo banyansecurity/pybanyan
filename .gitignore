@@ -107,6 +107,7 @@ venv.bak/
 .idea/
 .vscode/
 *.code-workspace
+.DS_Store
 
 temp/
 tmp/

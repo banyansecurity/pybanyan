@@ -3,7 +3,7 @@ from uuid import UUID
 
 import json
 
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.model import BanyanApiObject
 from banyan.model.cloud_resource import CloudResource, CloudResourceInfo, CloudResourceAssociateInfo
 from banyan.model.service import ServiceInfoOrName
@@ -11,7 +11,7 @@ from banyan.api.service import ServiceAPI
 
 JsonListOrObj = Union[List, Dict]
 
-class CloudResourceAPI(ServiceBase):
+class CloudResourceAPI(ApiBase):
     class Meta:
         data_class = CloudResource
         info_class = CloudResourceInfo

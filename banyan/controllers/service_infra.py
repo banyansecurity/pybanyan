@@ -2,25 +2,23 @@ from typing import List
 
 from cement import Controller, ex
 
-from banyan.api.service import ServiceAPI
+from banyan.api.service_infra import ServiceInfraAPI
 from banyan.controllers.base import Base
 from banyan.model.service import ServiceInfo, Service
-from banyan.lib.service import DEFAULT_TIMEOUT, DEFAULT_DNS_SERVER, ServiceTest
-from banyan.lib.cloud import has_cloud
+from banyan.model.service_infra import ServiceInfraSSH, ServiceInfraRDP, ServiceInfraK8S, ServiceInfraDatabase, ServiceInfraTCP
 
-
-class ServiceController(Controller):
+class ServiceInfraController(Controller):
     class Meta:
-        label = 'service'
+        label = 'service_infra'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = '(deprecated) manage web and TCP services and workloads'
+        help = 'manage infrastructure services'
 
     @property
-    def _client(self) -> ServiceAPI:
-        return self.app.client.services
+    def _client(self) -> ServiceInfraAPI:
+        return self.app.client.services_infra
 
-    @ex(help='list registered services')
+    @ex(help='list infrastructure services')
     def list(self):
         services: List[ServiceInfo] = self._client.list()
         results = list()
@@ -34,7 +32,8 @@ class ServiceController(Controller):
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
-    @ex(help='show the definition of a registered service',
+
+    @ex(help='show the definition of a infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -48,7 +47,8 @@ class ServiceController(Controller):
         # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
-    @ex(help='create a new service from a JSON specification',
+
+    @ex(help='create a new infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -62,7 +62,8 @@ class ServiceController(Controller):
         info = self._client.create(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='update an existing service from a JSON specification',
+
+    @ex(help='update an existing infrastructure service from a JSON specification',
         arguments=[
             (['service_spec'],
              {
@@ -76,7 +77,7 @@ class ServiceController(Controller):
         info = self._client.update(service)
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-    @ex(help='delete a service',
+    @ex(help='delete an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -88,7 +89,7 @@ class ServiceController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.delete(service))
 
-    @ex(help='enable a service',
+    @ex(help='enable an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -100,7 +101,7 @@ class ServiceController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.enable(service))
 
-    @ex(help='disable a service',
+    @ex(help='disable an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -112,7 +113,7 @@ class ServiceController(Controller):
         service: ServiceInfo = self._client[self.app.pargs.service_name]
         self.app.print(self._client.disable(service))
 
-    @ex(help='attach a policy to a service',
+    @ex(help='attach a policy to an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -142,7 +143,7 @@ class ServiceController(Controller):
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
         self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
 
-    @ex(help='detach the active policy from a service',
+    @ex(help='detach the active policy from an infrastructure service',
         arguments=[
             (['service_name'],
              {
@@ -158,107 +159,71 @@ class ServiceController(Controller):
     def detach_policy(self):
         self.app.print(self._client.detach(self.app.pargs.service_name, self.app.pargs.policy_name))
 
-    @ex(help='run sanity checks on a service',
-        hide=not has_cloud,
-        arguments=[
-            (['service_name'],
-             {
-                 'metavar': 'service_name_or_id',
-                 'help': 'Name or ID of the service to attach a policy to.',
-             }),
-            (['--timeout'],
-             {
-                 'type': float,
-                 'help': 'Length of time to wait for backend service to respond, in seconds. '
-                         f'(default: {DEFAULT_TIMEOUT})',
-                 'default': DEFAULT_TIMEOUT
-             }),
-            (['--external-dns'],
-             {
-                 'help': 'Public DNS server to query for service resolution. '
-                         f'(default: {DEFAULT_DNS_SERVER})',
-                 'default': DEFAULT_DNS_SERVER
-             }),
-            (['--wildcard'],
-             {
-                 'help': 'Hostname to substitute for wildcard in service spec (e.g. *.bnndemos.com).'
-             })
-        ])
-    def test(self):
-        info = self._client[self.app.pargs.service_name]
-        harness = ServiceTest(info.service, self.app.client,
-                              self.app.pargs.timeout, self.app.pargs.external_dns,
-                              self.app.pargs.wildcard)
-        harness.run()
 
-    @ex(help='create an Okta Bookmark Application from a web service',
-        arguments=[
-            (['service_name'],
-            {
-                'help': 'name of service to add to Okta.'
-            }),
-            (['group_name'],
-            {
-                'help': 'Okta group to assign application access.'
-            }),            
-        ])
-    def bookmark_okta(self):
-        try:
-            from banyan.ext.idp.okta import OktaApplicationController
-        except Exception as ex:
-            raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
-
-        self._client.list()
-        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
-        if not service_info.service.spec.http_settings.oidc_settings.enabled:
-            raise RuntimeError('Service needs to be of type WEB')
-
-        Base.wait_for_input(True, 'Get service to add to Okta:')
-        svc = service_info.service
-        service_json = Service.Schema().dump(svc)
-        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
-
-        Base.wait_for_input(True, 'Adding to Okta and assigning group.')
-        okta = OktaApplicationController()
-        okta_app = okta.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
-        print(okta_app)
-        okta_assignment = okta.assign(okta_app.id, self.app.pargs.group_name)
-        print(okta_assignment)
-
-        print('\n--> Bookmark to Okta successful.')
+    @ex(help='quick create a new SSH infrastructure service',
+        arguments=ServiceInfraSSH.arguments()
+        )
+    def quick_create_ssh(self):
+        svc = ServiceInfraSSH()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
 
-    @ex(help='create an Azure AD Linked Sign-on from a web service',
-    arguments=[
-        (['service_name'],
-        {
-            'help': 'name of service to add to Azure AD.'
-        }),
-        (['group_name'],
-        {
-            'help': 'Azure AD group to assign application access.'
-        }),            
-    ])
-    def bookmark_aad(self):
-        try:
-            from banyan.ext.idp.azure_ad import AzureADApplicationController
-        except Exception as ex:
-            raise NotImplementedError("Azure AD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
+    @ex(help='quick create a new K8S infrastructure service',
+        arguments=ServiceInfraK8S.arguments()
+        )
+    def quick_create_k8s(self):
+        svc = ServiceInfraK8S()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-        self._client.list()
-        service_info: ServiceInfo = self._client[self.app.pargs.service_name]
-        if not service_info.service.spec.http_settings.oidc_settings.enabled:
-            raise RuntimeError('Service needs to be of type WEB')
 
-        Base.wait_for_input(True, 'Get service to add to AzureAD:')
-        svc = service_info.service
-        service_json = Service.Schema().dump(svc)
-        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+    @ex(help='quick create a new RDP infrastructure service',
+        arguments=ServiceInfraRDP.arguments()
+        )
+    def quick_create_rdp(self):
+        svc = ServiceInfraRDP()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-        Base.wait_for_input(True, 'Adding to Azure AD and assigning group.')
-        aad = AzureADApplicationController()
-        aad_app = aad.create_bookmark(svc.name, svc.spec.http_settings.oidc_settings.service_domain_name)
-        print(aad_app)
+    @ex(help='quick create a new Database infrastructure service',
+        arguments=ServiceInfraDatabase.arguments()
+        )
+    def quick_create_db(self):
+        svc = ServiceInfraDatabase()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
 
-        print('\n--> Bookmark to Azure AD successful.')
+    @ex(help='quick create a new Generic TCP infrastructure service',
+        arguments=ServiceInfraTCP.arguments()
+        )
+    def quick_create_tcp(self):
+        svc = ServiceInfraTCP()
+        for attr in vars(svc):
+            argval = getattr(self.app.pargs, attr)
+            if argval is not None:
+                setattr(svc, attr, argval)
+        Base.wait_for_input(True, 'Creating an infrastructure service: ' + str(svc))
+        info = self._client.create(svc.service_obj())
+        self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
         

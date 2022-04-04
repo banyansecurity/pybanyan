@@ -4,12 +4,12 @@ from uuid import UUID
 
 from semver import deprecated
 
-from banyan.api.base import ServiceBase, Resource
+from banyan.api.base import ApiBase, Resource
 from banyan.model import BanyanApiObject
 from banyan.model.event_v2 import EventV2, EventOrID
 
 
-class EventV2API(ServiceBase):
+class EventV2API(ApiBase):
     class Meta:
         data_class = EventV2
         info_class = EventV2
@@ -104,7 +104,7 @@ class EventV2API(ServiceBase):
                      email_address: str = None, device_id: str = None, device_serial: str = None,
                      container_id: str = None, service_name: str = None, event_id: str = None,
                      limit: int = None) -> Dict[str, Any]:
-        return ServiceBase.args_to_html_params([
+        return ApiBase.args_to_html_params([
             (before_dt, 'before', lambda: int(before_dt.timestamp() * 1000)),
             (after_dt, 'after', lambda: int(after_dt.timestamp() * 1000)),
             (order, 'order', order),

@@ -1,11 +1,11 @@
 from typing import List
 
-from banyan.api.base import ServiceBase
+from banyan.api.base import ApiBase
 from banyan.core.exc import BanyanError
 from banyan.model.user_device import Device, TrustScore
 
 
-class DeviceAPI(ServiceBase):
+class DeviceAPI(ApiBase):
     """
     API service for dealing with end-user devices (laptops, tablets, phones, etc).
 
