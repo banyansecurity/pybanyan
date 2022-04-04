@@ -59,7 +59,7 @@ class ServiceWebStandard:
     # in ui but ignore here - description_link, icon, show_in_catalog, backend_tls_client_cert
 
     # sanity check params and update dependencies
-    def initialize(self):
+    def _initialize(self):
         # basics
         if not self.name or not self.domain or not self.backend_domain or not self.backend_port:
             raise Exception("Configuration Error! Need to specify name, domain, backend_domain, backend_port.")
@@ -93,6 +93,7 @@ class ServiceWebStandard:
 
     # create a Service object
     def service_obj(self) -> Service:
+        self._initialize()
         tags = Tags(
             template = str(ServiceTemplate.WEB),
             user_facing = "true",

@@ -16,7 +16,6 @@ class ServiceInfraSSHTest(unittest.TestCase):
             backend_http_connect = True,
             client_ssh_host_directive = "10.10.1.*"
         )
-        svc_ssh_at.initialize()
         svc_obj: Service = svc_ssh_at.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("ssh-at.json"))
         #print()
@@ -34,7 +33,6 @@ class ServiceInfraSSHTest(unittest.TestCase):
             backend_domain = "10.10.1.1",
             backend_port = 22
         )
-        svc_ssh_conn.initialize()
         svc_obj: Service = svc_ssh_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("ssh-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -54,7 +52,6 @@ class ServiceInfraK8STest(unittest.TestCase):
             client_kube_cluster_name = "eks-hero",
             client_kube_ca_key = "AAAA1234"
         )
-        svc_k8s_conn.initialize()
         svc_obj: Service = svc_k8s_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("k8s-conn.json"))
         #print()
@@ -76,7 +73,6 @@ class ServiceInfraRDPTest(unittest.TestCase):
             backend_port = 3309,
             client_banyanproxy_listen_port = 9109
         )
-        svc_rdp_conn.initialize()
         svc_obj: Service = svc_rdp_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("rdp-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -91,7 +87,6 @@ class ServiceInfraRDPTest(unittest.TestCase):
             backend_http_connect = True,
             client_banyanproxy_listen_port = 9108
         )
-        svc_rdp_collection.initialize()
         svc_obj: Service = svc_rdp_collection.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("rdp-collection.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -110,7 +105,6 @@ class ServiceInfraDatabaseTest(unittest.TestCase):
             backend_port = 3306,
             client_banyanproxy_listen_port = 9299
         )
-        svc_database_conn.initialize()
         svc_obj: Service = svc_database_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("database-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -129,7 +123,6 @@ class ServiceInfraTCPTest(unittest.TestCase):
             backend_port = 6006,
             client_banyanproxy_listen_port = 9119
         )
-        svc_tcp_at.initialize()
         svc_obj: Service = svc_tcp_at.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("tcp-at.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -145,7 +138,6 @@ class ServiceInfraTCPTest(unittest.TestCase):
             backend_port = 5000,
             client_banyanproxy_listen_port = 9118
         )
-        svc_tcp_conn.initialize()
         svc_obj: Service = svc_tcp_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("tcp-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)

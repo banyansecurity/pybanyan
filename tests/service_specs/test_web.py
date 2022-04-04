@@ -16,7 +16,6 @@ class ServiceWebTest(unittest.TestCase):
             backend_domain = "10.10.1.1",
             backend_port = 8000
         )
-        svc_web_at.initialize()
         svc_obj: Service = svc_web_at.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("web-at.json"))
         #print()
@@ -34,7 +33,6 @@ class ServiceWebTest(unittest.TestCase):
             backend_domain = "10.10.1.1",
             backend_port = 8080
         )
-        svc_web_conn.initialize()
         svc_obj = svc_web_conn.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("web-conn.json"))
         assert_specs_equal(self, ref_obj, svc_obj)
@@ -52,7 +50,6 @@ class ServiceWebTest(unittest.TestCase):
             backend_tls = True,
             backend_tls_insecure = True
         )
-        svc_web_certs.initialize()
         svc_obj = svc_web_certs.service_obj()
         ref_obj: Service = Service.Schema().loads(load_service_spec("web-certs.json"))
         assert_specs_equal(self, ref_obj, svc_obj)

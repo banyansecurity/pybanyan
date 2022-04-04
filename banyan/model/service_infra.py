@@ -35,21 +35,17 @@ class ServiceInfraBase:
         metadata={'ignored': True, 'help': 'The external-facing port for this service; set to 8443 for infrastructure services'}
         )
     # backend
-    backend_connectivity: str = field(
-        default=None,
-        metadata={'required': True, 'help': 'Specify how incoming connections should be proxied to the backend; for Fixed Backend Domain set to "fixed", for Client Specified set to "http-connect"'}
-    )
+    backend_http_connect: bool = field(
+        default=False,
+        metadata={'required': True, 'help': 'Client will specify backend address & port using HTTP Connect; set to False if using backend_domain'}
+        )
     backend_domain: str = field(
         default='',
-        metadata={'required': True, 'help': 'The internal network address where this service is hosted; ex. 192.168.1.2; set to "" if using Client Specified connectivity'}
+        metadata={'required': True, 'help': 'The internal network address where this service is hosted; ex. 192.168.1.2; set to "" if using backend_http_connect'}
         )
     backend_port: int = field(
         default='',
-        metadata={'required': True, 'help': 'The internal port where this service is hosted; set to 0 if using Client Specified connectivity'}
-        )
-    backend_http_connect: bool = field(
-        default=False,
-        metadata={'required': True, 'help': 'Client will specify backend address & port using HTTP Connect; set to False if using Fixed Backend Domain connectivity'}
+        metadata={'required': True, 'help': 'The internal port where this service is hosted; set to 0 if using backend_http_connect'}
         )
     # client proxy
     client_banyanproxy_listen_port: int = field(
@@ -61,7 +57,7 @@ class ServiceInfraBase:
     # in ui but ignore here - backend_target_delimiter, backend_domain_templating, ssh_write_config, user_override
 
     # sanity check params and update dependencies
-    def initialize(self):
+    def _initialize(self):
         # basics
         if not self.name or not self.domain:
             raise Exception("Configuration Error! Need to specify name, domain.")
@@ -70,7 +66,7 @@ class ServiceInfraBase:
             raise Exception("Configuration Error! Need to specify cluster.")
         if (not self.connector and not self.access_tier) or (self.connector and self.access_tier):
             raise Exception("Configuration Error! Need to specify either access_tier or connector.")
-        # deployment model = self-hosted access-tier
+        # deployment model = private-edge
         if self.access_tier:
             self.connector = ""
         # deployment model = global-edge
@@ -79,6 +75,11 @@ class ServiceInfraBase:
         # backend connectivity
         if (self.backend_http_connect and self.backend_domain) or (not self.backend_http_connect and not self.backend_domain):
             raise Exception("Configuration Error! Need to specify either backend_http_connect or backend_domain.")
+        if self.backend_domain and not self.backend_port:
+            raise Exception("Configuration Error! Need to specify either backend_domain and backend_port.")
+        if self.backend_http_connect:
+            self.backend_domain = ""
+            self.backend_port = ""
 
     # argparse arguments in controller
     @classmethod
@@ -97,6 +98,7 @@ class ServiceInfraBase:
         return args
 
     def service_obj(self) -> Service:
+        self._initialize()
         tags = Tags(
             template = str(ServiceTemplate.TCP),
             user_facing = "true",
@@ -202,7 +204,7 @@ class ServiceInfraSSH(ServiceInfraBase):
 @dataclass
 class ServiceInfraK8S(ServiceInfraBase):
     backend_connectivity: str = field(
-        default=None,
+        default="http-connect",
         metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
     )
     backend_domain: str = field(
@@ -230,10 +232,10 @@ class ServiceInfraK8S(ServiceInfraBase):
         metadata={'required': True, 'help': 'CA Public Key generated during Kube-OIDC-Proxy deployment'}
         )
 
-    def initialize(self):
+    def _initialize(self):
         if self.client_kube_cluster_name == "" or self.client_kube_ca_key == "" or self.backend_dns_override_for_domain == "":
             raise Exception("Configuration Error! Need to specify client_kube_cluster_name, client_kube_ca_key, backend_dns_override_for_domain.")
-        super().initialize()
+        super()._initialize()
 
     def service_obj(self) -> Service:
         svc = super().service_obj()

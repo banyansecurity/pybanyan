@@ -169,7 +169,6 @@ class ServiceWebController(Controller):
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc_web, attr, argval)
-        svc_web.initialize()
         Base.wait_for_input(True, 'Creating a hosted website service: ' + str(svc_web))
         info = self._client.create(svc_web.service_obj())
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)
@@ -184,13 +183,13 @@ class ServiceWebController(Controller):
             (['group_name'],
             {
                 'help': 'Okta group to assign application access.'
-            }),            
+            }),         
         ])
     def bookmark_okta(self):
         try:
             from banyan.ext.idp.okta import OktaApplicationController
-        except Exception as ex:
-            raise NotImplementedError("Okta SDK not configured correctly > %s" % ex.args[0])
+        except Exception as exc:
+            raise NotImplementedError("Okta SDK not configured correctly > %s" % exc.args[0])
 
         self._client.list()
         service_info: ServiceInfo = self._client[self.app.pargs.service_name]
@@ -226,8 +225,8 @@ class ServiceWebController(Controller):
     def bookmark_aad(self):
         try:
             from banyan.ext.idp.azure_ad import AzureADApplicationController
-        except Exception as ex:
-            raise NotImplementedError("Azure AD Microsoft Graph SDK not configured correctly > %s" % ex.args[0]) 
+        except Exception as exc:
+            raise NotImplementedError("Azure AD Microsoft Graph SDK not configured correctly > %s" % exc.args[0]) 
 
         self._client.list()
         service_info: ServiceInfo = self._client[self.app.pargs.service_name]
