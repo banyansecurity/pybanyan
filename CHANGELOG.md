@@ -1,5 +1,10 @@
 # PyBanyan Change History
 
+## 0.28.0
+
+ * improve service abstractions by adding `service-web` and `service-infra` commands
+ * add `quick-create-XXX` subcommands to create Web, SSH, K8S, RDP, DB, TCP services via specified params
+
 ## 0.27.1
 
  * bugfixes for autodiscovering cloud resources
