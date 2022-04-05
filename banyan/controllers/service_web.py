@@ -166,6 +166,8 @@ class ServiceWebController(Controller):
     def quick_create(self):
         svc_web = ServiceWebStandard()
         for attr in vars(svc_web):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc_web, attr, argval)

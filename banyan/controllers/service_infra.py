@@ -166,6 +166,8 @@ class ServiceInfraController(Controller):
     def quick_create_ssh(self):
         svc = ServiceInfraSSH()
         for attr in vars(svc):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc, attr, argval)
@@ -180,6 +182,8 @@ class ServiceInfraController(Controller):
     def quick_create_k8s(self):
         svc = ServiceInfraK8S()
         for attr in vars(svc):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc, attr, argval)
@@ -194,6 +198,8 @@ class ServiceInfraController(Controller):
     def quick_create_rdp(self):
         svc = ServiceInfraRDP()
         for attr in vars(svc):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc, attr, argval)
@@ -207,6 +213,8 @@ class ServiceInfraController(Controller):
     def quick_create_db(self):
         svc = ServiceInfraDatabase()
         for attr in vars(svc):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc, attr, argval)
@@ -220,6 +228,8 @@ class ServiceInfraController(Controller):
     def quick_create_tcp(self):
         svc = ServiceInfraTCP()
         for attr in vars(svc):
+            if not hasattr(self.app.pargs, attr):
+                continue
             argval = getattr(self.app.pargs, attr)
             if argval is not None:
                 setattr(svc, attr, argval)

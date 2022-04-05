@@ -82,7 +82,7 @@ class ServiceWebStandard:
         flds = dataclasses.fields(globals()[cls.__name__])
         for fld in flds:
             if fld.metadata.get("ignored"):
-                continue           
+                continue
             # optional args are prefixed with "--", and should have valid defaults
             argname = fld.name if fld.metadata.get("required") else ("--" + fld.name)
             # help text should contain type
