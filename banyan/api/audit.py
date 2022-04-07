@@ -35,6 +35,8 @@ class AuditAPI(ApiBase):
             (admin_email, 'admin_email', admin_email),
         ])
         response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
-        data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
+        print(response_json['auditlogs'][19])
+        print(response_json['auditlogs'][20])
+        data: List[Resource] = self.Meta.info_class.Schema().load(response_json['auditlogs'], many=True)
         self._build_cache(data)
         return data
