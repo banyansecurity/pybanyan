@@ -185,7 +185,7 @@ issues with the library, please create a new [issue in Github][github-issue].
 We welcome your contributions in the form of pull requests! Please follow the standard [Github pull request 
 workflow][github-pr].
 
-[generate]: https://net.banyanops.com/app/myprofile
+[generate]: https://docs.banyansecurity.io/docs/api-guide/introduction/
 [github-pr]: https://gist.github.com/Chaser324/ce0505fbed06b947d962
 [github-issue]: https://github.com/banyansecurity/pybanyan/issues/new
 [devel]: https://pybanyan.readthedocs.io/development.html

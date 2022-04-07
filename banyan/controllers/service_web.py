@@ -165,12 +165,7 @@ class ServiceWebController(Controller):
         )
     def quick_create(self):
         svc_web = ServiceWebStandard()
-        for attr in vars(svc_web):
-            if not hasattr(self.app.pargs, attr):
-                continue
-            argval = getattr(self.app.pargs, attr)
-            if argval is not None:
-                setattr(svc_web, attr, argval)
+        Base.assign_pargs_to_object(self.app.pargs, svc_web)
         Base.wait_for_input(True, 'Creating a hosted website service: ' + str(svc_web))
         info = self._client.create(svc_web.service_obj())
         self.app.render(ServiceInfo.Schema().dump(info), handler='json', indent=2, sort_keys=True)

@@ -76,7 +76,7 @@ class ServiceInfraBase:
         if (self.backend_http_connect and self.backend_domain) or (not self.backend_http_connect and not self.backend_domain):
             raise Exception("Configuration Error! Need to specify either backend_http_connect or backend_domain.")
         if self.backend_domain and not self.backend_port:
-            raise Exception("Configuration Error! Need to specify either backend_domain and backend_port.")
+            raise Exception("Configuration Error! Need to specify backend_domain and backend_port.")
         if self.backend_http_connect:
             self.backend_domain = ""
             self.backend_port = ""
@@ -203,10 +203,6 @@ class ServiceInfraSSH(ServiceInfraBase):
 
 @dataclass
 class ServiceInfraK8S(ServiceInfraBase):
-    backend_connectivity: str = field(
-        default="http-connect",
-        metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
-    )
     backend_domain: str = field(
         default='',
         metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
@@ -220,15 +216,15 @@ class ServiceInfraK8S(ServiceInfraBase):
         metadata={'ignored': True, 'help': 'For K8S, we use Client Specified connectivity'}
         )
     backend_dns_override_for_domain: str = field(
-        default="",
+        default='',
         metadata={'required': True, 'help': 'Override DNS for service domain name with this value'}
         )
     client_kube_cluster_name: str = field(
-        default="",
+        default='',
         metadata={'required': True, 'help': 'Creates an entry in the Banyan KUBE config file under this name and populates the associated configuration parameters.'}
         )
     client_kube_ca_key: str = field(
-        default="",
+        default='',
         metadata={'required': True, 'help': 'CA Public Key generated during Kube-OIDC-Proxy deployment'}
         )
 

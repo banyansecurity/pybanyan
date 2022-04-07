@@ -6,16 +6,12 @@ import copy
 from cement import Controller
 from cement.utils.version import get_version_banner
 
-from ..core.version import get_version
-
 from banyan.ext.iaas.base import IaasResource
 from banyan.model.cloud_resource import CloudResource
 
-VERSION_BANNER = """
-API library and command-line interface for Banyan Security %s
-%s
-""" % (get_version(), get_version_banner())
+from ..core.version import get_version
 
+VERSION_BANNER = f"API library and command-line interface for Banyan Security {get_version()}\n{get_version_banner()}"
 
 class Base(Controller):
     TABLE_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -83,8 +79,17 @@ class Base(Controller):
             raise RuntimeError('User terminated workflow')
 
     @staticmethod
+    def assign_pargs_to_object(pargs, obj):
+        for attr in vars(obj):
+            if not hasattr(pargs, attr):
+                continue
+            argval = getattr(pargs, attr)
+            if argval is not None:
+                setattr(obj, attr, argval)
+
+    @staticmethod
     def added_iaas_resources(res_list: List[IaasResource], inv_list: List[CloudResource]) -> List[IaasResource]:
-        added: List[IaasResource] = list()
+        added: List[IaasResource] = []
         for res in res_list:
             exists = False
             for inv in inv_list:
@@ -96,8 +101,8 @@ class Base(Controller):
         return added
 
     @staticmethod
-    def tabulate_iaas_resources(res_list: List[IaasResource], del_keys: List = []):
-        results = list()
+    def tabulate_iaas_resources(res_list: List[IaasResource], del_keys: List[str] = []):
+        results = []
         for res in res_list:
             allvars = vars(copy.copy(res.instance))
             allvars['provider'] = res.provider
