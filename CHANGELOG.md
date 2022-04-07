@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.28.1
+
+ * bugfixes and dry changes for service abstractions 
+
 ## 0.28.0
 
  * improve service abstractions by adding `service-web` and `service-infra` commands
