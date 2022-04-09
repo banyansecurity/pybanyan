@@ -98,3 +98,4 @@ class CloudResourceAssociateInfo:
     @property
     def cloud_resource_id(self) -> str:
         return str(self.resource_udid)
+        

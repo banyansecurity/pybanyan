@@ -36,19 +36,19 @@ class CloudResourceController(Controller):
 
     @ex(help='list cloud_resources',
         arguments=[
-            (['--cloud'], 
+            (['--cloud'],
             {
                 'help': 'filter by provider - AWS | AZURE | GCP | OCI | ...'
             }),
-            (['--account'], 
+            (['--account'],
             {
                 'help': 'filter by account'
             }),
-            (['--region'], 
+            (['--region'],
             {
                 'help': 'filter by region/location/zone'
             }),
-            (['--resource_type'], 
+            (['--resource_type'],
             {
                 'help': 'filter by type - ec2 | vm | rds | ...'
             })
@@ -56,7 +56,7 @@ class CloudResourceController(Controller):
     def list(self):
         params={'cloud_provider': self.app.pargs.cloud, 'account': self.app.pargs.account, 'region': self.app.pargs.region, 'resource_type': self.app.pargs.resource_type}
         synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
-        results = list()
+        results = []
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in synced_resources:
             new_res = [res.name[:20], res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 

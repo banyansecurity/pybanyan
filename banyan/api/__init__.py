@@ -14,6 +14,7 @@ import requests
 from cement import init_defaults
 from requests.auth import AuthBase
 
+from banyan.core.exc import BanyanError
 from banyan.api.attachment import AttachmentAPI
 from banyan.api.audit import AuditAPI
 from banyan.api.device import DeviceAPI
@@ -27,7 +28,7 @@ from banyan.api.service_infra import ServiceInfraAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
-from banyan.core.exc import BanyanError
+from banyan.api.api_key import ApiKeyAPI
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
@@ -112,6 +113,7 @@ class BanyanApiClient:
         self._cloud_resources = CloudResourceAPI(self)
         self._services_web = ServiceWebAPI(self)
         self._services_infra = ServiceInfraAPI(self)
+        self._api_keys = ApiKeyAPI(self)
 
     def __del__(self):
         if self._http:
@@ -410,6 +412,9 @@ class BanyanApiClient:
     def cloud_resources(self) -> CloudResourceAPI:
         return self._cloud_resources
 
+    @property
+    def api_keys(self) -> ApiKeyAPI:
+        return self._api_keys
 
 # configuration defaults
 CONFIG = init_defaults('banyan')
