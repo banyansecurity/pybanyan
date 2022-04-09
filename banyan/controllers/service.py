@@ -14,7 +14,7 @@ class ServiceController(Controller):
         label = 'service'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = '(deprecated) manage web and TCP services and workloads'
+        help = '(deprecated: use service-web or service-infra) manage web and TCP services and workloads'
 
     @property
     def _client(self) -> ServiceAPI:

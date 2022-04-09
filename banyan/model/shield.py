@@ -1,7 +1,7 @@
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Address
-from typing import List, Dict, ClassVar, Type
+from typing import List, Dict, ClassVar, Type, Optional
 from uuid import UUID
 
 import OpenSSL.crypto
@@ -28,7 +28,7 @@ class Shield(Resource):
     auto_upgrade: bool = field(metadata={"data_key": "AutoUpgrade"})
     one_time_key: UUID = field(metadata={"data_key": "OneTimeKey"})
     otk_expire_dt: datetime = field(metadata={"data_key": "OTKExpiryTime"})
-    scep_enabled: bool = field(metadata={"data_key": "SCEPEnabled"})
+    scep_enabled: Optional[bool] = field(metadata={"data_key": "SCEPEnabled"})
     public_addr: str = field(metadata={"data_key": "PublicAddr"})
     ca_cert_str: str = field(metadata={"data_key": "CACert"})
     otk_enabled: bool = field(metadata={"data_key": "OTKEnabled"})

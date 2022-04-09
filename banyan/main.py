@@ -87,13 +87,10 @@ class MyApp(App):
         handlers = [
             Base,
             UserController,
-            ShieldController,
             ServiceWebController,
             ServiceInfraController,
-            ServiceController,
             RoleController,
             PolicyController,
-            NetagentController,
             ExportController,
             EventV2Controller,
             DeviceController,
@@ -103,6 +100,9 @@ class MyApp(App):
             ApiKeyController,
             AdminController,
             AccessTierController,
+            ShieldController,
+            ServiceController,
+            NetagentController,
         ]
 
 
