@@ -8,65 +8,58 @@ from marshmallow_dataclass import dataclass
 
 from banyan.model import NanoTimestampField
 
+
 @dataclass
-class PeerAccessTier:
+class Tunnel:
     class Meta:
         unknown = EXCLUDE
-    
-    cluster: str
-    access_tiers: List[str]
+
+    udp_port_number: int
+    keepalive: int
+    cidrs: list
+    dns_enabled: bool
+    domains: list
 
 
 @dataclass
-class Connector:
+class AccessTier:
     class Meta:
         unknown = EXCLUDE
 
     name: str
-    display_name: str
-    api_key_id: UUID
-    keepalive: int
-    cidrs: List[str]
-    peer_access_tiers: List[PeerAccessTier]
+    address: str
+    domains: List[str]
+    tunnel_satellite: Tunnel
+    tunnel_enduser: Tunnel
 
     Schema: ClassVar[Schema] = Schema
 
 
 @dataclass
-class ConnectorInfo:
+class AccessTierInfo:
     class Meta:
         unknown = EXCLUDE
 
-    connector_id: UUID = field(metadata={"data_key": "id"})
-    org_id: UUID
-    
+    access_tier_id: UUID = field(metadata={"data_key": "id"})
+    cluster_name: str
+
     name: str
-    display_name: str
-    api_key_id: UUID
-    keepalive: int
-    cidrs: List[str]
-    spec: str
+    address: str
+    domains: List[str]
 
     created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='created_at')})
     created_by: str
     updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='updated_at')})
     updated_by: str
 
-    tunnel_ip_address: Optional[str]
     status: Optional[str]
-    wireguard_public_key: Optional[str]
-    access_tiers: Optional[list]
-    connector_version: Optional[str]
-    host_info: Optional[dict]
+    netagents: Optional[list]
+    tunnel_satellite: Optional[dict]
+    tunnel_enduser: Optional[dict]
 
     Schema: ClassVar[Schema] = Schema
 
     @property
     def id(self) -> str:
-        return str(self.connector_id)
+        return str(self.access_tier_id)
 
-    @property
-    def connector(self) -> Connector:
-        return Connector.Schema().loads(self.spec)
-        
-    

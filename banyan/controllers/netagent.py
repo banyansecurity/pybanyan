@@ -12,7 +12,7 @@ class NetagentController(Controller):
         label = 'netagent'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage netagents (AccessTiers and HostAgents)'
+        help = '(deprecated) manage netagents'
 
     @property
     def _client(self) -> NetagentAPI:

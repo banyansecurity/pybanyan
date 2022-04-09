@@ -10,7 +10,7 @@ class ConnectorController(Controller):
         label = 'connector'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage Connectors'
+        help = 'manage connectors'
 
     @property
     def _client(self) -> BanyanApiClient:

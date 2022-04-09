@@ -21,6 +21,7 @@ from banyan.controllers.user import UserController
 from banyan.controllers.cloud_resource import CloudResourceController
 from banyan.controllers.api_key import ApiKeyController
 from banyan.controllers.connector import ConnectorController
+from banyan.controllers.access_tier import AccessTierController
 
 from .core.exc import BanyanError
 
@@ -101,6 +102,7 @@ class MyApp(App):
             AuditController,
             ApiKeyController,
             AdminController,
+            AccessTierController,
         ]
 
 

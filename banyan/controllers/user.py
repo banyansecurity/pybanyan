@@ -12,7 +12,7 @@ class UserController(Controller):
         label = 'user'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage user accounts'
+        help = 'manage users'
 
     @property
     def _client(self) -> UserAPI:

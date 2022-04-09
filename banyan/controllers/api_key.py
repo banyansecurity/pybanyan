@@ -1,5 +1,5 @@
 from typing import List
-    
+
 from cement import Controller, ex
 
 from banyan.api import BanyanApiClient
@@ -10,7 +10,7 @@ class ApiKeyController(Controller):
         label = 'api_key'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage API Keys'
+        help = 'manage API keys'
 
     @property
     def _client(self) -> BanyanApiClient:
