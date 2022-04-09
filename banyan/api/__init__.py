@@ -29,6 +29,7 @@ from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.api.api_key import ApiKeyAPI
+from banyan.api.connector import ConnectorAPI
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
@@ -114,6 +115,7 @@ class BanyanApiClient:
         self._services_web = ServiceWebAPI(self)
         self._services_infra = ServiceInfraAPI(self)
         self._api_keys = ApiKeyAPI(self)
+        self._connectors = ConnectorAPI(self)
 
     def __del__(self):
         if self._http:
@@ -264,6 +266,7 @@ class BanyanApiClient:
         params = params or dict()
         skip = params.get('skip', 0)
         limit = params.get('limit', 1000)
+        search_uri = uri + "s"  # support plurals /v2/satellite -> satellites
         all_results = list()
         callback = progress_callback or self._progress_callback
 
@@ -272,8 +275,8 @@ class BanyanApiClient:
             params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
-                logging.debug('Looking for %s in %s', key, uri)
-                if key in uri or key == 'data' or key == 'result':
+                logging.debug('Looking for %s in %s', key, search_uri)
+                if key in search_uri or key == 'data' or key == 'result':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
@@ -415,6 +418,10 @@ class BanyanApiClient:
     @property
     def api_keys(self) -> ApiKeyAPI:
         return self._api_keys
+
+    @property
+    def connectors(self) -> ConnectorAPI:
+        return self._connectors
 
 # configuration defaults
 CONFIG = init_defaults('banyan')

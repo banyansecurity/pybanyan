@@ -3,7 +3,6 @@ import logging
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
-from .core.exc import BanyanError
 from banyan.api import BanyanApiClient
 from banyan.controllers.admin import AdminController
 from banyan.controllers.audit import AuditController
@@ -21,6 +20,9 @@ from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from banyan.controllers.cloud_resource import CloudResourceController
 from banyan.controllers.api_key import ApiKeyController
+from banyan.controllers.connector import ConnectorController
+
+from .core.exc import BanyanError
 
 # configuration defaults
 CONFIG = init_defaults('banyan')
@@ -94,6 +96,7 @@ class MyApp(App):
             ExportController,
             EventV2Controller,
             DeviceController,
+            ConnectorController,
             CloudResourceController,
             AuditController,
             ApiKeyController,
