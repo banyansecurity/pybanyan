@@ -14,7 +14,6 @@ class ApiKey:
         unknown = EXCLUDE
 
     name: str
-    secret: str
     description: str
     scope: str
 

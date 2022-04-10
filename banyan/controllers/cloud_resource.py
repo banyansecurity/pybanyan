@@ -68,7 +68,7 @@ class CloudResourceController(Controller):
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
 
-    @ex(help='show details & tags of a cloud_resource', 
+    @ex(help='show details & tags of a cloud_resource',
         arguments=[
             (['resource_uuid'],
             {
@@ -84,7 +84,7 @@ class CloudResourceController(Controller):
 
     @ex(help='create a new cloud_resource',
         arguments=[
-            (['resources_json'], 
+            (['resources_json'],
             {
                 'help': 'JSON blob describing the new discovered resource(s) to be created, or a filename '
                          'containing JSON prefixed by "@" (example: @res.json).'
@@ -97,7 +97,7 @@ class CloudResourceController(Controller):
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(hide=True, help='update status for a given cloud_resource record', 
+    @ex(hide=True, help='update status for a given cloud_resource record',
         arguments=[
             (['resource_uuid'],
             {
