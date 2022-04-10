@@ -14,11 +14,11 @@ class ApiKeyController(Controller):
 
     @property
     def _client(self) -> BanyanApiClient:
-        return self.app.client
+        return self.app.client.api_keys
 
     @ex(help='list api_keys')
     def list(self):
-        api_keys: List[ApiKeyInfo] = self._client.api_keys.list()
+        api_keys: List[ApiKeyInfo] = self._client.list()
         results = []
         headers = ['Name', 'ID', 'Scope', 'Description']
         for res in api_keys:
@@ -36,9 +36,9 @@ class ApiKeyController(Controller):
         ])
     def get(self):
         id: UUID = self.app.pargs.api_key_uuid
-        d_api: ApiKeyInfo = self._client.api_keys.get(id)
-        d_json = ApiKeyInfo.Schema().dump(d_api)
-        self.app.render(d_json, handler='json', indent=2, sort_keys=True)
+        info: ApiKeyInfo = self._client[str(id)]
+        api_key_json = ApiKeyInfo.Schema().dump(info)
+        self.app.render(api_key_json, handler='json', indent=2, sort_keys=True)
 
 
     @ex(help='create a new api_key',
@@ -62,7 +62,7 @@ class ApiKeyController(Controller):
             description = self.app.pargs.description,
             scope = self.app.pargs.scope
         )
-        info = self._client.api_keys.create(n_api)
+        info = self._client.create(n_api)
         self.app.render(info, handler='json', indent=2, sort_keys=True)
 
 
@@ -71,9 +71,9 @@ class ApiKeyController(Controller):
             (['api_key_uuid'],
             {
                 'help': 'Banyan UUID of api_key to delete.'
-            }),            
+            }),      
         ])
     def delete(self):
         id: UUID = self.app.pargs.api_key_uuid
-        info = self._client.api_keys.delete(id)
+        info = self._client.delete(id)
         self.app.render(info, handler='json', indent=2, sort_keys=True)

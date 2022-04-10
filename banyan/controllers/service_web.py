@@ -23,7 +23,7 @@ class ServiceWebController(Controller):
     @ex(help='list hosted website services')
     def list(self):
         services: List[ServiceInfo] = self._client.list()
-        results = list()
+        results = []
         headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
             app_type = service.service.metadata.tags.service_app_type
