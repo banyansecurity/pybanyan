@@ -43,6 +43,19 @@ class ConnectorController(Controller):
         self.app.render(conn_json, handler='json', indent=2, sort_keys=True)
 
 
+    @ex(help='delete a given connector record',
+        arguments=[
+            (['connector_name'],
+            {
+                'metavar': 'connector_name_or_id',
+                'help': 'Name or ID of connector to delete.'
+            })
+        ])
+    def delete(self):
+        info = self._client.delete(self.app.pargs.connector_name)
+        self.app.render(info, handler='json', indent=2, sort_keys=True)
+
+
     @ex(help='create a new connector',
         arguments=[
             (['name'],
@@ -62,15 +75,3 @@ class ConnectorController(Controller):
         info = self._client.create(conn)
         self.app.render(info, handler='json', indent=2, sort_keys=True)
 
-
-    @ex(help='delete a given connector record',
-        arguments=[
-            (['connector_name'],
-            {
-                'metavar': 'connector_name_or_id',
-                'help': 'Name or ID of connector to display.'
-            })
-        ])
-    def delete(self):
-        info = self._client.delete(self.app.pargs.connector_name)
-        self.app.render(info, handler='json', indent=2, sort_keys=True)

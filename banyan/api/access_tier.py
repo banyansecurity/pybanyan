@@ -7,3 +7,6 @@ class AccessTierAPI(ApiBase):
         info_class = AccessTierInfo
         supports_paging = True
         list_uri = '/v2/access_tier'
+        insert_uri = '/v2/access_tier'
+        delete_uri = '/v2/access_tier/ID'
+        obj_name = 'access_tier'

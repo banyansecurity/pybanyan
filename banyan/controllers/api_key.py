@@ -41,6 +41,19 @@ class ApiKeyController(Controller):
         self.app.render(api_key_json, handler='json', indent=2, sort_keys=True)
 
 
+    @ex(help='delete a given api_key record',
+        arguments=[
+            (['api_key_name'],
+            {
+                'metavar': 'connector_name_or_id',
+                'help': 'Name or ID of api_key to display.'
+            })
+        ])
+    def delete(self):
+        info = self._client.delete(self.app.pargs.api_key_name)
+        self.app.render(info, handler='json', indent=2, sort_keys=True)
+
+
     @ex(help='create a new api_key',
         arguments=[
             (['name'],
@@ -64,16 +77,4 @@ class ApiKeyController(Controller):
         )
         info = self._client.create(n_api)
         self.app.render(info, handler='json', indent=2, sort_keys=True)
-
-
-    @ex(help='delete a given api_key record',
-        arguments=[
-            (['api_key_name'],
-            {
-                'metavar': 'connector_name_or_id',
-                'help': 'Name or ID of api_key to display.'
-            })
-        ])
-    def delete(self):
-        info = self._client.delete(self.app.pargs.api_key_name)
-        self.app.render(info, handler='json', indent=2, sort_keys=True)
+        
