@@ -9,5 +9,7 @@ class ApiKeyAPI(ApiBase):
     class Meta:
         data_class = ApiKey
         info_class = ApiKeyInfo
-        list_uri = '/v2/api_key'
+        list_uri = '/v2/api_key' # GET
+        insert_uri = '/v2/api_key' # POST & PUT
+        delete_uri = '/v2/api_key/ID' # DELETE
         obj_name = 'api_key'

@@ -103,7 +103,7 @@ class ApiBase(ABC):
         else:
             # v2 pattern
             response_json = self._client.api_request('POST',
-                                                    self.Meta.list_uri,
+                                                    self.Meta.insert_uri,
                                                     json=obj.Schema().dump(obj))          
             if self._cache:
                 self.list()
@@ -132,7 +132,7 @@ class ApiBase(ABC):
             return updated_obj
         else:
             # v2 pattern
-            upd_uri = f'{self.Meta.list_uri}/{str(obj.id)}'
+            upd_uri = f'{self.Meta.insert_uri}/{str(obj.id)}'
             response_json = self._client.api_request('PUT',
                                                     upd_uri,
                                                     json=obj.Schema().dump(obj))
@@ -153,7 +153,7 @@ class ApiBase(ABC):
             params = {self.Meta.uri_param: str(obj.id)}
         else:
             # v2 pattern
-            del_uri = f'{self.Meta.list_uri}/{str(obj.id)}'
+            del_uri = self.Meta.delete_uri.replace('ID', str(obj.id))
             params = {}
 
         json_response = self._client.api_request('DELETE', del_uri, params=params)

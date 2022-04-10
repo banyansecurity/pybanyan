@@ -6,41 +6,63 @@ from uuid import UUID
 from marshmallow import Schema, validate, EXCLUDE
 from marshmallow_dataclass import dataclass
 
-from banyan.model import NanoTimestampField
-
-@dataclass
-class PeerAccessTier:
-    class Meta:
-        unknown = EXCLUDE
-    
-    cluster: str
-    access_tiers: List[str]
+from banyan.model import BanyanApiObject, NanoTimestampField, Resource
 
 
 @dataclass
-class Connector:
+class Metadata:
     class Meta:
         unknown = EXCLUDE
 
     name: str
     display_name: str
+
+
+@dataclass
+class PeerAccessTier:
+    class Meta:
+        unknown = EXCLUDE
+
+    cluster: str
+    access_tiers: List[str]
+
+
+@dataclass
+class Spec:
+    class Meta:
+        unknown = EXCLUDE
+
     api_key_id: UUID
     keepalive: int
     cidrs: List[str]
     peer_access_tiers: List[PeerAccessTier]
 
-    Schema: ClassVar[Schema] = Schema
+
+@dataclass
+class Connector(BanyanApiObject):
+    class Meta:
+        unknown = EXCLUDE
+
+    KIND = "BanyanConnector"
+    metadata: Metadata
+    spec: Spec
+
+    def __post_init__(self):
+        self.kind = self.KIND
+
+    @property
+    def name(self):
+        return self.metadata.name
 
 
 @dataclass
-class ConnectorInfo:
+class ConnectorInfo(Resource):
     class Meta:
         unknown = EXCLUDE
 
     connector_id: UUID = field(metadata={"data_key": "id"})
+    connector_name: str = field(metadata={"data_key": "name"})
     org_id: UUID
-    
-    name: str
     display_name: str
     api_key_id: UUID
     keepalive: int
@@ -64,6 +86,10 @@ class ConnectorInfo:
     @property
     def id(self) -> str:
         return str(self.connector_id)
+
+    @property
+    def name(self) -> str:
+        return str(self.connector_name)
 
     @property
     def connector(self) -> Connector:

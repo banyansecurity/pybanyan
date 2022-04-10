@@ -20,7 +20,7 @@ class ApiKeyController(Controller):
     def list(self):
         api_keys: List[ApiKeyInfo] = self._client.list()
         results = []
-        headers = ['Name', 'ID', 'Scope', 'Description']
+        headers = ['API Key Name', 'ID', 'Scope', 'Description']
         for res in api_keys:
             new_res = [res.name, res.id, res.scope, res.description]
             results.append(new_res)
@@ -29,14 +29,14 @@ class ApiKeyController(Controller):
 
     @ex(help='show details of an api_key',
         arguments=[
-            (['api_key_uuid'],
+            (['api_key_name'],
             {
-                'help': 'get api_key by Banyan UUID.'
+                'metavar': 'connector_name_or_id',
+                'help': 'Name or ID of api_key to display.'
             })
         ])
     def get(self):
-        id: UUID = self.app.pargs.api_key_uuid
-        info: ApiKeyInfo = self._client[str(id)]
+        info: ApiKeyInfo = self._client[self.app.pargs.api_key_name]
         api_key_json = ApiKeyInfo.Schema().dump(info)
         self.app.render(api_key_json, handler='json', indent=2, sort_keys=True)
 
@@ -68,12 +68,12 @@ class ApiKeyController(Controller):
 
     @ex(help='delete a given api_key record',
         arguments=[
-            (['api_key_uuid'],
+            (['api_key_name'],
             {
-                'help': 'Banyan UUID of api_key to delete.'
-            }),      
+                'metavar': 'connector_name_or_id',
+                'help': 'Name or ID of api_key to display.'
+            })
         ])
     def delete(self):
-        id: UUID = self.app.pargs.api_key_uuid
-        info = self._client.delete(id)
+        info = self._client.delete(self.app.pargs.api_key_name)
         self.app.render(info, handler='json', indent=2, sort_keys=True)

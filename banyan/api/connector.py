@@ -7,3 +7,6 @@ class ConnectorAPI(ApiBase):
         info_class = ConnectorInfo
         supports_paging = True
         list_uri = '/v2/satellite'
+        insert_uri = '/v2/satellite'
+        delete_uri = '/v2/satellite/ID'
+        obj_name = 'connector'
