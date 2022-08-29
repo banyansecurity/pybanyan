@@ -27,6 +27,8 @@ from banyan.api.service_infra import ServiceInfraAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
+from banyan.api.access_tier import AccessTierAPI
+from banyan.api.connector import ConnectorAPI
 from banyan.core.exc import BanyanError
 
 JsonListOrObj = Union[List, Dict]
@@ -112,6 +114,8 @@ class BanyanApiClient:
         self._cloud_resources = CloudResourceAPI(self)
         self._services_web = ServiceWebAPI(self)
         self._services_infra = ServiceInfraAPI(self)
+        self._access_tiers = AccessTierAPI(self)
+        self._connectors = ConnectorAPI(self)
 
     def __del__(self):
         if self._http:
@@ -168,7 +172,7 @@ class BanyanApiClient:
         if '://' not in url:
             url = self._api_url + url
         if '/v2/' in url:
-            url = url.replace('/api/v1', '/api/experimental')
+            url = url.replace('/api/v1', '/api')
         if self._insecure_tls and not verify:
             verify = False
             urllib3.disable_warnings()
@@ -409,6 +413,14 @@ class BanyanApiClient:
     @property
     def cloud_resources(self) -> CloudResourceAPI:
         return self._cloud_resources
+
+    @property
+    def access_tiers(self) -> AccessTierAPI:
+        return self._access_tiers
+
+    @property
+    def connectors(self) -> ConnectorAPI:
+        return self._connectors
 
 
 # configuration defaults

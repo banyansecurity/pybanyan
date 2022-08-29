@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Interface
-from typing import ClassVar, Type, Union
+from typing import ClassVar, Type, Union, Optional
 
 from aenum import StrEnum
 from marshmallow import fields, Schema, post_dump
@@ -135,7 +135,7 @@ class VersionField(fields.Field):
 @dataclass
 class BanyanApiObject:
     TYPE = "origin"
-    apiVersion: str
+    apiVersion: Optional[str]
     kind: str
     type: str
     Schema: ClassVar[Type[Schema]] = Schema

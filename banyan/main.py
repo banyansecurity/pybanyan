@@ -19,6 +19,8 @@ from banyan.controllers.service_infra import ServiceInfraController
 from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from banyan.controllers.cloud_resource import CloudResourceController
+from banyan.controllers.access_tier import AccessTierController
+from banyan.controllers.connector import ConnectorController
 from .core.exc import BanyanError
 
 # configuration defaults
@@ -82,6 +84,8 @@ class MyApp(App):
         # register handlers
         handlers = [
             Base,
+            ConnectorController,
+            AccessTierController,
             CloudResourceController,
             ServiceInfraController,
             ServiceWebController,
