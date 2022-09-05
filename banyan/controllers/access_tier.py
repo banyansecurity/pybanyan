@@ -26,7 +26,7 @@ class AccessTierController(Controller):
         results = []
         headers = ['Name', 'ID', 'Cluster', 'Address', 'Status', 'Tunnel - User', 'Tunnel - Sat']
         for res in access_tiers:
-            new_res = [res.name, str(res.id)[:9], res.cluster_name, Base.trunc(res.address, 16), res.status,
+            new_res = [res.name, str(res.id)[:9] + '...', res.cluster_name, Base.trunc(res.address, 16), res.status,
                        res.tunnel_enduser is not None,
                        res.tunnel_satellite is not None]
             results.append(new_res)

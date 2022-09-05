@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.29.0
+
+ * support for Access Tier and Connector objects
+
 ## 0.28.1
 
  * bugfixes and dry changes for service abstractions 
