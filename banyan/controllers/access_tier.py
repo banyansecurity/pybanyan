@@ -14,7 +14,7 @@ class AccessTierController(Controller):
         label = "access_tier"
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage access tiers'
+        help = 'manage access tiers (for Self-hosted Private Edge deployments)'
 
     @property
     def _client(self) -> BanyanApiClient:
@@ -26,7 +26,7 @@ class AccessTierController(Controller):
         results = []
         headers = ['Name', 'ID', 'Cluster', 'Address', 'Status', 'Tunnel - User', 'Tunnel - Sat']
         for res in access_tiers:
-            new_res = [res.name, res.id, res.cluster_name, res.address, res.status,
+            new_res = [res.name, str(res.id)[:9], res.cluster_name, Base.trunc(res.address, 16), res.status,
                        res.tunnel_enduser is not None,
                        res.tunnel_satellite is not None]
             results.append(new_res)

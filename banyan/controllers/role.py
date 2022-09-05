@@ -12,7 +12,7 @@ class RoleController(Controller):
         label = 'role'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage user and workload roles'
+        help = 'manage roles'
 
     @property
     def _client(self) -> RoleAPI:

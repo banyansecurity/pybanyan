@@ -18,13 +18,11 @@ from banyan.api.attachment import AttachmentAPI
 from banyan.api.audit import AuditAPI
 from banyan.api.device import DeviceAPI
 from banyan.api.event_v2 import EventV2API
-from banyan.api.netagent import NetagentAPI
 from banyan.api.policy import PolicyAPI
 from banyan.api.role import RoleAPI
 from banyan.api.service import ServiceAPI
 from banyan.api.service_web import ServiceWebAPI
 from banyan.api.service_infra import ServiceInfraAPI
-from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.api.access_tier import AccessTierAPI
@@ -105,8 +103,6 @@ class BanyanApiClient:
         self._policies = PolicyAPI(self)
         self._attach = AttachmentAPI(self)
         self._roles = RoleAPI(self)
-        self._shields = ShieldAPI(self)
-        self._agents = NetagentAPI(self)
         self._users = UserAPI(self)
         self._devices = DeviceAPI(self)
         self._events = EventV2API(self)
@@ -370,22 +366,6 @@ class BanyanApiClient:
         are attached to services.
         """
         return self._attach
-
-    @property
-    def shields(self) -> ShieldAPI:
-        """
-        Returns an instance of the :py:class:`ShieldAPI` class, which can be used to get information about
-        Banyan Shields.
-        """
-        return self._shields
-
-    @property
-    def netagents(self) -> NetagentAPI:
-        """
-        Returns an instance of the :py:class:`NetagentAPI` class, which can be used to manage Banyan netagents
-        in AccessTier mode or Host mode.
-        """
-        return self._agents
 
     @property
     def users(self) -> UserAPI:

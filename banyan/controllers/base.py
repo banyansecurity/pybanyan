@@ -158,3 +158,14 @@ class Base(Controller):
                 val = None
             sanitized[key] = val
         return sanitized
+
+    @staticmethod
+    def trunc(value, num_chars) -> str:
+        if not value:
+            return ''
+        value = str(value)
+        if len(value) < num_chars + 3:
+            return value
+        else:
+            return '...' + value[-num_chars:]
+    

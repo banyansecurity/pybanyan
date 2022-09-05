@@ -14,7 +14,7 @@ class ConnectorController(Controller):
         label = "connector"
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage connectors'
+        help = 'manage connectors (for Global Edge deployments)'
 
     @property
     def _client(self) -> BanyanApiClient:

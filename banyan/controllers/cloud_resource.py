@@ -25,14 +25,6 @@ class CloudResourceController(Controller):
     def _client(self) -> BanyanApiClient:
         return self.app.client
 
-    def trunc(self, value, num_chars) -> str:
-        if not value:
-            return ''
-        value = str(value)
-        if len(value) < num_chars + 3:
-            return value
-        else:
-            return '...' + value[-num_chars:]
 
     @ex(help='list cloud_resources',
         arguments=[
@@ -59,10 +51,10 @@ class CloudResourceController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in synced_resources:
-            new_res = [res.name[:20], res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
+            new_res = [res.name[:20], res.resource_udid, res.cloud_provider, Base.trunc(res.account,6), 
                        res.region, res.resource_type, 
-                       self.trunc(res.private_ip or res.private_dns_name, 24), 
-                       self.trunc(res.public_ip or res.public_dns_name, 24), 
+                       Base.trunc(res.private_ip or res.private_dns_name, 24), 
+                       Base.trunc(res.public_ip or res.public_dns_name, 24), 
                        len(res.tags or []), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
@@ -149,7 +141,7 @@ class CloudResourceController(Controller):
         results = list()
         headers = ['ID', 'Resource ID', 'Resource Name', 'Resource Type', 'Service ID', 'Service Name', 'Resource Status']
         for res in assocs:
-            new_res = [res.id, self.trunc(res.resource_udid,9), res.resource_name, res.resource_type, 
+            new_res = [res.id, Base.trunc(res.resource_udid,9), res.resource_name, res.resource_type, 
                        res.service_id, res.service_name, res.resource_status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')

@@ -10,13 +10,11 @@ from banyan.controllers.base import Base
 from banyan.controllers.device import DeviceController
 from banyan.controllers.event import EventV2Controller
 from banyan.controllers.export import ExportController
-from banyan.controllers.netagent import NetagentController
 from banyan.controllers.policy import PolicyController
 from banyan.controllers.role import RoleController
 from banyan.controllers.service import ServiceController
 from banyan.controllers.service_web import ServiceWebController
 from banyan.controllers.service_infra import ServiceInfraController
-from banyan.controllers.shield import ShieldController
 from banyan.controllers.user import UserController
 from banyan.controllers.cloud_resource import CloudResourceController
 from banyan.controllers.access_tier import AccessTierController
@@ -84,16 +82,14 @@ class MyApp(App):
         # register handlers
         handlers = [
             Base,
+            ServiceController,
             ConnectorController,
             AccessTierController,
             CloudResourceController,
             ServiceInfraController,
             ServiceWebController,
-            ServiceController,
             RoleController,
             PolicyController,
-            ShieldController,
-            NetagentController,
             UserController,
             DeviceController,
             AdminController,
