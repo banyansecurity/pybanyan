@@ -381,8 +381,8 @@ class ParameterBase:
             raise ValueError('Value missing; Pass in either schema or content')
         if schema and content:
             raise ValueError('Too many values provided. Both schema and content were provided. Only one may be input')
-        if name in self.__disallowed_header_names and in_type is ParameterInType.HEADER:
-            raise ValueError('Invalid name, name may not be one of {}'.format(self.__disallowed_header_names))
+        # if name in self.__disallowed_header_names and in_type is ParameterInType.HEADER:
+            # raise ValueError('Invalid name, name may not be one of {}'.format(self.__disallowed_header_names))
         self.__verify_style_to_in_type(style, in_type)
         if content is None and style is None:
             style = self.__in_type_to_default_style[in_type]

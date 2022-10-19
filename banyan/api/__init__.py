@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from turtle import st
 from typing import Dict, Any, List, Union, Callable
 
 import urllib3
@@ -29,9 +30,12 @@ from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.core.exc import BanyanError
 
+import openapi_client
+from pprint import pprint
+from openapi_client.apis.tags import customerfacingnamespace_api
+
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
-
 
 class BanyanApiClient:
     """
@@ -55,7 +59,8 @@ class BanyanApiClient:
     :raises: :py:exc:`BanyanError` if no refresh token is provided.
     """
 
-    DEFAULT_API_URL = 'https://net.banyanops.com'
+    # DEFAULT_API_URL = 'https://net.banyanops.com'
+    DEFAULT_API_URL = 'https://dev02.console.bnntest.com'
     """
     Default API server URL if none is specified and if a :envvar:`BANYAN_API_URL` environment variable
     is not found.
@@ -136,7 +141,7 @@ class BanyanApiClient:
     # noinspection PyMethodMayBeStatic
     def _normalize_url(self, url: str) -> str:
         if '/api' not in url:
-            url += '/api/v1'
+            url += '/api'
         return url
 
     def _create_session(self) -> requests.Session:
@@ -148,6 +153,27 @@ class BanyanApiClient:
             requests_log.setLevel(logging.DEBUG)
             requests_log.propagate = True
         return http
+    
+    def get_openapi_instance(self,api_version: str) -> customerfacingnamespace_api.CUSTOMERFACINGNAMESPACEApi:
+        host = self._api_url
+        if api_version == 'v2':
+            host = host.replace('/api', '/api/experimental')
+        else:
+            urllib3.warnings.resetwarnings()  
+              
+        if not self._access_token:
+            authorization = self.get_access_token()        
+            configuration = openapi_client.Configuration(
+            host = host,access_token = authorization
+            )
+        else:
+             configuration = openapi_client.Configuration(
+            host= host,access_token = self._access_token
+            )   
+        with openapi_client.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+             api_instance = customerfacingnamespace_api.CUSTOMERFACINGNAMESPACEApi(api_client)
+             return api_instance
 
     def get_access_token(self) -> str:
         """
@@ -157,7 +183,7 @@ class BanyanApiClient:
         :return: the new access token.
         :raises: :py:exc:`BanyanError` if the refresh token is invalid.
         """
-        content = self._request('POST', '/refresh_token').json()
+        content = self._request('POST', '/v1/refresh_token').json()
         self._access_token = content['Message']
         return self._access_token
 
@@ -165,6 +191,7 @@ class BanyanApiClient:
                  headers: Dict[str, str] = None, cookies: Dict[str, str] = None,
                  files=None, auth=None, timeout=None, allow_redirects=True, proxies=None,
                  hooks=None, stream=None, verify=None, cert=None, json=None) -> requests.Response:
+                
         if '://' not in url:
             url = self._api_url + url
         if '/v2/' in url:
@@ -419,7 +446,6 @@ CONFIG['banyan']['refresh_token'] = None
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-
     c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com',
                         refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
     print(c.get_access_token())

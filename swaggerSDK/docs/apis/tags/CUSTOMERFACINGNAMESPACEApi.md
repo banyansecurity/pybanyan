@@ -988,7 +988,7 @@ with openapi_client.ApiClient(configuration) as api_client:
 
     # example passing only optional values
     query_params = {
-        '&#x60;ServiceID&#x60;': "`ServiceID`_example",
+        'ServiceID': "ServiceID_example",
     }
     header_params = {
         'Authorization': "Authorization_example",
@@ -1019,7 +1019,7 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-&#x60;ServiceID&#x60; | ServiceIDSchema | | optional
+ServiceID | ServiceIDSchema | | optional
 
 
 # ServiceIDSchema
@@ -1286,7 +1286,7 @@ with openapi_client.ApiClient(configuration) as api_client:
 
     # example passing only optional values
     query_params = {
-        '&#x60;ServiceID&#x60;': "`ServiceID`_example",
+        'ServiceID': "ServiceID_example",
     }
     header_params = {
         'Authorization': "Authorization_example",
@@ -1317,7 +1317,7 @@ skip_deserialization | bool | default is False | when True, headers and body wil
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-&#x60;ServiceID&#x60; | ServiceIDSchema | | optional
+ServiceID | ServiceIDSchema | | optional
 
 
 # ServiceIDSchema
@@ -4206,7 +4206,7 @@ with openapi_client.ApiClient(configuration) as api_client:
     query_params = {
         'ServiceID': "ServiceID_example",
         'DefaultServices': True,
-        'ServiceName': True,
+        'ServiceName': "ServiceName_example",
         'FriendlyName': "FriendlyName_example",
     }
     header_params = {
@@ -4263,7 +4263,7 @@ bool,  | BoolClass,  |  |
 ## Model Type Info
 Input Type | Accessed Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-bool,  | BoolClass,  |  | 
+str,  | str,  |  | 
 
 # FriendlyNameSchema
 

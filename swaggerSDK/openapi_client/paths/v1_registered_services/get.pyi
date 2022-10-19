@@ -28,7 +28,7 @@ from openapi_client import schemas  # noqa: F401
 # query params
 ServiceIDSchema = schemas.StrSchema
 DefaultServicesSchema = schemas.BoolSchema
-ServiceNameSchema = schemas.BoolSchema
+ServiceNameSchema = schemas.StrSchema
 FriendlyNameSchema = schemas.StrSchema
 # header params
 AuthorizationSchema = schemas.StrSchema

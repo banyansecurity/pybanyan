@@ -87,13 +87,14 @@ class Configuration(object):
                  discard_unknown_keys=False,
                  disabled_client_side_validations="",
                  server_index=None, server_variables=None,
-                 server_operation_index=None, server_operation_variables=None,
+                 server_operation_index=None, server_operation_variables=None,access_token=None,
                  ):
         """Constructor
         """
         self._base_path = "https://dev02.console.bnntest.com" if host is None else host
         """Default Base url
         """
+        self.access_token = access_token
         self.server_index = 0 if server_index is None and host is None else server_index
         self.server_operation_index = server_operation_index or {}
         """Default server index

@@ -37,7 +37,7 @@ RequestRequiredQueryParams = typing_extensions.TypedDict(
 RequestOptionalQueryParams = typing_extensions.TypedDict(
     'RequestOptionalQueryParams',
     {
-        '&#x60;ServiceID&#x60;': typing.Union[ServiceIDSchema, str, ],
+        'ServiceID': typing.Union[ServiceIDSchema, str, ],
     },
     total=False
 )
@@ -48,7 +48,7 @@ class RequestQueryParams(RequestRequiredQueryParams, RequestOptionalQueryParams)
 
 
 request_query_service_id = api_client.QueryParameter(
-    name="&#x60;ServiceID&#x60;",
+    name="ServiceID",
     style=api_client.ParameterStyle.FORM,
     schema=ServiceIDSchema,
     explode=True,

@@ -30,7 +30,7 @@ from . import path
 # query params
 ServiceIDSchema = schemas.StrSchema
 DefaultServicesSchema = schemas.BoolSchema
-ServiceNameSchema = schemas.BoolSchema
+ServiceNameSchema = schemas.StrSchema
 FriendlyNameSchema = schemas.StrSchema
 RequestRequiredQueryParams = typing_extensions.TypedDict(
     'RequestRequiredQueryParams',
@@ -42,7 +42,7 @@ RequestOptionalQueryParams = typing_extensions.TypedDict(
     {
         'ServiceID': typing.Union[ServiceIDSchema, str, ],
         'DefaultServices': typing.Union[DefaultServicesSchema, bool, ],
-        'ServiceName': typing.Union[ServiceNameSchema, bool, ],
+        'ServiceName': typing.Union[ServiceNameSchema, str, ],
         'FriendlyName': typing.Union[FriendlyNameSchema, str, ],
     },
     total=False
