@@ -158,6 +158,8 @@ class BanyanApiClient:
         host = self._api_url
         if api_version == 'v2':
             host = host.replace('/api', '/api/experimental')
+        elif api_version == 'v1':
+            pass
         else:
             urllib3.warnings.resetwarnings()  
               
