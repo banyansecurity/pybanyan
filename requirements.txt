@@ -33,4 +33,3 @@ okta
 # azure ad
 azure-identity
 msgraph-core
-wheel
