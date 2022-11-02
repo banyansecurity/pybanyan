@@ -7,7 +7,6 @@ import logging
 import os
 import sys
 from pathlib import Path
-from turtle import st
 from typing import Dict, Any, List, Union, Callable
 
 import urllib3
