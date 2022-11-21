@@ -29,9 +29,10 @@ from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.core.exc import BanyanError
 
-import openapi_client
+import banyanclient
 from pprint import pprint
-from openapi_client.apis.tags import customerfacingnamespace_api
+# from banyanclient.apis.tags import customerfacingnamespace_api
+from banyanclient.apis.tags import registered_service_api
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
@@ -153,7 +154,7 @@ class BanyanApiClient:
             requests_log.propagate = True
         return http
     
-    def get_openapi_instance(self,api_version: str) -> customerfacingnamespace_api.CUSTOMERFACINGNAMESPACEApi:
+    def get_openapi_instance(self,api_version: str) -> registered_service_api.RegisteredServiceApi:
         host = self._api_url
         if api_version == 'v2':
             host = host.replace('/api', '/api/experimental')
@@ -164,16 +165,16 @@ class BanyanApiClient:
               
         if not self._access_token:
             authorization = self.get_access_token()        
-            configuration = openapi_client.Configuration(
+            configuration = banyanclient.Configuration(
             host = host,access_token = authorization
             )
         else:
-             configuration = openapi_client.Configuration(
+             configuration = banyanclient.Configuration(
             host= host,access_token = self._access_token
             )   
-        with openapi_client.ApiClient(configuration) as api_client:
+        with banyanclient.ApiClient(configuration) as api_client:
             # Create an instance of the API class
-             api_instance = customerfacingnamespace_api.CUSTOMERFACINGNAMESPACEApi(api_client)
+             api_instance = registered_service_api.RegisteredServiceApi(api_client)
              return api_instance
 
     def get_access_token(self) -> str:

@@ -5,7 +5,7 @@ from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName
 
 import json
 
-import openapi_client
+import banyanclient
 
 class ServiceAPI(ApiBase):
     class Meta:
@@ -26,7 +26,7 @@ class ServiceAPI(ApiBase):
         try:
             api_instance = self._client.get_openapi_instance('v1')
             response = api_instance.v1_enable_registered_service_post(query_params=query_params,skip_deserialization=True).response
-        except openapi_client.ApiException as e:
+        except banyanclient.ApiException as e:
             print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_enable_registered_service_post: %s\n" % e)    
         except AttributeError:
             pass     
@@ -41,7 +41,7 @@ class ServiceAPI(ApiBase):
         try:
             api_instance = self._client.get_openapi_instance('v1')
             response = api_instance.v1_disable_registered_service_post(query_params=query_params,skip_deserialization=True).response
-        except openapi_client.ApiException as e:
+        except banyanclient.ApiException as e:
             print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_disable_registered_service_post: %s\n" % e)    
         except AttributeError:
             pass     

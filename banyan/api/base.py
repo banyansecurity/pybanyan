@@ -7,7 +7,7 @@ from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
 
 import json
 
-import openapi_client
+import banyanclient
 
 
 InfoObjectOrName = Union[InfoBase, str]
@@ -53,7 +53,7 @@ class ApiBase(ABC):
             #  List services
             api_instance = self._client.get_openapi_instance('v1')
             response = api_instance.v1_registered_services_get(query_params=query_params,skip_deserialization=True).response
-        except openapi_client.ApiException as e:
+        except banyanclient.ApiException as e:
             print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_registered_services_get: %s\n" % e)    
         except AttributeError:
             pass    
