@@ -306,7 +306,6 @@ class Spec:
     backend: Backend
     cert_settings: CertSettings
     http_settings: HttpSettings
-    client_cidrs: List[ClientCIDRs] = field(default_factory=list) # deprecated
 
 
 @dataclass
