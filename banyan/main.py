@@ -22,6 +22,7 @@ from banyan.controllers.cloud_resource import CloudResourceController
 from banyan.controllers.api_key import ApiKeyController
 from banyan.controllers.connector import ConnectorController
 from banyan.controllers.access_tier import AccessTierController
+from banyan.controllers.service_tunnel import ServiceTunnelController
 
 from .core.exc import BanyanError
 
@@ -88,6 +89,7 @@ class MyApp(App):
             Base,
             UserController,
             ServiceWebController,
+            ServiceTunnelController,
             ServiceInfraController,
             RoleController,
             PolicyController,

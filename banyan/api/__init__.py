@@ -31,6 +31,7 @@ from banyan.api.cloud_resource import CloudResourceAPI
 from banyan.api.api_key import ApiKeyAPI
 from banyan.api.connector import ConnectorAPI
 from banyan.api.access_tier import AccessTierAPI
+from banyan.api.service_tunnel import ServiceTunnelAPI
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
@@ -118,6 +119,7 @@ class BanyanApiClient:
         self._api_keys = ApiKeyAPI(self)
         self._connectors = ConnectorAPI(self)
         self._access_tiers = AccessTierAPI(self)
+        self._service_tunnels = ServiceTunnelAPI(self)
 
     def __del__(self):
         if self._http:
@@ -428,6 +430,10 @@ class BanyanApiClient:
     @property
     def access_tiers(self) -> AccessTierAPI:
         return self._access_tiers
+
+    @property
+    def service_tunnels(self) -> ServiceTunnelAPI:
+        return self._service_tunnels
 
 # configuration defaults
 CONFIG = init_defaults('banyan')
