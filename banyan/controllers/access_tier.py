@@ -20,9 +20,9 @@ class AccessTierController(Controller):
     def list(self):
         ats: List[AccessTierInfo] = self._client.list()
         results = []
-        headers = ['Access Tier Name', 'ID', 'Cluster', 'Address', 'Domains']
+        headers = ['Access Tier Name', 'ID', 'Cluster', 'Address']
         for res in ats:
-            new_res = [res.name, res.id, res.cluster_name, res.address, res.domains]
+            new_res = [res.name, res.id, res.cluster_name, res.address]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 

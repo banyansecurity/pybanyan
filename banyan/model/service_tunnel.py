@@ -14,7 +14,8 @@ class Tags:
     class Meta:
         unknown = EXCLUDE
 
-    template: str
+    icon: Optional[str]
+    description_link: Optional[str]
 
 
 @dataclass
@@ -34,8 +35,8 @@ class PeerAccessTier:
         unknown = EXCLUDE
 
     cluster: str
-    access_tiers: List[str]
-    connectors: List[str]
+    access_tiers: Optional[List[str]]
+    connectors: Optional[List[str]]
 
 
 @dataclass
@@ -75,6 +76,10 @@ class ServiceTunnelInfo(Resource):
     updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='updated_at')})
     updated_by: str
     Schema: ClassVar[Schema] = Schema
+
+    @property
+    def service(self) -> ServiceTunnel:
+        return ServiceTunnel.Schema().loads(self.spec)
 
     @property
     def name(self) -> str:

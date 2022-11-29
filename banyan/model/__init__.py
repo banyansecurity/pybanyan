@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import field
 from datetime import datetime
 from ipaddress import IPv4Interface
-from typing import ClassVar, Type, Union
+from typing import ClassVar, Type, Union, Optional
 
 from aenum import StrEnum
 from marshmallow import fields, Schema, post_dump
@@ -10,8 +10,6 @@ from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
 from banyan.core.exc import BanyanError
-
-API_VERSION = "rbac.banyanops.com/v1"
 
 
 class BanyanEnum(StrEnum):
@@ -134,14 +132,15 @@ class VersionField(fields.Field):
 
 @dataclass
 class BanyanApiObject:
+    API_VERSION = "rbac.banyanops.com/v1"
     TYPE = "origin"
-    apiVersion: str
+    apiVersion: Optional[str]
+    type: Optional[str]
     kind: str
-    type: str
     Schema: ClassVar[Type[Schema]] = Schema
 
     def __post_init__(self):
-        self.apiVersion = API_VERSION
+        self.apiVersion = self.API_VERSION
         self.type = self.TYPE
 
     @property

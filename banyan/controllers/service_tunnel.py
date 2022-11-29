@@ -30,3 +30,29 @@ class ServiceTunnelController(Controller):
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
     
 
+    @ex(help='show the definition of a service tunnel',
+        arguments=[
+            (['service_tunnel_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service tunnel to display.'
+             }),
+        ])
+    def get(self):
+        info: ServiceTunnelInfo = self._client[self.app.pargs.service_tunnel_name]
+        service_json = ServiceTunnel.Schema().dump(info.service)
+        # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
+        self.app.render(service_json, handler='json', indent=2, sort_keys=True)
+
+
+    @ex(help='delete a given service tunnel',
+        arguments=[
+            (['service_tunnel_name'],
+             {
+                 'metavar': 'service_name_or_id',
+                 'help': 'Name or ID of the service tunnel to delete.'
+             }),
+        ])
+    def delete(self):
+        info = self._client.delete(self.app.pargs.service_tunnel_name)
+        self.app.render(info, handler='json', indent=2, sort_keys=True)

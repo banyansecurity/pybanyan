@@ -46,7 +46,6 @@ class AccessTierInfo(Resource):
     
     cluster_name: str
     address: str
-    domains: List[str]
     tunnel_satellite: Optional[Tunnel]
     tunnel_enduser: Optional[Tunnel]
 
@@ -57,6 +56,7 @@ class AccessTierInfo(Resource):
 
     status: Optional[str]
     netagents: Optional[list]
+    domains: Optional[List[str]]
 
     Schema: ClassVar[Schema] = Schema
 
