@@ -1,0 +1,34 @@
+{
+    "kind": "BanyanConnector",
+    "api_version": "rbac.banyanops.com/v1",
+    "type": "attribute-based",
+    "metadata":
+    {
+        "name": "td-prod-AWS-Conn",
+        "display_name": "td-prod-AWS-Conn"
+    },
+    "spec":
+    {
+        "api_key_id": "d04d5c9c-f0f5-45ee-9348-a1fdead46112",
+        "keepalive": 25,
+        "cidrs":
+        [
+            "172.20.0.0/16"
+        ],
+        "peer_access_tiers":
+        [
+            {
+                "cluster": "managed-cl-edge1",
+                "access_tiers":
+                [
+                    "*"
+                ]
+            }
+        ],
+        "disable_snat": false,
+        "domains":
+        [
+            "ec2.internal"
+        ]
+    }
+}

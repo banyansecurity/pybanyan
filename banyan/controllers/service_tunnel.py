@@ -2,7 +2,7 @@ from typing import List
     
 from cement import Controller, ex
 
-from banyan.api import BanyanApiClient
+from banyan.api import ServiceTunnelAPI
 from banyan.controllers.base import Base
 from banyan.model.service_tunnel import ServiceTunnel, ServiceTunnelInfo
 
@@ -14,7 +14,7 @@ class ServiceTunnelController(Controller):
         help = 'manage service tunnels'
 
     @property
-    def _client(self) -> BanyanApiClient:
+    def _client(self) -> ServiceTunnelAPI:
         return self.app.client.service_tunnels
 
     @ex(help='list service tunnels')

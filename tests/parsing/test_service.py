@@ -22,7 +22,7 @@ class ServiceParserTest(unittest.TestCase):
     def test_parse_info(self):
         i: ServiceInfo = ServiceInfo.Schema().loads(load_testdata("tests/data/serviceinfo.json"))
         self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service_name)
-        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service.name)
+        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service_spec.name)
 
     def test_parse_attachments(self):
         a: List[Attachment] = Attachment.Schema().loads(load_testdata("tests/data/attachments.json"), many=True)

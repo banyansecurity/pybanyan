@@ -360,7 +360,7 @@ class ServiceInfo(InfoBase):
     Schema: ClassVar[Schema] = Schema
 
     @property
-    def service(self) -> Service:
+    def service_spec(self) -> Service:
         return Service.Schema().loads(self.spec)
 
     @property

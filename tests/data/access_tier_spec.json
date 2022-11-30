@@ -1,0 +1,32 @@
+{
+    "kind": "BanyanAccessTier",
+    "api_version": "rbac.banyanops.com/v1",
+    "type": "attribute-based",
+    "metadata":
+    {
+        "name": "GCP-USWest"
+    },
+    "spec":
+    {
+        "address": "gcp-uswest.banyantestdrive.gcp.banyansecurity.com",
+        "tunnel_enduser":
+        {
+            "dns_search_domains": "",
+            "udp_port_number": 51820,
+            "cidrs":
+            [
+                "0.0.0.0/1",
+                "128.0.0.0/1"
+            ],
+            "keepalive": 20,
+            "domains":
+            [
+                "foo.int"
+            ],
+            "dns_enabled": true
+        },
+        "cluster_name": "cluster1",
+        "disable_snat": false,
+        "api_key_id": "df0a7487-d969-41f5-b509-e9fbb2d5dc12"
+    }
+}

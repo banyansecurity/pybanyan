@@ -12,7 +12,6 @@ class PolicyParserTest(unittest.TestCase):
         self.assertEqual(Policy.KIND, p.kind)
         self.assertEqual("jupyter-allow", p.metadata.name)
         self.assertEqual(Template.USER, p.metadata.tags.template)
-        self.assertEqual(p.type, p.metadata.tags.template)
         self.assertEqual(True, p.spec.options.disable_tls_client_authentication)
         self.assertEqual("http", p.spec.options.l7_protocol)
         self.assertEqual(1, len(p.spec.access))
@@ -27,5 +26,5 @@ class PolicyParserTest(unittest.TestCase):
     def test_parse_info(self):
         i: PolicyInfo = PolicyInfo.Schema().loads(load_testdata("tests/data/policyinfo.json"))
         self.assertEqual("nginx-stage-mesh", i.name)
-        self.assertEqual("nginx-stage-mesh", i.policy.name)
+        self.assertEqual("nginx-stage-mesh", i.policy_spec.name)
         self.assertEqual("0e599ef2-a9a3-45a2-855b-7c30e80f083f", str(i.id))

@@ -18,8 +18,8 @@ class AuditEventParserTest(unittest.TestCase):
         self.assertEqual(o.cluster_name, "us-west1")
         self.assertEqual(o.service_name, "test-api")
         self.assertIn("bnndemos.com", o.oidc_client.trust_cb)
-        self.assertEqual(o.service_name, o.service.name)
-        self.assertEqual(o.service_name, o.service.metadata.name)
+        self.assertEqual(o.service_name, o.service_spec.name)
+        self.assertEqual(o.service_name, o.service_spec.metadata.name)
 
     def test_parse_event(self):
         e: AuditEvent = AuditEvent.Schema().loads(load_testdata("tests/data/audit_event.json"))

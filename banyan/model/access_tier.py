@@ -10,30 +10,62 @@ from banyan.model import NanoTimestampField, BanyanApiObject, Resource
 
 
 @dataclass
-class Tunnel:
-    class Meta:
-        unknown = EXCLUDE
-
-    udp_port_number: int
-    keepalive: int
-    cidrs: list
-    dns_enabled: bool
-    domains: list
-
-
-@dataclass
-class AccessTier:
+class Metadata:
     class Meta:
         unknown = EXCLUDE
 
     name: str
-    cluster_name: str
-    address: str
-    domains: Optional[List[str]] = field(default_factory=list)
-    tunnel_satellite: Optional[Tunnel] = field(default_factory=dict)
-    tunnel_enduser: Optional[Tunnel] = field(default_factory=dict)
+    description: Optional[str]
+    cluster_name: Optional[str]
 
-    Schema: ClassVar[Schema] = Schema
+
+@dataclass
+class AccessTierTunnel:
+    class Meta:
+        unknown = EXCLUDE
+
+    udp_port_number: int
+    cidrs: Optional[List[str]]
+    domains: Optional[List[str]]
+    keepalive: Optional[int]
+    dns_enabled: bool = True
+
+
+@dataclass 
+class Spec:
+    class Meta:
+        unknown = EXCLUDE
+
+    # sync w metadata
+    description: Optional[str]
+    cluster_name: str
+
+    api_key_id: UUID
+    address: str
+    deployment_method: Optional[str]
+
+    tunnel_enduser: Optional[AccessTierTunnel] = field(default_factory=dict)
+
+
+@dataclass
+class AccessTier(BanyanApiObject):
+    class Meta:
+        unknown = EXCLUDE
+
+    KIND = "BanyanAccessTier"
+    metadata: Metadata
+    spec: Spec
+
+    def __post_init__(self):
+        super().__post_init__()
+        # api object bug
+        self.metadata.description = self.spec.description
+        self.metadata.cluster_name = self.spec.cluster_name
+
+    @property
+    def name(self):
+        return self.metadata.name
+
 
 
 @dataclass
@@ -43,11 +75,14 @@ class AccessTierInfo(Resource):
 
     access_tier_id: UUID = field(metadata={"data_key": "id"})
     access_tier_name: str = field(metadata={"data_key": "name"})
+    spec: str
     
+    description: str
     cluster_name: str
+    api_key_id: UUID
     address: str
-    tunnel_satellite: Optional[Tunnel]
-    tunnel_enduser: Optional[Tunnel]
+    deployment_method: str
+    tunnel_enduser: Optional[AccessTierTunnel]
 
     created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='created_at')})
     created_by: str
@@ -56,9 +91,10 @@ class AccessTierInfo(Resource):
 
     status: Optional[str]
     netagents: Optional[list]
-    domains: Optional[List[str]]
 
-    Schema: ClassVar[Schema] = Schema
+    @property
+    def access_tier_spec(self) -> AccessTier:
+        return AccessTier.Schema().loads(self.spec)
 
     @property
     def id(self) -> str:

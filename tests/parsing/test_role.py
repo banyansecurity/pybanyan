@@ -47,4 +47,4 @@ class RoleParserTest(unittest.TestCase):
     def test_parse_info(self):
         i: RoleInfo = RoleInfo.Schema().loads(load_testdata("tests/data/roleinfo.json"))
         self.assertEqual("SecurityTeam", i.role_name)
-        self.assertEqual("SecurityTeam", i.role.name)
+        self.assertEqual("SecurityTeam", i.role_spec.name)

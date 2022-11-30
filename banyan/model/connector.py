@@ -33,9 +33,11 @@ class Spec:
         unknown = EXCLUDE
 
     api_key_id: UUID
-    keepalive: int
-    cidrs: List[str]
     peer_access_tiers: List[PeerAccessTier]
+
+    cidrs: List[str]
+    domains: Optional[List[str]]
+    keepalive: Optional[int]
 
 
 @dataclass
@@ -46,9 +48,6 @@ class Connector(BanyanApiObject):
     KIND = "BanyanConnector"
     metadata: Metadata
     spec: Spec
-
-    def __post_init__(self):
-        self.kind = self.KIND
 
     @property
     def name(self):
@@ -62,22 +61,23 @@ class ConnectorInfo(Resource):
 
     connector_id: UUID = field(metadata={"data_key": "id"})
     connector_name: str = field(metadata={"data_key": "name"})
-    org_id: UUID
+    spec: str
+
     display_name: str
     api_key_id: UUID
-    keepalive: int
+    access_tiers: List[dict]
     cidrs: List[str]
-    spec: str
+    domains: List[str]
+    keepalive: int
 
     created_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='created_at')})
     created_by: str
     updated_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='updated_at')})
     updated_by: str
 
-    tunnel_ip_address: Optional[str]
     status: Optional[str]
+    tunnel_ip_address: Optional[str]
     wireguard_public_key: Optional[str]
-    access_tiers: Optional[list]
     connector_version: Optional[str]
     host_info: Optional[dict]
 
@@ -92,7 +92,7 @@ class ConnectorInfo(Resource):
         return str(self.connector_name)
 
     @property
-    def connector(self) -> Connector:
+    def connector_spec(self) -> Connector:
         return Connector.Schema().loads(self.spec)
         
     

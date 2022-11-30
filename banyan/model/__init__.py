@@ -134,6 +134,8 @@ class VersionField(fields.Field):
 class BanyanApiObject:
     API_VERSION = "rbac.banyanops.com/v1"
     TYPE = "origin"
+    KIND = ""
+
     apiVersion: Optional[str]
     type: Optional[str]
     kind: str
@@ -142,6 +144,7 @@ class BanyanApiObject:
     def __post_init__(self):
         self.apiVersion = self.API_VERSION
         self.type = self.TYPE
+        self.kind = self.KIND
 
     @property
     def name(self) -> str:

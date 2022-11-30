@@ -1,0 +1,52 @@
+{
+    "id": "8ef1d4e4-26c3-4b86-b8a5-55e2ec9a2743",
+    "org_id": "26f50a71-61c3-4f30-a0e9-ca16d529133d",
+    "name": "td-prod-AWS-Conn",
+    "display_name": "td-prod-AWS-Conn",
+    "tunnel_ip_address": "100.100.0.1",
+    "keepalive": 25,
+    "status": "PartiallyHealthy",
+    "wireguard_public_key": "cplhhK/9uFCBWx+gi7R8NBjsXVT0uNrojXyabS8CcQg=",
+    "cidrs":
+    [
+        "172.20.0.0/16"
+    ],
+    "access_tiers":
+    [
+        {
+            "satellite_tunnel_peer_id": "ea8ac23c-57ba-4e49-9d85-ccdcfb334021",
+            "access_tier_id": "519c5a4c-bc4d-4fc2-b742-167f08f80340",
+            "healthy": true,
+            "access_tier_name": "managed-at-uswest"
+        },
+        {
+            "satellite_tunnel_peer_id": "1c48cbb2-8aaf-4232-8a34-efdae5c022df",
+            "access_tier_id": "da77a94e-8f9d-4efe-a4ae-d0f31be0b600",
+            "healthy": false,
+            "access_tier_name": "managed-at-useast"
+        }
+    ],
+    "created_at": 1668800199392015020,
+    "updated_at": 1669828224409709522,
+    "api_key_id": "d04d5c9c-f0f5-45ee-9348-a1fdead46112",
+    "connector_version": "1.8.0",
+    "host_info":
+    {
+        "name": "ip-172-20-40-29",
+        "ip_addresses":
+        [
+            "127.0.0.1/8",
+            "172.20.40.29/24",
+            "100.100.0.1/32",
+            "::1/128",
+            "fe80::77:5fff:fe1a:3827/64"
+        ]
+    },
+    "created_by": "63996ead-6f52-4dba-af98-f4c973575f88",
+    "updated_by": "63996ead-6f52-4dba-af98-f4c973575f88",
+    "spec": "{\"kind\":\"BanyanConnector\",\"api_version\":\"rbac.banyanops.com/v1\",\"type\":\"attribute-based\",\"metadata\":{\"name\":\"td-prod-AWS-Conn\",\"display_name\":\"td-prod-AWS-Conn\"},\"spec\":{\"api_key_id\":\"d04d5c9c-f0f5-45ee-9348-a1fdead46112\",\"keepalive\":25,\"cidrs\":[\"172.20.0.0/16\"],\"peer_access_tiers\":[{\"cluster\":\"managed-cl-edge1\",\"access_tiers\":[\"*\"]}],\"disable_snat\":false,\"domains\":[\"ec2.internal\"]}}",
+    "domains":
+    [
+        "ec2.internal"
+    ]
+}

@@ -65,9 +65,6 @@ class Role(BanyanApiObject):
     metadata: Metadata
     spec: Spec
 
-    def __post_init__(self):
-        self.kind = self.KIND
-
     @property
     def name(self):
         return self.metadata.name
@@ -88,7 +85,7 @@ class RoleInfo(InfoBase):
     enabled: bool = field(metadata={'data_key': 'Enabled'})
 
     @property
-    def role(self) -> Role:
+    def role_spec(self) -> Role:
         return Role.Schema().loads(self.spec)
 
     @property

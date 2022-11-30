@@ -26,7 +26,7 @@ class ServiceController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
-            app_type = service.service.metadata.tags.service_app_type
+            app_type = service.service_spec.metadata.tags.service_app_type
             new_row = [service.service_name, service.service_id, app_type, service.enabled,
                        service.created_at.strftime(Base.TABLE_DATE_FORMAT),
                        service.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]
@@ -210,7 +210,7 @@ class ServiceController(Controller):
 
         self._client.list()
         service_info: ServiceInfo = self._client[self.app.pargs.service_name]
-        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+        if not service_info.service_spec.spec.http_settings.oidc_settings.enabled:
             raise RuntimeError('Service needs to be of type WEB')
 
         Base.wait_for_input(True, 'Get service to add to Okta:')
@@ -247,7 +247,7 @@ class ServiceController(Controller):
 
         self._client.list()
         service_info: ServiceInfo = self._client[self.app.pargs.service_name]
-        if not service_info.service.spec.http_settings.oidc_settings.enabled:
+        if not service_info.service_spec.spec.http_settings.oidc_settings.enabled:
             raise RuntimeError('Service needs to be of type WEB')
 
         Base.wait_for_input(True, 'Get service to add to AzureAD:')

@@ -45,7 +45,7 @@ class ExportController(Controller):
         all_roles = self._client.roles.list()
         for role in all_roles:
             with open(self._mkfile(role_path, f'{role.name}.role.json'), 'w') as f:
-                f.write(role.role.Schema().dumps(role.role))
+                f.write(role.role_spec.Schema().dumps(role.role))
 
     @ex(help='export policies from an organization',
         arguments=[
@@ -62,7 +62,7 @@ class ExportController(Controller):
         all_policies = self._client.policies.list()
         for policy in all_policies:
             with open(self._mkfile(policy_path, f'{policy.name}.policy.json'), 'w') as f:
-                f.write(policy.policy.Schema().dumps(policy.policy))
+                f.write(policy.policy_spec.Schema().dumps(policy.policy))
 
     @ex(help='export services from an organization',
         arguments=[
@@ -79,7 +79,7 @@ class ExportController(Controller):
         all_services = self._client.services.list()
         for service in all_services:
             with open(self._mkfile(service_path, f'{service.name}.service.json'), 'w') as f:
-                f.write(service.service.Schema().dumps(service.service))
+                f.write(service.service_spec.Schema().dumps(service.service))
             attached = self._client.services.attached_policy(service)
             if attached:
                 with open(self._mkfile(service_path, f'{service.name}.attach.json'), 'w') as f:
