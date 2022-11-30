@@ -5,7 +5,7 @@
 
 
 ## Prerequisites
-Python 3.7 or 3.8 must be installed.
+Python 3.7+ must be installed.
 
 ## Installation 
 ### Installing the easy way
@@ -20,7 +20,7 @@ $ pip install pybanyan
 $ git clone https://github.com/banyansecurity/pybanyan.git
 $ cd pybanyan
 $ pip install -r requirements.txt
-$ python setup.py install
+$ python setup.py install --user
 ```
 
 ## Usage
