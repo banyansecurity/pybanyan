@@ -1,6 +1,5 @@
 import unittest
 
-from banyan.model import API_VERSION
 from banyan.model.role import Role, Metadata, Tags, Spec, RoleInfo, RoleTemplate
 from tests.parsing import load_testdata
 
@@ -8,12 +7,12 @@ from tests.parsing import load_testdata
 class RoleGeneratorTest(unittest.TestCase):
     def test_generate_workload_role(self):
         # noinspection PyArgumentList
-        r = Role(apiVersion=API_VERSION, kind=Role.KIND, type=Role.TYPE,
+        r = Role(apiVersion=Role.API_VERSION, kind=Role.KIND, type=Role.TYPE,
                  metadata=Metadata(name="Gitlab", description="Gitlab",
                                    tags=Tags(RoleTemplate.USER)),
                  spec=Spec(group=["Security"], known_device_only=True))
         j: dict = Role.Schema().dump(r)
-        self.assertEqual(API_VERSION, j["apiVersion"])
+        self.assertEqual(Role.API_VERSION, j["apiVersion"])
         self.assertEqual(Role.KIND, j["kind"])
         self.assertIn("metadata", j.keys())
         self.assertEqual("Gitlab", j["metadata"]["name"])
@@ -48,4 +47,4 @@ class RoleParserTest(unittest.TestCase):
     def test_parse_info(self):
         i: RoleInfo = RoleInfo.Schema().loads(load_testdata("tests/data/roleinfo.json"))
         self.assertEqual("SecurityTeam", i.role_name)
-        self.assertEqual("SecurityTeam", i.role.name)
+        self.assertEqual("SecurityTeam", i.role_spec.name)

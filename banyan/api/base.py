@@ -87,47 +87,79 @@ class ApiBase(ABC):
         if not self.Meta.insert_uri:
             raise BanyanError(f'{self.Meta.obj_name} API does not support creating objects')
         self._ensure_does_not_exist(obj.name)
-        response_json = self._client.api_request('POST',
-                                                 self.Meta.insert_uri,
-                                                 json=obj.Schema().dump(obj))
-        new_obj = self.Meta.info_class.Schema().load(response_json)
 
-        if self._cache:
-            self._cache.append(new_obj)
-            self._by_name[new_obj.name.lower()] = new_obj
-            self._by_id[str(new_obj.id).lower()] = new_obj
 
-        return new_obj
+        if hasattr(self.Meta, 'uri_param'):
+            # v1 pattern
+            response_json = self._client.api_request('POST',
+                                                    self.Meta.insert_uri,
+                                                    json=obj.Schema().dump(obj))
+            new_obj = self.Meta.info_class.Schema().load(response_json)
+            if self._cache:
+                self._cache.append(new_obj)
+                self._by_name[new_obj.name.lower()] = new_obj
+                self._by_id[str(new_obj.id).lower()] = new_obj
+            return new_obj
+        else:
+            # v2 pattern
+            response_json = self._client.api_request('POST',
+                                                    self.Meta.insert_uri,
+                                                    json=obj.Schema().dump(obj))          
+            if self._cache:
+                self.list()
+            return response_json
+
 
     def update(self, obj: Resource) -> Resource:
         if not self.Meta.insert_uri:
             raise BanyanError(f'{self.Meta.obj_name} API does not support updating objects')
         self._ensure_exists(obj.name)
-        response_json = self._client.api_request('POST',
-                                                 self.Meta.insert_uri,
-                                                 json=obj.Schema().dump(obj))
-        updated_obj = self.Meta.info_class.Schema().load(response_json)
 
-        if self._cache:
-            old_obj = self._by_id[str(obj.id).lower()]
-            self._cache.remove(old_obj)
-            self._cache.append(updated_obj)
-            self._by_name[updated_obj.name.lower()] = updated_obj
-            self._by_id[str(updated_obj.id).lower()] = updated_obj
+        if hasattr(self.Meta, 'uri_param'):
+            # v1 pattern
+            response_json = self._client.api_request('POST',
+                                                    self.Meta.insert_uri,
+                                                    json=obj.Schema().dump(obj))
+            updated_obj = self.Meta.info_class.Schema().load(response_json)
 
-        return updated_obj
+            if self._cache:
+                old_obj = self._by_id[str(obj.id).lower()]
+                self._cache.remove(old_obj)
+                self._cache.append(updated_obj)
+                self._by_name[updated_obj.name.lower()] = updated_obj
+                self._by_id[str(updated_obj.id).lower()] = updated_obj
+
+            return updated_obj
+        else:
+            # v2 pattern
+            upd_uri = f'{self.Meta.insert_uri}/{str(obj.id)}'
+            response_json = self._client.api_request('PUT',
+                                                    upd_uri,
+                                                    json=obj.Schema().dump(obj))
+            if self._cache:
+                self.list()
+            return response_json
+
 
     def delete(self, obj: ResourceOrName) -> str:
         if not self.Meta.delete_uri:
             raise BanyanError(f'{self.Meta.obj_name} API does not support deleting objects')
         obj = self.find(obj)
         assert isinstance(obj, Resource)
-        json_response = self._client.api_request('DELETE',
-                                                 self.Meta.delete_uri,
-                                                 params={self.Meta.uri_param: str(obj.id)})
+
+        if hasattr(self.Meta, 'uri_param'):
+            # v1 pattern
+            del_uri = self.Meta.delete_uri
+            params = {self.Meta.uri_param: str(obj.id)}
+        else:
+            # v2 pattern
+            del_uri = self.Meta.delete_uri.replace('ID', str(obj.id))
+            params = {}
+
+        json_response = self._client.api_request('DELETE', del_uri, params=params)
         if self._cache:
             self._cache.remove(obj)
             del self._by_name[obj.name.lower()]
             del self._by_id[str(obj.id).lower()]
 
-        return json_response['Message']
+        return json_response

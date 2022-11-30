@@ -25,30 +25,22 @@ class CloudResourceController(Controller):
     def _client(self) -> BanyanApiClient:
         return self.app.client
 
-    def trunc(self, value, num_chars) -> str:
-        if not value:
-            return ''
-        value = str(value)
-        if len(value) < num_chars + 3:
-            return value
-        else:
-            return '...' + value[-num_chars:]
 
     @ex(help='list cloud_resources',
         arguments=[
-            (['--cloud'], 
+            (['--cloud'],
             {
                 'help': 'filter by provider - AWS | AZURE | GCP | OCI | ...'
             }),
-            (['--account'], 
+            (['--account'],
             {
                 'help': 'filter by account'
             }),
-            (['--region'], 
+            (['--region'],
             {
                 'help': 'filter by region/location/zone'
             }),
-            (['--resource_type'], 
+            (['--resource_type'],
             {
                 'help': 'filter by type - ec2 | vm | rds | ...'
             })
@@ -56,19 +48,19 @@ class CloudResourceController(Controller):
     def list(self):
         params={'cloud_provider': self.app.pargs.cloud, 'account': self.app.pargs.account, 'region': self.app.pargs.region, 'resource_type': self.app.pargs.resource_type}
         synced_resources: List[CloudResourceInfo] = self._client.cloud_resources.list(params=params)
-        results = list()
+        results = []
         headers = ['Name', 'ID', 'Cloud', 'Account', 'Region', 'Type', 'Private Address', 'Public Address', '# Tags', 'Status']
         for res in synced_resources:
-            new_res = [res.name[:20], res.resource_udid, res.cloud_provider, self.trunc(res.account,6), 
+            new_res = [res.name[:20], res.resource_udid, res.cloud_provider, Base.trunc(res.account,6), 
                        res.region, res.resource_type, 
-                       self.trunc(res.private_ip or res.private_dns_name, 24), 
-                       self.trunc(res.public_ip or res.public_dns_name, 24), 
+                       Base.trunc(res.private_ip or res.private_dns_name, 24), 
+                       Base.trunc(res.public_ip or res.public_dns_name, 24), 
                        len(res.tags or []), res.status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
 
 
-    @ex(help='show details & tags of a cloud_resource', 
+    @ex(help='show details & tags of a cloud_resource',
         arguments=[
             (['resource_uuid'],
             {
@@ -84,7 +76,7 @@ class CloudResourceController(Controller):
 
     @ex(help='create a new cloud_resource',
         arguments=[
-            (['resources_json'], 
+            (['resources_json'],
             {
                 'help': 'JSON blob describing the new discovered resource(s) to be created, or a filename '
                          'containing JSON prefixed by "@" (example: @res.json).'
@@ -97,7 +89,7 @@ class CloudResourceController(Controller):
         self.app.render(dr_json, handler='json', indent=2, sort_keys=True)
 
 
-    @ex(hide=True, help='update status for a given cloud_resource record', 
+    @ex(hide=True, help='update status for a given cloud_resource record',
         arguments=[
             (['resource_uuid'],
             {
@@ -149,7 +141,7 @@ class CloudResourceController(Controller):
         results = list()
         headers = ['ID', 'Resource ID', 'Resource Name', 'Resource Type', 'Service ID', 'Service Name', 'Resource Status']
         for res in assocs:
-            new_res = [res.id, self.trunc(res.resource_udid,9), res.resource_name, res.resource_type, 
+            new_res = [res.id, Base.trunc(res.resource_udid,9), res.resource_name, res.resource_type, 
                        res.service_id, res.service_name, res.resource_status]
             results.append(new_res)
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')

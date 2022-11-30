@@ -14,6 +14,7 @@ import requests
 from cement import init_defaults
 from requests.auth import AuthBase
 
+from banyan.core.exc import BanyanError
 from banyan.api.attachment import AttachmentAPI
 from banyan.api.audit import AuditAPI
 from banyan.api.device import DeviceAPI
@@ -27,7 +28,10 @@ from banyan.api.service_infra import ServiceInfraAPI
 from banyan.api.shield import ShieldAPI
 from banyan.api.user import UserAPI
 from banyan.api.cloud_resource import CloudResourceAPI
-from banyan.core.exc import BanyanError
+from banyan.api.api_key import ApiKeyAPI
+from banyan.api.connector import ConnectorAPI
+from banyan.api.access_tier import AccessTierAPI
+from banyan.api.service_tunnel import ServiceTunnelAPI
 
 JsonListOrObj = Union[List, Dict]
 ProgressCallback = Callable[[str, str, int, int, List[JsonListOrObj]], None]
@@ -112,6 +116,10 @@ class BanyanApiClient:
         self._cloud_resources = CloudResourceAPI(self)
         self._services_web = ServiceWebAPI(self)
         self._services_infra = ServiceInfraAPI(self)
+        self._api_keys = ApiKeyAPI(self)
+        self._connectors = ConnectorAPI(self)
+        self._access_tiers = AccessTierAPI(self)
+        self._service_tunnels = ServiceTunnelAPI(self)
 
     def __del__(self):
         if self._http:
@@ -262,6 +270,7 @@ class BanyanApiClient:
         params = params or dict()
         skip = params.get('skip', 0)
         limit = params.get('limit', 1000)
+        search_uri = uri + "s"  # support plurals /v2/satellite -> satellites
         all_results = list()
         callback = progress_callback or self._progress_callback
 
@@ -270,8 +279,8 @@ class BanyanApiClient:
             params['limit'] = limit
             results = self.api_request(method, uri, params, data, json, headers, accept)
             for key in results.keys():
-                logging.debug('Looking for %s in %s', key, uri)
-                if key in uri or key == 'data' or key == 'result':
+                logging.debug('Looking for %s in %s', key, search_uri)
+                if key in search_uri or key == 'data' or key == 'result':
                     if len(results[key]) == 0:
                         return all_results
                     all_results.extend(results[key])
@@ -410,6 +419,21 @@ class BanyanApiClient:
     def cloud_resources(self) -> CloudResourceAPI:
         return self._cloud_resources
 
+    @property
+    def api_keys(self) -> ApiKeyAPI:
+        return self._api_keys
+
+    @property
+    def connectors(self) -> ConnectorAPI:
+        return self._connectors
+
+    @property
+    def access_tiers(self) -> AccessTierAPI:
+        return self._access_tiers
+
+    @property
+    def service_tunnels(self) -> ServiceTunnelAPI:
+        return self._service_tunnels
 
 # configuration defaults
 CONFIG = init_defaults('banyan')

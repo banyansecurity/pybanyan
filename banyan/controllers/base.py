@@ -70,6 +70,18 @@ class Base(Controller):
         return json.loads(arg)       
 
     @staticmethod
+    def trunc(value, num_chars, align_left = False) -> str:
+        if not value:
+            return ''
+        value = str(value)
+        if len(value) < num_chars + 3:
+            return value
+        elif align_left:
+            return value[:num_chars] + '...'
+        else:
+            return '...' + value[-num_chars:]
+
+    @staticmethod
     def wait_for_input(wait: bool, text: str):
         print('\n--> %s:' % text)
         if not wait:

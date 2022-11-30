@@ -132,9 +132,6 @@ class Policy(BanyanApiObject):
     metadata: Metadata
     spec: Spec
 
-    def __post_init__(self):
-        self.kind = self.KIND
-
     @property
     def name(self):
         return self.metadata.name
@@ -153,7 +150,7 @@ class PolicyInfo(InfoBase):
     Schema: ClassVar[Schema] = Schema
 
     @property
-    def policy(self) -> Policy:
+    def policy_spec(self) -> Policy:
         return Policy.Schema().loads(self.spec)
 
     @property

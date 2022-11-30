@@ -14,7 +14,7 @@ class ShieldController(Controller):
         label = 'shield'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage Banyan Shield clusters'
+        help = '(deprecated) manage shield clusters'
 
     @property
     def _client(self) -> ShieldAPI:

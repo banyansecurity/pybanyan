@@ -306,7 +306,6 @@ class Spec:
     backend: Backend
     cert_settings: CertSettings
     http_settings: HttpSettings
-    client_cidrs: List[ClientCIDRs] = field(default_factory=list) # deprecated
 
 
 @dataclass
@@ -361,7 +360,7 @@ class ServiceInfo(InfoBase):
     Schema: ClassVar[Schema] = Schema
 
     @property
-    def service(self) -> Service:
+    def service_spec(self) -> Service:
         return Service.Schema().loads(self.spec)
 
     @property

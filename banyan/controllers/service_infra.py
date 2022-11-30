@@ -24,7 +24,7 @@ class ServiceInfraController(Controller):
         results = list()
         headers = ['Name', 'ID', 'Type', 'Enabled', 'Created', 'Last Updated']
         for service in services:
-            app_type = service.service.metadata.tags.service_app_type
+            app_type = service.service_spec.metadata.tags.service_app_type
             new_row = [service.service_name, service.service_id, app_type, service.enabled,
                        service.created_at.strftime(Base.TABLE_DATE_FORMAT),
                        service.last_updated_at.strftime(Base.TABLE_DATE_FORMAT)]

@@ -2,7 +2,6 @@ from ipaddress import IPv4Interface
 import unittest
 from typing import List
 
-from banyan.model import API_VERSION
 from banyan.model.attachment import Attachment, AttachmentType
 from banyan.model.service import ExemptedPaths, Pattern, Service, ServiceInfo, Tags, ServiceTemplate, ServiceAppType
 from tests.parsing import load_testdata
@@ -14,7 +13,7 @@ class ServiceParserTest(unittest.TestCase):
 
     def test_parse_web_service(self):
         s: Service = Service.Schema().loads(load_testdata("tests/data/service_web.json"))
-        self.assertEqual(API_VERSION, s.apiVersion)
+        self.assertEqual(Service.API_VERSION, s.apiVersion)
         self.assertEqual(ServiceParserTest.SERVICE_NAME, s.metadata.name)
         self.assertEqual(ServiceParserTest.SERVICE_DOMAIN, s.metadata.tags.domain)
         self.assertEqual(ServiceTemplate.WEB, s.metadata.tags.template)
@@ -23,7 +22,7 @@ class ServiceParserTest(unittest.TestCase):
     def test_parse_info(self):
         i: ServiceInfo = ServiceInfo.Schema().loads(load_testdata("tests/data/serviceinfo.json"))
         self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service_name)
-        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service.name)
+        self.assertEqual(ServiceParserTest.SERVICE_NAME, i.service_spec.name)
 
     def test_parse_attachments(self):
         a: List[Attachment] = Attachment.Schema().loads(load_testdata("tests/data/attachments.json"), many=True)
