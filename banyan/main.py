@@ -100,7 +100,6 @@ class MyApp(App):
             CloudResourceController,
             AuditController,
             ApiKeyController,
-            AdminController,
             AccessTierController,
             ShieldController,
             ServiceController,
