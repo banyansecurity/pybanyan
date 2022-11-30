@@ -1,6 +1,5 @@
 import unittest
 
-from banyan.model import API_VERSION
 from banyan.model.policy import Policy, PolicyInfo, Template
 from banyan.model.trustscore import TrustLevel
 from tests.parsing import load_testdata
@@ -9,7 +8,7 @@ from tests.parsing import load_testdata
 class PolicyParserTest(unittest.TestCase):
     def test_parse_web_policy(self):
         p: Policy = Policy.Schema().loads(load_testdata("tests/data/policy_web.json"))
-        self.assertEqual(API_VERSION, p.apiVersion)
+        self.assertEqual(Policy.API_VERSION, p.apiVersion)
         self.assertEqual(Policy.KIND, p.kind)
         self.assertEqual("jupyter-allow", p.metadata.name)
         self.assertEqual(Template.USER, p.metadata.tags.template)
