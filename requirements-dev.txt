@@ -11,3 +11,4 @@ flake8
 pexpect
 pep8
 pylint
+pybanyan-client

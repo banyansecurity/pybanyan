@@ -1,6 +1,11 @@
 from banyan.api.base import ApiBase
+from banyan.api.service import ApiBase
 from banyan.model.policy import PolicyInfo, PolicyInfoOrName, PolicyAttachInfo
 from banyan.model.service import ServiceInfo, Service, ServiceInfoOrName
+
+import json
+
+import banyanclient
 
 class ServiceAPI(ApiBase):
     class Meta:
@@ -15,16 +20,32 @@ class ServiceAPI(ApiBase):
 
     def enable(self, service: ServiceInfoOrName) -> str:
         service = self.find(service)
-        json_response = self._client.api_request('POST',
-                                                 '/enable_registered_service',
-                                                 params={'ServiceID': service.id})
+        query_params = {
+        'ServiceID': service.id,
+        }
+        try:
+            api_instance = self._client.get_openapi_instance('v1')
+            response = api_instance.v1_enable_registered_service_post(query_params=query_params,skip_deserialization=True).response
+        except banyanclient.ApiException as e:
+            print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_enable_registered_service_post: %s\n" % e)    
+        except AttributeError:
+            pass     
+        json_response = json.loads(response.data)
         return json_response['Message']
 
-    def disable(self, service: ServiceInfoOrName) -> str:
+    def disable(self, service: ServiceInfoOrName) -> str:        
         service = self.find(service)
-        json_response = self._client.api_request('POST',
-                                                 '/disable_registered_service',
-                                                 params={'ServiceID': service.id})
+        query_params = {
+        'ServiceID': service.id,
+        }
+        try:
+            api_instance = self._client.get_openapi_instance('v1')
+            response = api_instance.v1_disable_registered_service_post(query_params=query_params,skip_deserialization=True).response
+        except banyanclient.ApiException as e:
+            print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_disable_registered_service_post: %s\n" % e)    
+        except AttributeError:
+            pass     
+        json_response = json.loads(response.data)
         return json_response['Message']
 
     def attach(self, service: ServiceInfoOrName, policy: PolicyInfoOrName, enforcing: bool) -> PolicyAttachInfo:

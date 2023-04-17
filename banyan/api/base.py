@@ -1,8 +1,14 @@
+from __future__ import print_function
 from abc import ABC
 from typing import Dict, List, Union, Iterable, Any, Callable
 
 from banyan.core.exc import BanyanError
 from banyan.model import InfoBase, BanyanApiObject, Resource, ResourceOrName
+
+import json
+
+import banyanclient
+
 
 InfoObjectOrName = Union[InfoBase, str]
 
@@ -26,13 +32,34 @@ class ApiBase(ABC):
         self._by_id: Dict[str, Resource] = dict()
 
     def list(self, params: Dict[str, Any] = None) -> list:
-        list_func = self._client.api_request
+        
+        service_id = ""
+        # default_services = False
+        service_name = ""
+        friendly_name = ""
+        if params:
+            service_id = params["ServiceID"] # str | The ID of the Service to retrieve (optional)
+            # default_services = params["DefaultServices"] # bool | Default services flag. (optional)
+            service_name = params["ServiceName"] # bool | The Name of the Service to retrieve (optional)
+            friendly_name = params["FriendlyName"] # str | Friendly Name of the Service. (optional)
+        query_params = {
+        'ServiceID': service_id,
+        # 'DefaultServices': default_services,
+        'ServiceName': service_name,
+        'FriendlyName': friendly_name,
+        } 
+        
         try:
-            if self.Meta.supports_paging:
-                list_func = self._client.paged_request
+            #  List services
+            api_instance = self._client.get_openapi_instance('v1')
+            response = api_instance.v1_registered_services_get(query_params=query_params,skip_deserialization=True).response
+        except banyanclient.ApiException as e:
+            print("Exception when calling CUSTOMERFACINGNAMESPACEApi->v1_registered_services_get: %s\n" % e)    
         except AttributeError:
-            pass
-        response_json = list(list_func('GET', self.Meta.list_uri, params=params))
+            pass    
+        
+        response_json = json.loads(response.data)
+        response_json = list(response_json)
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json, many=True)
         self._build_cache(data)
         return data
