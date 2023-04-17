@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Set
 from uuid import UUID
 
-from semver import deprecated
-
 from banyan.api.base import ApiBase, Resource
 from banyan.model import BanyanApiObject
 from banyan.model.event_v2 import EventV2, EventOrID
@@ -40,7 +38,7 @@ class EventV2API(ApiBase):
         response_json = self._client.api_request('GET', '/events/count', params=params)
         return response_json['data']
 
-    @deprecated(replace='banyan.api.event_v2.list')
+    #@deprecated(replace='banyan.api.event_v2.list')
     def list2(self, before_dt: datetime = None, after_dt: datetime = None, order: str = None,
               event_type: str = None, subtype: str = None, action: str = None,
               email_address: str = None, device_id: str = None, device_serial: str = None,

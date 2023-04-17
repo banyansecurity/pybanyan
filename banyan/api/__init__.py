@@ -41,16 +41,16 @@ class BanyanApiClient:
     """
     Main class for interacting with the Banyan API.
 
-    :param api_server_url: URL for the Banyan Command Center. This should be the same as the
+    :param api_url: URL for the Banyan Command Center. This should be the same as the
         URL you enter in your browser to log into the Command Center. If not supplied, we will
-        look for an environment variable named :envvar:`BANYAN_API_URL`; if that is also not present,
-        the URL defaults to <https://net.banyanops.com>.
-    :type api_server_url: str
-    :param refresh_token: Initial API token used to authorize the connection. The refresh token
-        will then be exchanged for an access token. If not supplied, we look for an environment
-        varialbe named :envvar:`BANYAN_REFRESH_TOKEN`; if that is also not present, it causes a
-        :py:exc:`BanyanError`.
-    :type refresh_token: str
+        look for an environment variable named :envvar:`BANYAN_API_URL`; 
+        if that is also not present, the URL defaults to <https://net.banyanops.com>.
+    :type api_url: str
+    :param api_key: Initial API credential used to authorize the connection - can be an api key or
+        a refresh token (that will then be exchanged for an access token). If not supplied, we will
+        look for an environment variable named :envvar:`BANYAN_API_KEY` or :envvar:`BANYAN_REFRESH_TOKEN`; 
+        if that is also not present, it causes a :py:exc:`BanyanError`.
+    :type api_key: str
     :param debug: If True, extra debugging output from the Requests module will be logged.
     :type debug: bool
     :param log: Optional logger to use in debug mode. If not provided, the standard
@@ -84,20 +84,20 @@ class BanyanApiClient:
             r.headers['Authorization'] = f'Bearer {token}'
             return r
 
-    def __init__(self, api_server_url: str = None, refresh_token: str = None, debug: bool = False,
+    def __init__(self, api_url: str = None, api_key: str = None, debug: bool = False,
                  log: logging.Logger = None) -> None:
         self._debug = debug
         self._log = log
         self._progress_callback = None
         self._access_token = None
         self._insecure_tls = False
-        self._api_url = self._normalize_url(api_server_url or os.getenv('BANYAN_API_URL') or
-                                            BanyanApiClient.DEFAULT_API_URL)
-        self._refresh_token = refresh_token or os.getenv('BANYAN_REFRESH_TOKEN')
+        self._api_url = self._normalize_url(api_url or 
+                                            os.getenv('BANYAN_API_URL') or BanyanApiClient.DEFAULT_API_URL)
+        self._refresh_token = api_key or os.getenv('BANYAN_API_KEY') or os.getenv('BANYAN_REFRESH_TOKEN')
         if not self._refresh_token:
             self._read_config_file()
         if not self._refresh_token:
-            raise BanyanError("Refresh token must be set")
+            raise BanyanError("A api_key (API Key or Refresh Token) must be set")
         if self._debug:
             requests_log = logging.getLogger('requests.packages.urllib3')
             requests_log.setLevel(logging.DEBUG)
@@ -137,7 +137,7 @@ class BanyanApiClient:
                 cp = configparser.ConfigParser(CONFIG)
                 cp.read(conf_path)
                 self._api_url = self._normalize_url(cp.get('banyan', 'api_url'))
-                self._refresh_token = cp.get('banyan', 'refresh_token')
+                self._refresh_token = cp.get('banyan', 'api_key') or cp.get('banyan', 'refresh_token')
             except configparser.Error:
                 pass
 
@@ -439,12 +439,13 @@ class BanyanApiClient:
 CONFIG = init_defaults('banyan')
 CONFIG['banyan']['api_url'] = BanyanApiClient.DEFAULT_API_URL
 CONFIG['banyan']['refresh_token'] = None
+CONFIG['banyan']['api_key'] = None
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    c = BanyanApiClient(api_server_url='https://gcstage.banyanops.com',
-                        refresh_token=os.getenv('BANYAN_REFRESH_TOKEN'), debug=True)
+    c = BanyanApiClient(api_url='https://preview.console.banyanops.com',
+                        refresh_token=os.getenv('BANYAN_API_KEY'), debug=True)
     print(c.get_access_token())
     print(c.services.list())
