@@ -58,16 +58,15 @@ Full API documentation will be available soon.
 
 ### Banyan CLI tool
 
-Before you use the CLI, create a file called `~/.banyan.conf` in your home directory and paste in your API token:
+Before you use the CLI, create a file called `~/.banyan.conf` in your home directory and paste in your API credential (you may use an `api_key` or `refresh_token`):
 
 ```ini
 [banyan]
 api_url = https://net.banyanops.com
-refresh_token = MY_API_TOKEN
+api_key = MY_API_KEY
 ```
 
-The CLI is invoked with the `banyan` tool. It contains a number of commands and sub-commands to help you work
-with policies, roles, services, users, and other objects in Banyan. 
+The CLI is invoked with the `banyan` tool. It contains a number of commands and sub-commands to help you work with policies, roles, services, users, and other objects in Banyan. 
 
 Run the `banyan` tool by itself to see the available commands.
 

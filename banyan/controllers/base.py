@@ -36,9 +36,9 @@ class Base(Controller):
             (['--api-url'],
              {'help': 'URL for the Banyan API server. Can also be configured via the BANYAN_API_URL '
                       'environment variable.'}),
-            (['--refresh-token'],
-             {'help': 'API token used for the initial authentication to the Banyan API server. Can also be '
-                      'configured via the BANYAN_REFRESH_TOKEN environment variable.'}),
+            (['--api-key'],
+             {'help': 'API credential used for the authentication to the Banyan API server. Can also be '
+                      'configured via the BANYAN_API_KEY or BANYAN_REFRESH_TOKEN environment variable.'}),
             (['--insecure-tls', '-k'],
              {'action': 'store_true',
              'help': 'Allow connections to API servers with invalid TLS certificates.'}),
@@ -52,8 +52,8 @@ class Base(Controller):
         self.app.client.insecure_tls = self.app.pargs.insecure_tls
         if self.app.pargs.api_url:
             self.app.client.api_url = self.app.pargs.api_url
-        if self.app.pargs.refresh_token:
-            self.app.client.refresh_token = self.app.pargs.refresh_token
+        if self.app.pargs.api_key:
+            self.app.client.refresh_token = self.app.pargs.api_key
 
     def _default(self):
         """Default action if no sub-command is passed."""

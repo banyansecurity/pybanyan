@@ -30,12 +30,15 @@ from .core.exc import BanyanError
 CONFIG = init_defaults('banyan')
 CONFIG['banyan']['api_url'] = BanyanApiClient.DEFAULT_API_URL
 CONFIG['banyan']['refresh_token'] = None
+CONFIG['banyan']['api_key'] = None
 
 
 def extend_client(app: App) -> None:
     api_url = app.config.get('banyan', 'api_url')
     refresh_token = app.config.get('banyan', 'refresh_token')
-    client = BanyanApiClient(api_url, refresh_token, debug=app.debug)
+    api_key = app.config.get('banyan', 'api_key')
+    credential = api_key or refresh_token
+    client = BanyanApiClient(api_url, credential, debug=app.debug)
     app.extend('client', client)
 
 
