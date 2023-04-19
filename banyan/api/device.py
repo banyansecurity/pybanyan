@@ -2,7 +2,7 @@ from typing import List
 
 from banyan.api.base import ApiBase
 from banyan.core.exc import BanyanError
-from banyan.model.user_device import Device, TrustScore
+from banyan.model.user_device import Device, DeviceV2, TrustScore
 
 
 class DeviceAPI(ApiBase):
@@ -19,9 +19,9 @@ class DeviceAPI(ApiBase):
         :meta private:
         """
         data_class = Device
-        info_class = Device
+        info_class = DeviceV2
         arg_type = str
-        list_uri = '/devices'
+        list_uri = '/v2/devices'
         delete_uri = '/delete_device'
         insert_uri = '/mdm/update_device'
         uri_param = 'SerialNumber'
@@ -39,14 +39,14 @@ class DeviceAPI(ApiBase):
         """
         raise BanyanError('devices cannot be created via the API')
 
-    def update(self, obj: Device) -> str:
+    def update(self, obj: DeviceV2) -> str:
         """
         Updates a limited set of properties belonging to a device. The properties that can be updated are:
 
         * Device hardware data: :py:data:`architecture`, :py:data:`model`, and :py:data:`platform`.
         * Corporate ownership status: :py:data:`ownership`.
         * Banned status: :py:data:`is_banned`.
-        * User-friendly device name: :py:data:`device_friendly_name`.
+        * Device Management status: :py:data:`mdm_present`, :py:data:`mdm_vendor_name`.
 
         Changes to any other fields in the :py:class:`Device` object will be ignored.
 
@@ -56,13 +56,23 @@ class DeviceAPI(ApiBase):
         :rtype: str
         """
         self._ensure_exists(obj.serial_number)
+        change_attr = {
+            "Model": obj.model,
+            "Ownership": obj.ownership,
+            "Platform": obj.platform,
+            "OS": obj.os,
+            "Architecture": obj.architecture,
+            "Banned": obj.banned,
+            "IsMDMPresent": obj.mdm_present,
+            "MDMVendorName": obj.mdm_vendor_name
+        }
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
                                                  params={self.Meta.uri_param: obj.serial_number},
-                                                 json=obj.Schema(only=DeviceAPI._UPDATE_FIELDS).dump(obj))
+                                                 json=change_attr)
         return response_json['Message']
 
-    def ban(self, obj: Device) -> str:
+    def ban(self, obj: DeviceV2) -> str:
         """
         Bans a device, preventing it from accessing sites controlled by Banyan.
 
@@ -71,10 +81,10 @@ class DeviceAPI(ApiBase):
         :return: Message from the server indicating success or failure.
         :rtype: str
         """
-        obj.is_banned = True
+        obj.banned = True
         return self.update(obj)
 
-    def unban(self, obj: Device) -> str:
+    def unban(self, obj: DeviceV2) -> str:
         """
         Un-bans a device, allowing it to resume accessing sites controlled by Banyan.
 
@@ -87,7 +97,7 @@ class DeviceAPI(ApiBase):
         :return: Message from the server indicating success or failure.
         :rtype: str
         """
-        obj.is_banned = False
+        obj.banned = False
         return self.update(obj)
 
     def set_max_trustlevel(self, obj: Device, max_level: str, reason: str, ext_source: str) -> str:
