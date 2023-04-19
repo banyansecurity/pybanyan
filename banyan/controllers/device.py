@@ -53,6 +53,7 @@ class DeviceController(Controller):
              (['--mdm_present'], 
              {
                  'required': True,
+                 'choices': ["true", "True", "false", "False"],
                  'help': 'Set MDM present to true/false.'
              }),
              (['--mdm_vendor_name'],
