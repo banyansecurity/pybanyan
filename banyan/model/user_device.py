@@ -1,6 +1,7 @@
 from dataclasses import field
 from datetime import datetime
 from typing import Dict, List, ClassVar, Type, Optional
+from uuid import UUID
 
 from marshmallow import Schema, validate, EXCLUDE
 from marshmallow_dataclass import dataclass
@@ -89,6 +90,39 @@ class DeviceOwnership(BanyanEnum):
     CORPORATE_SHARED = 'Corporate Shared'
     EMPLOYEE_OWNED = 'Employee Owned'
     OTHER = 'Other'
+
+
+@dataclass 
+class DeviceV2(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
+    device_id: UUID = field(metadata={"data_key": "id"})
+    device_friendly_name: str = field(metadata={"data_key": "name"})
+    serial_number: str
+    ownership: str
+    platform: str
+    model: str
+    os: str
+    architecture: str
+    app_version: str
+    banned: bool
+    mdm_present: bool
+    mdm_vendor_name: str
+    trust_level: str
+    trust_status: str
+    trust_profile_display_name: str
+    threat_profile_display_name: str 
+    created_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField()})
+    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField()})
+
+    @property
+    def name(self) -> str:
+        return self.device_friendly_name
+
+    @property
+    def id(self) -> str:
+        return self.serial_number       
 
 
 @dataclass

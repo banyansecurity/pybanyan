@@ -52,7 +52,7 @@ rds-pgsql
 ```
 
 The `BanyanApiClient` class accepts optional arguments to specify the API server and refresh token. If not provided, 
-it gets them from environment variables named `BANYAN_API_URL` and `BANYAN_REFRESH_TOKEN`.
+it gets them from environment variables named `BANYAN_API_URL` and `BANYAN_API_KEY`.
 
 Full API documentation will be available soon.
 
@@ -76,32 +76,37 @@ usage: banyan [options] <command> <subcommand> [<subcommand> ...] [parameters]
 
 API library and command-line interface for Banyan Security
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -d, --debug           full application debug mode
   -q, --quiet           suppress all console output
-  -v, --version         show program's version number and exit
-  --api-url API_URL     URL for the Banyan API server. Can also be configured
-                        via the BANYAN_API_URL environment variable.
-  --refresh-token REFRESH_TOKEN
-                        API token used for the initial authentication to the
-                        Banyan API server. Can also be configured via the
-                        BANYAN_REFRESH_TOKEN environment variable.
+  --version, -v         show program's version number and exit
+  --api-url API_URL     URL for the Banyan API server. Can also be configured via the BANYAN_API_URL environment variable.
+  --api-key API_KEY     API credential used for the authentication to the Banyan API server. Can also be configured via the BANYAN_API_KEY or BANYAN_REFRESH_TOKEN environment
+                        variable.
+  --insecure-tls, -k    Allow connections to API servers with invalid TLS certificates.
   --output-format {table,json,yaml}, -o {table,json,yaml}
                         desired output format (table, json, yaml)
 
 Commands:
-  {event,admin,device,user,netagent,shield,policy,role,service}
-    event               report on security and audit events
-    admin               manage administrator accounts
+  {netagent,service,shield,access-tier,api-key,audit,cloud-resource,connector,device,event,export,policy,role,service-infra,service-tunnel,service-web,user}
+    netagent            (deprecated: use access-tier) manage netagents
+    service             (deprecated: use service-web or service-infra) manage web and TCP services and workloads
+    shield              (deprecated) manage shield clusters
+    access-tier         manage access tiers
+    api-key             manage API keys
+    audit               retrieve audit logs
+    cloud-resource      manage cloud resources discovered from IaaS
+    connector           manage connectors
     device              manage devices
-    user                manage user accounts
-    netagent            manage netagents (AccessTiers and HostAgents)
-    shield              manage Banyan Shield clusters
+    event               report on security events
+    export              export all objects from an organization
     policy              manage authorization policies for users and workloads
     role                manage user and workload roles
-    service             manage web and TCP services and workloads
-    cloud-resource      manage cloud resources discovered from IaaS
+    service-infra       manage infrastructure services
+    service-tunnel      manage service tunnels
+    service-web         manage hosted website services
+    user                manage users
 ```
 
 Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
