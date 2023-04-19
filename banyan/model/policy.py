@@ -168,13 +168,13 @@ class PolicyAttachInfo:
         unknown = EXCLUDE
 
     policy_id: UUID = field(metadata={'data_key': 'PolicyID'})
-    policy_name: str = field(metadata={'data_key': 'PolicyName'})
-    attached_id: str = field(metadata={'data_key': 'AttachedToID'})
-    attached_name: str = field(metadata={'data_key': 'AttachedToName'})
-    attached_type: str = field(metadata={'data_key': 'AttachedToType'})
     enabled: bool = field(metadata={'data_key': 'Enabled'})
     attached_at: datetime = field(metadata={'marshmallow_field': NanoTimestampField(data_key='AttachedAt')})
-    attached_by: str = field(metadata={'data_key': 'AttachedBy'})
+    policy_name: Optional[str] = field(metadata={'data_key': 'PolicyName'})
+    attached_by: Optional[str] = field(metadata={'data_key': 'AttachedBy'})
+    attached_id: Optional[str] = field(metadata={'data_key': 'AttachedToID'})
+    attached_name: Optional[str] = field(metadata={'data_key': 'AttachedToName'})
+    attached_type: Optional[str] = field(metadata={'data_key': 'AttachedToType'})
     detached_at: Optional[datetime] = field(default=None,
                                             metadata={'marshmallow_field': NanoTimestampField(data_key='DetachedAt')})
     detached_by: Optional[str] = field(default=None, metadata={'data_key': 'DetachedBy'})
