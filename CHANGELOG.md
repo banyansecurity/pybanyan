@@ -1,5 +1,10 @@
 # PyBanyan Change History
 
+## 0.29.0
+
+ * make api_key the primary credential (refresh_token still works)
+ * use v2 Devices API 
+
 ## 0.28.1
 
  * bugfixes and dry changes for service abstractions 
