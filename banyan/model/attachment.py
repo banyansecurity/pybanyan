@@ -12,6 +12,7 @@ from banyan.model import NanoTimestampField, Resource, BanyanEnum
 class AttachmentType(BanyanEnum):
     SERVICE = "service"
     SAAS_APP = "saasapp"
+    TUNNEL = "service_tunnel"
 
 
 @dataclass

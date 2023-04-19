@@ -45,7 +45,7 @@ class ServiceWebController(Controller):
         ])
     def get(self):
         info: ServiceInfo = self._client[self.app.pargs.service_name]
-        service_json = Service.Schema().dump(info.service)
+        service_json = Service.Schema().dump(info.service_spec)
         # colorized_json = highlight(service_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(service_json, handler='json', indent=2, sort_keys=True)
 
@@ -141,7 +141,7 @@ class ServiceWebController(Controller):
     def attach_policy(self):
         result = self._client.attach(self.app.pargs.service_name, self.app.pargs.policy_name, self.app.pargs.enforcing)
         mode = 'ENFORCING' if result.enabled else 'PERMISSIVE'
-        self.app.print(f'Policy {result.policy_id} attached to service {result.service_id} in {mode} mode.')
+        self.app.print(f'Policy {result.policy_id} attached to service {self.app.pargs.service_name} in {mode} mode.')
 
     @ex(help='detach the active policy from a hosted website service',
         arguments=[

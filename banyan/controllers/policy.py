@@ -100,7 +100,7 @@ class PolicyController(Controller):
         results = list()
         headers = ['Object Name', 'Object ID', 'Type', 'Attached At', 'Attached By']
         for a in attachments:
-            if a.policy_id == policy.id:
+            if a.policy_id == policy.policy_id:
                 new_row = [a.attached_to_name, a.attached_to_id, a.attached_to_type,
                            a.attached_at.strftime(Base.TABLE_DATE_FORMAT), a.attached_by]
                 results.append(new_row)
