@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.29.1
+
+ * bugfixes to close Github tickets
+
 ## 0.29.0
 
  * make api_key the primary credential (refresh_token still works)
