@@ -34,7 +34,7 @@ class ShieldAPI(ApiBase):
     def status(self, shield_name_or_id: str) -> str:
         shield: Shield = self.find(shield_name_or_id)
         activity = self.config.last_activity_map[shield.id]
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now()
         age = now - activity.last_activity_time
         return 'INACTIVE' if age.total_seconds() >= 900 else 'REPORTING'
 

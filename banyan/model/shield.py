@@ -9,7 +9,7 @@ from marshmallow import fields, Schema, EXCLUDE
 from marshmallow_dataclass import dataclass
 from semver import VersionInfo
 
-from banyan.model import Resource, VersionField
+from banyan.model import NanoTimestampField, Resource, VersionField
 from banyan.model.netagent import Netagent
 
 
@@ -53,7 +53,7 @@ class ShieldLastActivity:
     class Meta:
         unknown = EXCLUDE
 
-    last_activity_time: datetime = field(metadata={"data_key": "InsertTime"})
+    last_activity_time: datetime = field(metadata={"marshmallow_field": NanoTimestampField(data_key='InsertTime')})
     status: str = field(metadata={"data_key": "Status"})
     uuid: UUID = field(metadata={"data_key": "UUID"})
     Schema: ClassVar[Type[Schema]] = Schema
