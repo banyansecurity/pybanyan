@@ -26,17 +26,17 @@ class AuditAPI(ApiBase):
         raise NotImplementedError('The Banyan API does not support this operation')
 
     def list(self, before_dt: datetime = None, after_dt: datetime = None,
-             event_type: str = None, action: str = None, admin_email: str = None) -> list:
+             event_type: str = None, action: str = None, admin_email: str = None, skip = 0, limit = 1000) -> list:
         params = ApiBase.args_to_html_params([
             (before_dt, 'end_time', int(before_dt.timestamp() * 1000000000) if before_dt else None),
             (after_dt, 'start_time', int(after_dt.timestamp() * 1000000000) if after_dt else None),
             (event_type, 'type', event_type),
             (action, 'action', action),
             (admin_email, 'admin_email', admin_email),
+            (skip, 'skip', skip),
+            (limit, 'limit', limit)
         ])
         response_json = self._client.api_request('GET', self.Meta.list_uri, params=params)
-        print(response_json['auditlogs'][19])
-        print(response_json['auditlogs'][20])
         data: List[Resource] = self.Meta.info_class.Schema().load(response_json['auditlogs'], many=True)
         self._build_cache(data)
         return data
