@@ -111,7 +111,7 @@ class EventRoleInfo:
     class Meta:
         unknown = EXCLUDE
 
-    role_id: UUID = field(metadata={"data_key": "id"})
+    role_id: str = field(metadata={"data_key": "id"})
     role_name: str = field(metadata={"data_key": "name"})
     version: int
     bound_by: str
@@ -242,6 +242,7 @@ class EventV2Type(BanyanEnum):
     REGISTRATION = "Registration"
     TRUST_SCORING = "TrustScoring"
     AUDIT = "Audit"
+    ADMIN_LOGIN = "AdminLogin"
 
 
 class EventV2Subtype(BanyanEnum):
@@ -250,6 +251,7 @@ class EventV2Subtype(BanyanEnum):
     CONNECTION = "Connection"
     RESOURCE = "Resource"
     KUBERNETES = "Kubernetes"
+    LOCAL = "Local"
 
 
 @dataclass
