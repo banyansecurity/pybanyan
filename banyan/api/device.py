@@ -22,11 +22,27 @@ class DeviceAPI(ApiBase):
         info_class = DeviceV2
         arg_type = str
         list_uri = '/v2/devices'
+        uri_param_v2 = 'serial_number'
         delete_uri = '/delete_device'
         insert_uri = '/mdm/update_device'
         uri_param = 'SerialNumber'
         obj_name = 'device'
         supports_paging = True
+
+
+    def get_single(self, serial_number: str) -> DeviceV2:
+        """
+        Bypasses cache because it can be too slow in orgs with >1000 devices
+        """
+        get_single = self._client.api_request('GET',
+                                                 self.Meta.list_uri,
+                                                 params={self.Meta.uri_param_v2: serial_number})
+        
+        devices = get_single['devices']
+        if len(devices) != 1:
+            raise Exception("Couldn't find a single device for this serial_number")
+        obj = DeviceV2.Schema().load(devices[0])
+        return obj
 
     def create(self, obj: Device):
         """
@@ -37,7 +53,7 @@ class DeviceAPI(ApiBase):
         :type obj: Device
         :raises: :py:exc:`BanyanError`
         """
-        raise BanyanError('devices cannot be created via the API')
+        raise BanyanError('devices cannot be created via the API')    
 
     def update(self, obj: DeviceV2) -> str:
         """
@@ -55,7 +71,7 @@ class DeviceAPI(ApiBase):
         :return: Message from the server indicating success or failure.
         :rtype: str
         """
-        self._ensure_exists(obj.serial_number)
+        
         change_attr = {
             "Model": obj.model,
             "Ownership": obj.ownership,
@@ -66,6 +82,7 @@ class DeviceAPI(ApiBase):
             "IsMDMPresent": obj.mdm_present,
             "MDMVendorName": obj.mdm_vendor_name
         }
+        print(change_attr)
         response_json = self._client.api_request('POST',
                                                  self.Meta.insert_uri,
                                                  params={self.Meta.uri_param: obj.serial_number},

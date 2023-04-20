@@ -39,7 +39,7 @@ class DeviceController(Controller):
         ])
     def get(self):
         serial_number = self.app.pargs.serial_number
-        device = self._client.find(serial_number)
+        device = self._client.get_single(serial_number)
         device_json = DeviceV2.Schema().dump(device)
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(device_json, handler='json', indent=2, sort_keys=True)
@@ -65,7 +65,7 @@ class DeviceController(Controller):
     def update(self):
         # get the device first
         serial_number = self.app.pargs.serial_number
-        device = self._client.find(serial_number)
+        device = self._client.get_single(serial_number)
         device.mdm_present = self.app.pargs.mdm_present.lower() == "true"
         device.mdm_vendor_name = self.app.pargs.mdm_vendor_name
         print(self._client.update(device))
