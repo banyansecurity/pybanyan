@@ -12,7 +12,7 @@ class PolicyController(Controller):
         label = 'policy'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'manage authorization policies for users and workloads'
+        help = 'manage policies for access to resources'
 
     @property
     def _client(self) -> PolicyAPI:

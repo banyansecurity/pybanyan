@@ -10,7 +10,7 @@ class ExportController(Controller):
         label = 'export'
         stacked_type = 'nested'
         stacked_on = 'base'
-        help = 'export all objects from an organization'
+        help = '(deprecated) export all objects from an organization'
 
     @property
     def _client(self) -> BanyanApiClient:

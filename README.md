@@ -26,17 +26,17 @@ $ python setup.py install --user
 ## Usage
 
 This package contains both an API client and a CLI tool.
-To use either one, you need to [generate] an API token from the Banyan Command Center.
+To use either one, you need to [generate][docs] an API credential from the Banyan Command Center.
 
 ### API library
 
-Here's a sample script that uses the library to print the names of every service registered in Banyan:
+Here's a sample script that uses the library to print the names of every hosted website service registered in Banyan:
 
 ```python
 from banyan.api import BanyanApiClient
 
 c = BanyanApiClient()
-for service in c.services.list():
+for service in c.services_web.list():
     print(service.name)
 ```
 
@@ -51,14 +51,14 @@ rds-mysql
 rds-pgsql
 ```
 
-The `BanyanApiClient` class accepts optional arguments to specify the API server and refresh token. If not provided, 
-it gets them from environment variables named `BANYAN_API_URL` and `BANYAN_API_KEY`.
+The `BanyanApiClient` class accepts optional arguments to specify the API server and API credential. If not provided, 
+it gets them from environment variables named `BANYAN_API_URL` and `BANYAN_API_KEY` (you can also use a personal refresh token as your API credential.
 
-Full API documentation will be available soon.
+Full API documentation is available in the [docs].
 
 ### Banyan CLI tool
 
-Before you use the CLI, create a file called `~/.banyan.conf` in your home directory and paste in your API credential (you may use an `api_key` or `refresh_token`):
+Before you use the CLI, create a file called `~/.banyan.conf` in your home directory and paste in your API credential in the `api_key` field (you can also use a personal refresh token as your API credential):
 
 ```ini
 [banyan]
@@ -82,7 +82,7 @@ options:
   -q, --quiet           suppress all console output
   --version, -v         show program's version number and exit
   --api-url API_URL     URL for the Banyan API server. Can also be configured via the BANYAN_API_URL environment variable.
-  --api-key API_KEY     API credential used for the authentication to the Banyan API server. Can also be configured via the BANYAN_API_KEY or BANYAN_REFRESH_TOKEN environment
+  --api-key API_KEY     API credential used for the authentication to the Banyan API server. Can also be configured via the BANYAN_API_KEY environment
                         variable.
   --insecure-tls, -k    Allow connections to API servers with invalid TLS certificates.
   --output-format {table,json,yaml}, -o {table,json,yaml}
@@ -112,8 +112,8 @@ Commands:
 Each of the commands has multiple subcommands. For example, `banyan service` allows you to list services, create/delete, enable/disable, etc. Run the command without any subcommand to see the options:
 
 ```console
-$ banyan service
-usage: banyan service [-h]
+$ banyan service-web
+usage: banyan service-web [-h]
                       {attach-policy,create,delete,detach-policy,disable,enable,get,list,test,update}
                       ...
 
@@ -138,8 +138,8 @@ To see the full help available for any command, just add the `-h` or `--help` op
 For example:
 
 ```console
-$ banyan service attach-policy --help
-usage: banyan service attach-policy [-h] [--permissive] [--enforcing]
+$ banyan service-web attach-policy --help
+usage: banyan service-web attach-policy [-h] [--permissive] [--enforcing]
                                     service_name_or_id policy_name_or_id
 
 positional arguments:
@@ -189,7 +189,7 @@ issues with the library, please create a new [issue in Github][github-issue].
 We welcome your contributions in the form of pull requests! Please follow the standard [Github pull request 
 workflow][github-pr].
 
-[generate]: https://docs.banyansecurity.io/docs/api-guide/introduction/
+[docs]: https://docs.banyansecurity.io/docs/api-guide/introduction/
 [github-pr]: https://gist.github.com/Chaser324/ce0505fbed06b947d962
 [github-issue]: https://github.com/banyansecurity/pybanyan/issues/new
 [devel]: https://pybanyan.readthedocs.io/development.html

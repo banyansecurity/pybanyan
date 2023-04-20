@@ -37,8 +37,9 @@ class Base(Controller):
              {'help': 'URL for the Banyan API server. Can also be configured via the BANYAN_API_URL '
                       'environment variable.'}),
             (['--api-key'],
-             {'help': 'API credential used for the authentication to the Banyan API server. Can also be '
-                      'configured via the BANYAN_API_KEY or BANYAN_REFRESH_TOKEN environment variable.'}),
+             {'help': 'API credential used for the authentication to the Banyan API server. You can also '
+                      'use a personal refresh token as your API credential. Can also be '
+                      'configured via the BANYAN_API_KEY environment variable.'}),
             (['--insecure-tls', '-k'],
              {'action': 'store_true',
              'help': 'Allow connections to API servers with invalid TLS certificates.'}),
