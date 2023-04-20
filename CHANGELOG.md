@@ -1,5 +1,10 @@
 # PyBanyan Change History
 
+## 0.29.2
+
+ * more bugfixes to close Github tickets
+ * improve logic used to update device attributes 
+
 ## 0.29.1
 
  * bugfixes to close Github tickets
