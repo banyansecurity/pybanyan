@@ -95,7 +95,7 @@ class ApiBase(ABC):
                                                     self.Meta.insert_uri,
                                                     json=obj.Schema().dump(obj))
             new_obj = self.Meta.info_class.Schema().load(response_json)
-            if self._cache:
+            if self._cache and hasattr(new_obj, 'id'):
                 self._cache.append(new_obj)
                 self._by_name[new_obj.name.lower()] = new_obj
                 self._by_id[str(new_obj.id).lower()] = new_obj
@@ -122,7 +122,7 @@ class ApiBase(ABC):
                                                     json=obj.Schema().dump(obj))
             updated_obj = self.Meta.info_class.Schema().load(response_json)
 
-            if self._cache:
+            if self._cache and hasattr(obj, 'id') and hasattr(updated_obj, 'id'):
                 old_obj = self._by_id[str(obj.id).lower()]
                 self._cache.remove(old_obj)
                 self._cache.append(updated_obj)
