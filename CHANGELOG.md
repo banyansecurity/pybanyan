@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.29.4
+
+  * create/update cache logic - work with API
+
 ## 0.29.3
 
  * update `audit` and `event` controllers
