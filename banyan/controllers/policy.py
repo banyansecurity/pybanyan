@@ -41,7 +41,7 @@ class PolicyController(Controller):
         ])
     def get(self):
         info: PolicyInfo = self._client[self.app.pargs.policy_name]
-        policy_json = Policy.Schema().dump(info.policy)
+        policy_json = Policy.Schema().dump(info.policy_spec)
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(policy_json, handler='json', indent=2, sort_keys=True)
 

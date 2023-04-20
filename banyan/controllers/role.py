@@ -41,7 +41,7 @@ class RoleController(Controller):
         ])
     def get(self):
         info: RoleInfo = self._client[self.app.pargs.role_name]
-        role_json = Role.Schema().dump(info.role)
+        role_json = Role.Schema().dump(info.role_spec)
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(role_json, handler='json', indent=2, sort_keys=True)
 
