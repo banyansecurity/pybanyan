@@ -4,7 +4,7 @@ from cement import Controller, ex
 
 from banyan.api import UserAPI
 from banyan.controllers.base import Base
-from banyan.model.user_device import User, TrustScore, TrustLevel
+from banyan.model.user_device import User, UserV2, TrustScore, TrustLevel
 
 
 class UserController(Controller):
@@ -20,16 +20,16 @@ class UserController(Controller):
 
     @ex(help='list users')
     def list(self):
-        users: List[User] = self._client.list()
+        users: List[UserV2] = self._client.list()
         results = list()
-        headers = ['Name', 'Email', 'Last Login', 'Login Count', 'Trust Score', 'Last TS Update']
+        headers = ['Name', 'Email', 'Invited/Created At', 'Last Login', 'Status']
         for user in users:
+            created_invited = user.created_at or user.invited_at
             last_login = user.last_login
-            updated_at = user.trust_data.updated_at
             new_row = [user.name, user.email,
+                       created_invited.strftime(Base.TABLE_DATE_FORMAT) if created_invited else 'None',
                        last_login.strftime(Base.TABLE_DATE_FORMAT) if last_login else 'None',
-                       user.login_count, user.trust_data.level,
-                       updated_at.strftime(Base.TABLE_DATE_FORMAT) if updated_at else 'None']
+                       user.status]
             results.append(new_row)
         results.sort(key=lambda x: x[0])
         self.app.render(results, handler='tabulate', headers=headers, tablefmt='simple')
@@ -44,7 +44,7 @@ class UserController(Controller):
     def get(self):
         email = self.app.pargs.email
         user = self._client.find(email)
-        user_json = User.Schema().dump(user)
+        user_json = UserV2.Schema().dump(user)
         # colorized_json = highlight(policy_json, lexers.JsonLexer(), formatters.Terminal256Formatter(style="default"))
         self.app.render(user_json, handler='json', indent=2, sort_keys=True)
 
@@ -100,22 +100,3 @@ class UserController(Controller):
     def verify(self):
         pass
 
-    # TODO: implement /forgot_password
-    @ex(help='send password reminder email')
-    def forgot_password(self):
-        pass
-
-    # TODO: implement /reset_password
-    @ex(help='send password reset email')
-    def reset_password(self):
-        pass
-
-    # TODO: implement /refresh_token
-    @ex(help='generate API refresh token for a user')
-    def refresh_token(self):
-        pass
-
-    # TODO: implement /revoke_token
-    @ex(help='revoke a user\'s refresh token')
-    def revoke_token(self):
-        pass

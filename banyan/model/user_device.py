@@ -60,6 +60,28 @@ class MdmData:
 
 
 @dataclass
+class UserV2(Resource):
+    class Meta:
+        unknown = EXCLUDE
+
+    username: str = field(metadata={'data_key': 'name'})
+    email: str
+    invited_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField()})
+    created_at: datetime = field(metadata={"marshmallow_field": NanoTimestampField()})
+    last_login: datetime = field(metadata={"marshmallow_field": NanoTimestampField()})
+    status: str
+    roles: List[str] = field(default_factory=list, metadata={'data_key': 'security_roles', 'allow_none': True})
+
+    @property
+    def name(self) -> str:
+        return self.username
+
+    @property
+    def id(self) -> str:
+        return self.email
+
+
+@dataclass
 class User(Resource):
     class Meta:
         unknown = EXCLUDE

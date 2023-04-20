@@ -1,15 +1,15 @@
 from typing import List
 
 from banyan.api.base import ApiBase
-from banyan.model.user_device import User, TrustScore
+from banyan.model.user_device import User, UserV2, TrustScore
 
 
 class UserAPI(ApiBase):
     class Meta:
         data_class = User
-        info_class = User
+        info_class = UserV2
         arg_type = str
-        list_uri = '/endusers'
+        list_uri = '/v2/enduser'
         delete_uri = None
         insert_uri = None
         uri_param = 'Email'
