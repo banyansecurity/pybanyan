@@ -1,5 +1,9 @@
 # PyBanyan Change History
 
+## 0.29.3
+
+ * update `audit` and `event` controllers
+
 ## 0.29.2
 
  * more bugfixes to close Github tickets
