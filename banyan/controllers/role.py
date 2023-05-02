@@ -61,17 +61,17 @@ class RoleController(Controller):
 
     @ex(help='update an existing role',
         arguments=[
-            (['policy_spec'],
+            (['role_spec'],
              {
                  'help': 'JSON blob describing the role to be updated, or a filename '
                          'containing JSON prefixed by "@" (example: @service.json).'
              }),
         ])
     def update(self):
-        policy_spec = Base.get_json_input(self.app.pargs.role_spec)
-        policy = Role.Schema().load(policy_spec)
-        policy_info = self._client.update(policy)
-        self.app.render(RoleInfo.Schema().dump(policy_info), handler='json', indent=2, sort_keys=True)
+        role_spec = Base.get_json_input(self.app.pargs.role_spec)
+        role = Role.Schema().load(role_spec)
+        role_info = self._client.update(role)
+        self.app.render(RoleInfo.Schema().dump(role_info), handler='json', indent=2, sort_keys=True)
 
     @ex(help='delete a role',
         arguments=[
