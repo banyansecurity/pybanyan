@@ -238,7 +238,8 @@ class BanyanApiClient:
         if data:
             headers['Content-Type'] = self.JSON_TYPE
 
-        with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json) as response:
+        timeout = 30
+        with self._request(method=method, url=uri, params=params, data=data, headers=headers, json=json, timeout=timeout) as response:
             resp = response.json()
             if '/v2/' in uri:
                 return resp['data']
