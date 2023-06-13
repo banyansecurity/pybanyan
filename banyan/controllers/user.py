@@ -18,9 +18,19 @@ class UserController(Controller):
     def _client(self) -> UserAPI:
         return self.app.client.users
 
-    @ex(help='list users')
+    @ex(help='list users',
+        arguments=[
+            (['--inactive'],
+             {
+                 'action': 'store_true',                 
+                 'help': 'Include inactive users.'
+             }),
+        ])    
     def list(self):
-        users: List[UserV2] = self._client.list()
+        params = {"active": "true"}
+        if self.app.pargs.inactive:
+            params = {}
+        users: List[UserV2] = self._client.list(params=params)
         results = list()
         headers = ['Name', 'Email', 'Invited/Created At', 'Last Login', 'Status']
         for user in users:

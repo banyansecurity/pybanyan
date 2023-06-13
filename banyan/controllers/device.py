@@ -16,13 +16,23 @@ class DeviceController(Controller):
     def _client(self) -> DeviceAPI:
         return self.app.client.devices
 
-    @ex(help='list devices')
+    @ex(help='list devices',
+        arguments=[
+            (['--inactive'],
+             {
+                 'action': 'store_true',
+                 'help': 'Include inactive devices.'
+             }),
+        ]) 
     def list(self):
-        devices = self._client.list()
+        params = {"active": "true"}
+        if self.app.pargs.inactive:
+            params = {} 
+        devices = self._client.list(params=params)
         results = list()
         headers = ['Device Name', 'Serial Number', 'Platform', 'Ownership', 'MDM', 'MDM Vendor', 'Trust Level', 'Trust Status', 'Last Login']
         for device in devices:
-            new_row = [Base.trunc(device.device_friendly_name, 8, True), device.serial_number, device.platform,
+            new_row = [Base.trunc(device.device_friendly_name, 12, True), device.serial_number, device.platform,
                        device.ownership, device.mdm_present, device.mdm_vendor_name,
                        device.trust_level, device.trust_status,
                        device.last_login.strftime(Base.TABLE_DATE_FORMAT) if device.last_login else 'None']

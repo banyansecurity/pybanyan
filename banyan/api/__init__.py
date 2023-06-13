@@ -176,7 +176,7 @@ class BanyanApiClient:
         if '://' not in url:
             url = self._api_url + url
         if '/v2/' in url:
-            url = url.replace('/api/v1', '/api/experimental')
+            url = url.replace('/api/v1', '/api')
         if self._insecure_tls and not verify:
             verify = False
             urllib3.disable_warnings()
